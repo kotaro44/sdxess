@@ -17,23 +17,30 @@ import java.util.logging.Logger;
     private Process process = null;
     private boolean connected = false;
     private boolean abort = false;
+    private String server = "";
     
-    public ExecutorTask(vpnConnect frame){
+
+
+    public ExecutorTask(vpnConnect frame, String server) {
         this.frame = frame;
+        this.server = server;
     }
     
     public void end(){
-        process.destroyForcibly();
-        process.destroy();
+        if( process != null ){
+            process.destroyForcibly();
+            process.destroy();
+        }
     }
        
     @Override
     public void run() {
         try {
-            process = Runtime.getRuntime().exec("cmd /c openvpn src/pkg8vgvpn/connection.ovpn");
-            //process = Runtime.getRuntime().exec("cmd /c dir");
-             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-             String line="";
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "openvpn C:/" + this.server + ".ovpn" );
+            process = builder.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line="";
              
              setTimeout(() -> this.connectionTimeout(), 25000);
              

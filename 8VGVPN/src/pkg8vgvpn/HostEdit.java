@@ -29,9 +29,11 @@ public class HostEdit extends javax.swing.JFrame {
         
         this.tableModel = new javax.swing.table.DefaultTableModel(
             new Object [][] {
+                {"facebook.com","31.13.95.36"},
+                {"google.com.tw","202.169.0.0"}
             },
             new String [] {
-                "Website", "Redirect to"
+                "Website", "IP address"
             }
         );
         
@@ -49,7 +51,7 @@ public class HostEdit extends javax.swing.JFrame {
                     sb.append(System.lineSeparator());
                 }else{
                     String[] instruction = line.replaceAll("(\\s+)|(\t+)", " ").split(" ");
-                    this.tableModel.addRow(new Object []{ instruction[1] , instruction[0]});
+                    //this.tableModel.addRow(new Object []{ instruction[1] , instruction[0]});
                 }
                 line = br.readLine();
             }
@@ -93,6 +95,7 @@ public class HostEdit extends javax.swing.JFrame {
         });
 
         jButton2.setText("Save Table");
+        jButton2.setEnabled(false);
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
