@@ -78,6 +78,16 @@ public class vpnConnect extends javax.swing.JFrame {
         
     }
     
+    public void reconnecting(){
+        jLabel4.setText("Communication lost... reconnecting...");
+        jTextField1.setEnabled(false);
+        jComboBox1.setEnabled(false);
+        jPasswordField1.setEnabled(false);
+        jButton1.setEnabled(false);
+        jButton3.setVisible(false);
+        jButton2.setEnabled(false);
+    }
+    
     public void notconnected(String message){
         jLabel4.setText("Connection error: " + message);
         jTextField1.setEnabled(true);
@@ -272,7 +282,7 @@ public class vpnConnect extends javax.swing.JFrame {
             out.println(file);
             out.close();
         } catch (FileNotFoundException ex) {
-            JOptionPane.showMessageDialog(null, "You need to run this program as administrator");
+            //JOptionPane.showMessageDialog(null, "You need to run this program as administrator");
         } 
     }//GEN-LAST:event_jButton2ActionPerformed
 

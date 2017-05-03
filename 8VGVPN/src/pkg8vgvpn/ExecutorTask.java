@@ -27,6 +27,7 @@ import java.util.logging.Logger;
     }
     
     public void end(){
+        this.abort = true;
         if( process != null ){
             process.destroyForcibly();
             process.destroy();
@@ -50,6 +51,11 @@ import java.util.logging.Logger;
                     this.connected = true;
                     frame.connected();
                  }
+                 if( line.contains("Connection reset, restarting") ){
+                     frame.reconnecting();
+                     this.connected = false;
+                     setTimeout(() -> this.connectionTimeout(), 25000);
+                 }
              }
              if( !this.connected && !this.abort ){
                 frame.notconnected("Server not reachable");
@@ -64,7 +70,6 @@ import java.util.logging.Logger;
         if( !this.connected && !this.abort ){
             frame.notconnected("Connection timed out");
             this.end();
-          
         }
     }
     
