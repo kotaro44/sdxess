@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -136,8 +137,6 @@ public class vpnConnect extends javax.swing.JFrame {
 
         jTextField1.setText("sdxess");
 
-        jPasswordField1.setText("jPasswordField1");
-
         jButton2.setText("Disconnect");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -147,7 +146,7 @@ public class vpnConnect extends javax.swing.JFrame {
 
         jLabel4.setBackground(new java.awt.Color(0, 0, 0));
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel4.setText("disconnected.");
+        jLabel4.setText("Ready.");
 
         jLabel6.setText("Server:");
 
@@ -296,23 +295,40 @@ public class vpnConnect extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        jLabel4.setText("connecting to " + jComboBox1.getSelectedItem() + "...");
+        String pass = String.copyValueOf(jPasswordField1.getPassword());
+        
+        if( pass.length() == 0 ){
+            JOptionPane.showMessageDialog(null, "Please enter a Password!");
+            return;
+        }
+        
+        jLabel4.setText("creating tunnel to is32...");
         jTextField1.setEnabled(false);
         jComboBox1.setEnabled(false);
         jPasswordField1.setEnabled(false);
         jButton1.setEnabled(false);
 
+        this.createTunnel();
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    public void connectVPN(){
+        jLabel4.setText("connecting to " + jComboBox1.getSelectedItem() + "...");
+       
         this.task = new ExecutorTask( this , jComboBox1.getSelectedItem().toString() );
         this.executorThread = new Thread(task);
 
         setTimeout(() -> executorThread.start(), 10);
-    }//GEN-LAST:event_jButton1ActionPerformed
-
+    }
+    
     public static void windowClosing(){
         try {
             Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            System.out.println("Process exited.");
+            System.out.println("openvpn Process exited.");
+            process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM putty.exe");
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            System.out.println("putty Process exited.");
         } catch (IOException ex) {
             Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -374,4 +390,22 @@ public class vpnConnect extends javax.swing.JFrame {
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
+
+    private void createTunnel() {
+        String pass = String.copyValueOf(jPasswordField1.getPassword());
+        
+        
+        String command = "cmd /c putty -ssh " + jTextField1.getText() + 
+                    "@iNET99.Ji8.net -L 9090:iNET99.Ji8.net:5000 -pw " + pass;
+        System.out.println( command );
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            
+            ExecutorTask.setTimeout(() -> this.connectVPN(), 3000);
+            
+        } catch (IOException ex) {
+            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
