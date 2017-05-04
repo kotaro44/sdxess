@@ -54,7 +54,6 @@ import java.util.logging.Logger;
                  if( line.contains("Connection reset, restarting") ){
                      frame.reconnecting();
                      this.connected = false;
-                     setTimeout(() -> this.connectionTimeout(), 25000);
                  }
              }
              if( !this.connected && !this.abort ){

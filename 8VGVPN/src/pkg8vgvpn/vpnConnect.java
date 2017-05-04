@@ -277,6 +277,7 @@ public class vpnConnect extends javax.swing.JFrame {
         //restore host file
         String file = sb.toString(); 
 
+        vpnConnect.windowClosing();
         try {
             PrintWriter out = new PrintWriter("C:/Windows/System32/drivers/etc/hosts");
             out.println(file);
@@ -311,7 +312,7 @@ public class vpnConnect extends javax.swing.JFrame {
         try {
             Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            
+            System.out.println("Process exited.");
         } catch (IOException ex) {
             Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
         }
