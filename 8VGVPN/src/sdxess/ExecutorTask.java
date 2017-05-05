@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pkg8vgvpn;
+package sdxess;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class ExecutorTask implements Runnable{
-    private vpnConnect frame;
+    private vpnConnect frame = null;
     private Process process = null;
     private boolean connected = false;
     private boolean abort = false;
