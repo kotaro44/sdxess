@@ -37,7 +37,7 @@ import java.util.logging.Logger;
     @Override
     public void run() {
         try {
-            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "openvpn C:/" + this.server + ".ovpn" );
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "openvpn " + this.server + ".ovpn" );
             process = builder.start();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
