@@ -93,11 +93,12 @@ public class vpnConnect extends javax.swing.JFrame {
     private void createTunnel() {
         try {
             String command = "cmd /c java -jar lib/jTCPfwd.jar 9090 iNET99.Ji8.net:5000";
-            /*String command = "cmd /c putty -ssh " + userField.getText() +
-            "@iNET99.Ji8.net -L 9090:iNET99.Ji8.net:5000 -pw " + pass;*/
-            System.out.println( command );
-            Process process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec("cmd /c cd");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            System.out.println(reader.readLine());
+            
+            process = Runtime.getRuntime().exec(command);
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             boolean tunnelCreated = false;
             String line="";
@@ -107,8 +108,16 @@ public class vpnConnect extends javax.swing.JFrame {
                     tunnelCreated = true;
                 }
             }
-
-            ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
+            if( !tunnelCreated ){
+                ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
+            }else{
+                System.out.println("Error creating the tunnel...");
+                consoleLabel.setText("Tunnel can't be created...");
+                userField.setEnabled(true);
+                serverCombo.setEnabled(true);
+                passField.setEnabled(true);
+                connectBtn.setEnabled(true);
+            }
 
         } catch (IOException ex) {
             Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
