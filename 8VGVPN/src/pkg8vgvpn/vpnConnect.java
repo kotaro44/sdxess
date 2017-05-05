@@ -132,9 +132,6 @@ public class vpnConnect extends javax.swing.JFrame {
             Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             System.out.println("openvpn Process exited.");
-            process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM putty.exe");
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            System.out.println("putty Process exited.");
         } catch (IOException ex) {
             Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
         }

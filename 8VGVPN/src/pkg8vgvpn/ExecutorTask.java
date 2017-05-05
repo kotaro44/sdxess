@@ -8,19 +8,14 @@ package pkg8vgvpn;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-   public class ExecutorTask implements Runnable{
-
+public class ExecutorTask implements Runnable{
     private vpnConnect frame;
     private Process process = null;
     private boolean connected = false;
     private boolean abort = false;
     private String server = "";
     
-
-
     public ExecutorTask(vpnConnect frame, String server) {
         this.frame = frame;
         this.server = server;
@@ -56,8 +51,9 @@ import java.util.logging.Logger;
                      this.connected = false;
                  }
              }
+             
              if( !this.connected && !this.abort ){
-                frame.notconnected("Server not reachable");
+                frame.notconnected("Connection Finished.");
                 this.end();
              }
         } catch (IOException e) {
