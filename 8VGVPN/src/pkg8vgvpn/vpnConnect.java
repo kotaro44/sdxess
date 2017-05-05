@@ -13,11 +13,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static pkg8vgvpn.ExecutorTask.setTimeout;
+
 
 /**
  *
@@ -35,14 +35,8 @@ public class vpnConnect extends javax.swing.JFrame {
      */
     public vpnConnect(){
         initComponents();
-        disconnectBtn = new javax.swing.JButton();
-        disconnectBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                disconnectBtnActionPerformend(evt);
-            }
-        });
-        jButton2.setEnabled(false);
-        jButton3.setVisible(false);
+        disBtn.setEnabled(false);
+        sitesBtn.setVisible(false);
         
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -52,13 +46,11 @@ public class vpnConnect extends javax.swing.JFrame {
        
     }
     
-
-    
     public void connected(){
         jPanel1.setEnabled(false);
-        jLabel4.setText("Connected to " + jComboBox1.getSelectedItem() + " as " + jTextField1.getText());
-        jButton2.setEnabled(true);
-        jButton3.setVisible(true);
+        consoleLabel.setText("Connected to " + serverCombo.getSelectedItem() + " as " + userField.getText());
+        disBtn.setEnabled(true);
+        sitesBtn.setVisible(true);
         
         try {
             //save host files
@@ -80,23 +72,72 @@ public class vpnConnect extends javax.swing.JFrame {
     }
     
     public void reconnecting(){
-        jLabel4.setText("Communication lost... reconnecting...");
-        jTextField1.setEnabled(false);
-        jComboBox1.setEnabled(false);
-        jPasswordField1.setEnabled(false);
-        jButton1.setEnabled(false);
-        jButton3.setVisible(false);
-        jButton2.setEnabled(false);
+        consoleLabel.setText("Communication lost... reconnecting...");
+        userField.setEnabled(false);
+        serverCombo.setEnabled(false);
+        passField.setEnabled(false);
+        connectBtn.setEnabled(false);
+        sitesBtn.setVisible(false);
+        disBtn.setEnabled(false);
     }
     
     public void notconnected(String message){
-        jLabel4.setText("Connection error: " + message);
-        jTextField1.setEnabled(true);
-        jComboBox1.setEnabled(true);
-        jPasswordField1.setEnabled(true);
-        jButton1.setEnabled(true);
+        consoleLabel.setText("Connection error: " + message);
+        userField.setEnabled(true);
+        serverCombo.setEnabled(true);
+        passField.setEnabled(true);
+        connectBtn.setEnabled(true);
     }
 
+    /*Interbnal functions*/
+    private void createTunnel() {
+        try {
+            String command = "cmd /c java -jar lib/jTCPfwd.jar 9090 iNET99.Ji8.net:5000";
+            /*String command = "cmd /c putty -ssh " + userField.getText() +
+            "@iNET99.Ji8.net -L 9090:iNET99.Ji8.net:5000 -pw " + pass;*/
+            System.out.println( command );
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            boolean tunnelCreated = false;
+            String line="";
+            while ((line = reader.readLine()) != null && !tunnelCreated) {
+                System.out.println(line);
+                if( line.contains("All forwarders started") ){
+                    tunnelCreated = true;
+                }
+            }
+
+            ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
+
+        } catch (IOException ex) {
+            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void connectVPN(){
+        consoleLabel.setText("connecting to " + serverCombo.getSelectedItem() + "...");
+       
+        this.task = new ExecutorTask( this , serverCombo.getSelectedItem().toString() );
+        this.executorThread = new Thread(task);
+
+        setTimeout(() -> executorThread.start(), 10);
+    }
+    
+    public static void windowClosing(){
+        try {
+            Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            System.out.println("openvpn Process exited.");
+            process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM putty.exe");
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            System.out.println("putty Process exited.");
+        } catch (IOException ex) {
+            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -108,26 +149,26 @@ public class vpnConnect extends javax.swing.JFrame {
 
         jLayeredPane1 = new javax.swing.JLayeredPane();
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        connectBtn = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        jButton2 = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
+        userField = new javax.swing.JTextField();
+        passField = new javax.swing.JPasswordField();
+        disBtn = new javax.swing.JButton();
+        consoleLabel = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        serverCombo = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
+        sitesBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SDXess");
 
-        jButton1.setText("Connect");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        connectBtn.setText("Connect");
+        connectBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                connectBtnActionPerformed(evt);
             }
         });
 
@@ -135,22 +176,22 @@ public class vpnConnect extends javax.swing.JFrame {
 
         jLabel2.setText("Password:");
 
-        jTextField1.setText("sdxess");
+        userField.setText("sdxess");
 
-        jButton2.setText("Disconnect");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        disBtn.setText("Disconnect");
+        disBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                disBtnActionPerformed(evt);
             }
         });
 
-        jLabel4.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel4.setText("Ready.");
+        consoleLabel.setBackground(new java.awt.Color(0, 0, 0));
+        consoleLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        consoleLabel.setText("Ready.");
 
         jLabel6.setText("Server:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "sdxess-is32", "sdxess", "locallinux" }));
+        serverCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "sdxess-is32", "sdxess", "locallinux" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -160,56 +201,56 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(95, 95, 95)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(connectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton2))
+                        .addComponent(disBtn))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(52, 52, 52)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(consoleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(jLabel6)
                                         .addGap(18, 18, 18)
-                                        .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addComponent(serverCombo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel2)
                                             .addComponent(jLabel1))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(0, 10, Short.MAX_VALUE)))))
+                                            .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(userField, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addGap(40, 40, 40))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(consoleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(serverCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(userField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(connectBtn)
+                    .addComponent(disBtn))
                 .addGap(18, 18, 18))
         );
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pkg8vgvpn/sdxess.png"))); // NOI18N
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pkg8vgvpn/SDXess-Logo-Final-small.png"))); // NOI18N
 
         jLayeredPane1.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -231,10 +272,10 @@ public class vpnConnect extends javax.swing.JFrame {
 
         jLabel5.setText("Desktop Client V1.1");
 
-        jButton3.setText("Rerouted sites");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        sitesBtn.setText("Rerouted sites");
+        sitesBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                sitesBtnActionPerformed(evt);
             }
         });
 
@@ -247,7 +288,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3))
+                .addComponent(sitesBtn))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -255,23 +296,23 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
+                    .addComponent(sitesBtn)
                     .addComponent(jLabel5)))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void disBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disBtnActionPerformed
         this.task.end();
-        jButton2.setEnabled(false);
-        jButton3.setVisible(false);
+        disBtn.setEnabled(false);
+        sitesBtn.setVisible(false);
         jPanel1.setVisible(true);
-        jTextField1.setEnabled(true);
-        jPasswordField1.setEnabled(true);
-        jComboBox1.setEnabled(true);
-        jButton1.setEnabled(true);
-        jLabel4.setText("disconnected.");
+        userField.setEnabled(true);
+        passField.setEnabled(true);
+        serverCombo.setEnabled(true);
+        connectBtn.setEnabled(true);
+        consoleLabel.setText("disconnected.");
         
         //restore host file
         String file = sb.toString(); 
@@ -284,58 +325,35 @@ public class vpnConnect extends javax.swing.JFrame {
         } catch (FileNotFoundException ex) {
             //JOptionPane.showMessageDialog(null, "You need to run this program as administrator");
         } 
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_disBtnActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void sitesBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sitesBtnActionPerformed
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new HostEdit().setVisible(true);
             }
         });
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_sitesBtnActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String pass = String.copyValueOf(jPasswordField1.getPassword());
+    private void connectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectBtnActionPerformed
+        String pass = String.copyValueOf(passField.getPassword());
         
         if( pass.length() == 0 ){
             JOptionPane.showMessageDialog(null, "Please enter a Password!");
             return;
         }
         
-        jLabel4.setText("creating tunnel to is32...");
-        jTextField1.setEnabled(false);
-        jComboBox1.setEnabled(false);
-        jPasswordField1.setEnabled(false);
-        jButton1.setEnabled(false);
+        consoleLabel.setText("creating tunnel to is32...");
+        userField.setEnabled(false);
+        serverCombo.setEnabled(false);
+        passField.setEnabled(false);
+        connectBtn.setEnabled(false);
 
-        this.createTunnel();
+        setTimeout(() -> this.createTunnel(), 10);
         
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_connectBtnActionPerformed
 
-    public void connectVPN(){
-        jLabel4.setText("connecting to " + jComboBox1.getSelectedItem() + "...");
-       
-        this.task = new ExecutorTask( this , jComboBox1.getSelectedItem().toString() );
-        this.executorThread = new Thread(task);
-
-        setTimeout(() -> executorThread.start(), 10);
-    }
     
-    public static void windowClosing(){
-        try {
-            Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            System.out.println("openvpn Process exited.");
-            process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM putty.exe");
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            System.out.println("putty Process exited.");
-        } catch (IOException ex) {
-            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private void disconnectBtnActionPerformend(java.awt.event.ActionEvent evt){
-    }
     /**
      * @param args the command line arguments
      */
@@ -362,7 +380,8 @@ public class vpnConnect extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(vpnConnect.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -370,42 +389,22 @@ public class vpnConnect extends javax.swing.JFrame {
             }
         });
     }
-    
-    
-    private javax.swing.JButton disconnectBtn;
-
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JButton connectBtn;
+    private javax.swing.JLabel consoleLabel;
+    private javax.swing.JButton disBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JPasswordField passField;
+    private javax.swing.JComboBox<String> serverCombo;
+    private javax.swing.JButton sitesBtn;
+    private javax.swing.JTextField userField;
     // End of variables declaration//GEN-END:variables
 
-    private void createTunnel() {
-        String pass = String.copyValueOf(jPasswordField1.getPassword());
-        
-        
-        String command = "cmd /c putty -ssh " + jTextField1.getText() + 
-                    "@iNET99.Ji8.net -L 9090:iNET99.Ji8.net:5000 -pw " + pass;
-        System.out.println( command );
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            
-            ExecutorTask.setTimeout(() -> this.connectVPN(), 3000);
-            
-        } catch (IOException ex) {
-            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 }
