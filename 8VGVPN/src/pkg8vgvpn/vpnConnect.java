@@ -101,23 +101,17 @@ public class vpnConnect extends javax.swing.JFrame {
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             boolean tunnelCreated = false;
+            
             String line="";
             while ((line = reader.readLine()) != null && !tunnelCreated) {
                 System.out.println(line);
-                if( line.contains("All forwarders started") ){
+                if( line.contains("forwarders started") ){
+                    System.out.println("Tunnel created");
                     tunnelCreated = true;
                 }
             }
-            if( !tunnelCreated ){
-                ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
-            }else{
-                System.out.println("Error creating the tunnel...");
-                consoleLabel.setText("Tunnel can't be created...");
-                userField.setEnabled(true);
-                serverCombo.setEnabled(true);
-                passField.setEnabled(true);
-                connectBtn.setEnabled(true);
-            }
+            ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
+            
 
         } catch (IOException ex) {
             Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
