@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pkg8vgvpn;
+package sdxess;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import static pkg8vgvpn.ExecutorTask.setTimeout;
+import static sdxess.ExecutorTask.setTimeout;
 
 
 /**
@@ -250,7 +250,7 @@ public class vpnConnect extends javax.swing.JFrame {
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pkg8vgvpn/SDXess-Logo-Final-small.png"))); // NOI18N
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sdxess/SDXess-Logo-Final-small.png"))); // NOI18N
 
         jLayeredPane1.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
