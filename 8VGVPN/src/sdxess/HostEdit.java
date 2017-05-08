@@ -37,8 +37,6 @@ public class HostEdit extends javax.swing.JFrame {
         );
         
         jTable1.setModel(this.tableModel);
-        
-        
         try {
             br = new BufferedReader(new FileReader("C:/Windows/System32/drivers/etc/hosts"));
             
@@ -83,6 +81,7 @@ public class HostEdit extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        SetRoutesButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -127,6 +126,13 @@ public class HostEdit extends javax.swing.JFrame {
             }
         });
 
+        SetRoutesButton.setText("Set Routes");
+        SetRoutesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SetRoutesButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -137,6 +143,8 @@ public class HostEdit extends javax.swing.JFrame {
                 .addComponent(jButton3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton4)
+                .addGap(18, 18, 18)
+                .addComponent(SetRoutesButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton2))
             .addGroup(layout.createSequentialGroup()
@@ -152,7 +160,8 @@ public class HostEdit extends javax.swing.JFrame {
                     .addComponent(jButton1)
                     .addComponent(jButton2)
                     .addComponent(jButton3)
-                    .addComponent(jButton4)))
+                    .addComponent(jButton4)
+                    .addComponent(SetRoutesButton)))
         );
 
         pack();
@@ -163,7 +172,6 @@ public class HostEdit extends javax.swing.JFrame {
         for( int i = 0 ; i < this.tableModel.getRowCount() ; i++ ){
             file += this.tableModel.getValueAt(i, 1) + "\t" + this.tableModel.getValueAt(i, 0) + System.lineSeparator();
         }
-    
         try {
             PrintWriter out = new PrintWriter("C:/Windows/System32/drivers/etc/hosts");
             out.println(file);
@@ -212,6 +220,26 @@ public class HostEdit extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void SetRoutesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetRoutesButtonActionPerformed
+        // TODO add your handling code here:
+            StaticRoutes SR = new StaticRoutes();
+            int columns = tableModel.getColumnCount();
+            int rows = tableModel.getRowCount();
+            String website;
+            for (int i = 0; i < rows; i++) {
+                for (int y = 0; y < 1; y++) {
+                    website = tableModel.getValueAt(i, y).toString();
+                    System.out.println("Website " + i +": "+website);
+                    try {
+                        SR.AddStaticRoute(SR.NSLookup(website), SR.GetTAPInfo(11), SR.GetTAPInfo(6));
+                    } catch (IOException ex) {
+                        Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+            }
+            //return result;
+       }
+    }//GEN-LAST:event_SetRoutesButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -243,6 +271,7 @@ public class HostEdit extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton SetRoutesButton;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;

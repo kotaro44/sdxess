@@ -13,6 +13,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -43,6 +48,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 vpnConnect.windowClosing();
             }
         });
+        ctime.hide();
        
     }
     
@@ -51,7 +57,8 @@ public class vpnConnect extends javax.swing.JFrame {
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem() + " as " + userField.getText());
         disBtn.setEnabled(true);
         sitesBtn.setVisible(true);
-        
+        ctime.show();
+        this.start();
         try {
             //save host files
             br = new BufferedReader(new FileReader("C:/Windows/System32/drivers/etc/hosts"));
@@ -79,6 +86,9 @@ public class vpnConnect extends javax.swing.JFrame {
         connectBtn.setEnabled(false);
         sitesBtn.setVisible(false);
         disBtn.setEnabled(false);
+        ctime.hide();
+        ctime.setText("");
+        
     }
     
     public void notconnected(String message){
@@ -87,6 +97,9 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(true);
         passField.setEnabled(true);
         connectBtn.setEnabled(true);
+        ctime.hide();
+        ctime.setText("");
+        
     }
 
     /*Interbnal functions*/
@@ -104,10 +117,12 @@ public class vpnConnect extends javax.swing.JFrame {
             
             String line="";
             while ((line = reader.readLine()) != null && !tunnelCreated) {
+           // while((line = reader.readLine()) != null && tunnelCreated == false){
                 System.out.println(line);
-                if( line.contains("forwarders started") ){
+                if(line.contains("forwarders started")){
                     System.out.println("Tunnel created");
                     tunnelCreated = true;
+                    break;
                 }
             }
             ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
@@ -158,6 +173,7 @@ public class vpnConnect extends javax.swing.JFrame {
         consoleLabel = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         serverCombo = new javax.swing.JComboBox<>();
+        ctime = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         sitesBtn = new javax.swing.JButton();
@@ -193,17 +209,15 @@ public class vpnConnect extends javax.swing.JFrame {
 
         serverCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "sdxess-is32", "sdxess", "locallinux" }));
 
+        ctime.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        ctime.setText("Connection Time");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(95, 95, 95)
-                        .addComponent(connectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(disBtn))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(52, 52, 52)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -222,8 +236,17 @@ public class vpnConnect extends javax.swing.JFrame {
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(userField, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(95, 95, 95)
+                        .addComponent(connectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(disBtn)))
                 .addGap(40, 40, 40))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ctime, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -237,11 +260,13 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(userField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(22, 22, 22)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ctime)
+                .addGap(7, 7, 7)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(connectBtn)
                     .addComponent(disBtn))
@@ -270,7 +295,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel5.setText("Desktop Client V1.1.2");
+        jLabel5.setText("Desktop Client V1.1.3");
 
         sitesBtn.setText("Rerouted sites");
         sitesBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -313,6 +338,8 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(true);
         connectBtn.setEnabled(true);
         consoleLabel.setText("disconnected.");
+        ctime.hide();
+        ctime.setText("");
         
         //restore host file
         String file = sb.toString(); 
@@ -352,7 +379,31 @@ public class vpnConnect extends javax.swing.JFrame {
         setTimeout(() -> this.createTunnel(), 10);
         
     }//GEN-LAST:event_connectBtnActionPerformed
-
+/*** CONNECTION TIMER ***/
+    int seconds;
+    Timer timer = new Timer(); 
+    TimeZone tz = TimeZone.getTimeZone("UTC");
+    SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+    boolean timerstatus = false;
+    TimerTask timetask = new TimerTask() {
+        @Override
+        public void run() {
+            seconds++; 
+            df.setTimeZone(tz);
+            String time = df.format(new Date(seconds*1000));
+            ctime.setText("Connection time: "+time);
+            //System.out.println(seconds);
+        }
+    };
+    public void start(){
+            seconds = 0;
+            if (timerstatus == false){
+                timerstatus = true;
+                timer.scheduleAtFixedRate(timetask, 1000, 1000);
+            }
+            //System.out.println("START TIME");
+    }
+/***END CONNECTION TIMER***/   
     
     /**
      * @param args the command line arguments
@@ -393,6 +444,7 @@ public class vpnConnect extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton connectBtn;
     private javax.swing.JLabel consoleLabel;
+    private javax.swing.JLabel ctime;
     private javax.swing.JButton disBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
