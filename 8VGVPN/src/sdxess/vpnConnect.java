@@ -117,10 +117,12 @@ public class vpnConnect extends javax.swing.JFrame {
             
             String line="";
             while ((line = reader.readLine()) != null && !tunnelCreated) {
+           // while((line = reader.readLine()) != null && tunnelCreated == false){
                 System.out.println(line);
-                if( line.contains("forwarders started") ){
+                if(line.contains("forwarders started")){
                     System.out.println("Tunnel created");
                     tunnelCreated = true;
+                    break;
                 }
             }
             ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
