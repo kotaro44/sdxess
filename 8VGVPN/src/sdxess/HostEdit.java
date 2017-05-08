@@ -94,7 +94,6 @@ public class HostEdit extends javax.swing.JFrame {
         });
 
         jButton2.setText("Save Table");
-        jButton2.setEnabled(false);
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
