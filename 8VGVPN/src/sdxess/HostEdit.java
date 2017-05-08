@@ -9,10 +9,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import static sdxess.ExecutorTask.setTimeout;
 
 /**
  *
@@ -22,6 +24,9 @@ public class HostEdit extends javax.swing.JFrame {
     private javax.swing.table.DefaultTableModel tableModel;
     private StringBuilder sb = new StringBuilder();
     private BufferedReader br = null;
+    
+    
+    public static String hostsPath = "C:/Windows/System32/drivers/etc/hosts";
     
     public HostEdit()  {
         initComponents();
@@ -38,7 +43,7 @@ public class HostEdit extends javax.swing.JFrame {
         
         jTable1.setModel(this.tableModel);
         try {
-            br = new BufferedReader(new FileReader("C:/Windows/System32/drivers/etc/hosts"));
+            br = new BufferedReader(new FileReader(HostEdit.hostsPath));
             
             String line = br.readLine();
 
@@ -167,21 +172,49 @@ public class HostEdit extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    public static void restartDNS(){
+        try {
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "" );
+            Process process;
+        
+            process = builder.start();      
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line="";
+
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        
+        } catch (IOException ex) {
+            Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public static boolean saveHosts(String file){
+        try {
+            PrintWriter out = new PrintWriter(HostEdit.hostsPath);
+            out.println(file);
+            out.close();
+            System.out.println(file);
+            return true;
+        } catch (FileNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "You need to run this program as administrator");
+        } 
+        return false;
+    }
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         String file = sb.toString(); 
         for( int i = 0 ; i < this.tableModel.getRowCount() ; i++ ){
             file += this.tableModel.getValueAt(i, 1) + "\t" + this.tableModel.getValueAt(i, 0) + System.lineSeparator();
         }
-        try {
-            PrintWriter out = new PrintWriter("C:/Windows/System32/drivers/etc/hosts");
-            out.println(file);
-            out.close();
-            System.out.println(file);
+       
+        if( HostEdit.saveHosts(file) ){
             JOptionPane.showMessageDialog(null, "Changes have been saved!");
-        } catch (FileNotFoundException ex) {
-            JOptionPane.showMessageDialog(null, "You need to run this program as administrator");
-        } 
-        
+        }
+        HostEdit.restartDNS();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed

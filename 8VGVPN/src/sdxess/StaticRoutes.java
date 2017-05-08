@@ -16,6 +16,9 @@ public class StaticRoutes {
         }
     }
     public void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip) throws IOException{
+        String[] splitted_Ip = destination_ip.split("\\.");
+        destination_ip = splitted_Ip[0] + '.' + splitted_Ip[1] + ".0.0";
+        subnetmask = "255.255.0.0";
         String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+gatewayip;
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
         builder.redirectErrorStream(true);

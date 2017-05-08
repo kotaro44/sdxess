@@ -41,7 +41,7 @@ public class vpnConnect extends javax.swing.JFrame {
     public vpnConnect(){
         initComponents();
         disBtn.setEnabled(false);
-        //sitesBtn.setVisible(false);
+        sitesBtn.setVisible(false);
         
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -345,13 +345,7 @@ public class vpnConnect extends javax.swing.JFrame {
         String file = sb.toString(); 
 
         vpnConnect.windowClosing();
-        try {
-            PrintWriter out = new PrintWriter("C:/Windows/System32/drivers/etc/hosts");
-            out.println(file);
-            out.close();
-        } catch (FileNotFoundException ex) {
-            //JOptionPane.showMessageDialog(null, "You need to run this program as administrator");
-        } 
+        HostEdit.saveHosts(file);
     }//GEN-LAST:event_disBtnActionPerformed
 
     private void sitesBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sitesBtnActionPerformed
