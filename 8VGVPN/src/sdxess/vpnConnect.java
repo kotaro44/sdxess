@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
@@ -52,13 +53,14 @@ public class vpnConnect extends javax.swing.JFrame {
        
     }
     
-    public void connected(){
+    public void connected( ArrayList<String> sites2reroute ){
         jPanel1.setEnabled(false);
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem() + " as " + userField.getText());
         disBtn.setEnabled(true);
         sitesBtn.setVisible(true);
         ctime.show();
-        this.start();
+        this.rerouteSites(sites2reroute);
+        this.startTimer();
         try {
             //save host files
             br = new BufferedReader(new FileReader("C:/Windows/System32/drivers/etc/hosts"));
@@ -389,13 +391,13 @@ public class vpnConnect extends javax.swing.JFrame {
             //System.out.println(seconds);
         }
     };
-    public void start(){
-            seconds = 0;
-            if (timerstatus == false){
-                timerstatus = true;
-                timer.scheduleAtFixedRate(timetask, 1000, 1000);
-            }
-            //System.out.println("START TIME");
+    public void startTimer(){
+        seconds = 0;
+        if (timerstatus == false){
+            timerstatus = true;
+            timer.scheduleAtFixedRate(timetask, 1000, 1000);
+        }
+        //System.out.println("START TIME");
     }
 /***END CONNECTION TIMER***/   
     
@@ -452,5 +454,19 @@ public class vpnConnect extends javax.swing.JFrame {
     private javax.swing.JButton sitesBtn;
     private javax.swing.JTextField userField;
     // End of variables declaration//GEN-END:variables
+
+    private void rerouteSites(ArrayList<String> sites2reroute) {
+        StaticRoutes SR = new StaticRoutes();
+        String website;
+        for (int i = 0; i < sites2reroute.size(); i++) {
+            website = sites2reroute.get(i);
+            System.out.println("Website " + i +": "+website);
+            try {
+                SR.AddStaticRoute(SR.NSLookup(website), SR.GetTAPInfo(11), SR.GetTAPInfo(6));
+            } catch (IOException ex) {
+                Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
 
 }

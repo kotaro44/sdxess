@@ -10,6 +10,9 @@ package sdxess;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ExecutorTask implements Runnable{
     private vpnConnect frame = null;
@@ -36,6 +39,7 @@ public class ExecutorTask implements Runnable{
         try {
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "openvpn " + this.server + ".ovpn" );
             process = builder.start();
+            ArrayList<String> sites2route = new ArrayList<String>();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line="";
@@ -43,14 +47,33 @@ public class ExecutorTask implements Runnable{
              setTimeout(() -> this.connectionTimeout(), 25000);
              
              while ((line = reader.readLine()) != null) {
-                 System.out.println(line);
+               
+                 //CONNECTED TO THE SERVER
                  if( line.contains("Initialization Sequence Completed") && !this.connected   ){
                     this.connected = true;
-                    frame.connected();
-                 }
-                 if( line.contains("Connection reset, restarting") ){
+                    System.out.println("---------------------------------Connection start---------------------------------");
+                    frame.connected( sites2route );
+                 //RESTARTED CONNECTION
+                 }else if( line.contains("Connection reset, restarting") ){
                      frame.reconnecting();
                      this.connected = false;
+                     
+                 //SDXess ROUTE PARAMETER
+                 } else if( line.contains("sdxess-route") && line.contains("Unrecognized option") ){
+                     
+                    Pattern pattern = Pattern.compile("sdxess-route:[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+                    Matcher matcher = pattern.matcher(line);
+                    if (matcher.find()){
+                        line = matcher.group(0).split(":")[1];
+                        sites2route.add(line);
+                        System.out.println("Site added for rerouting: " + line);
+                    }else{
+                        System.out.println(line);
+                    }
+             
+                 //DEFAULT
+                 } else {
+                     System.out.println(line);
                  }
              }
              

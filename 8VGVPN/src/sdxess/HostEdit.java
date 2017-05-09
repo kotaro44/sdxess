@@ -255,22 +255,22 @@ public class HostEdit extends javax.swing.JFrame {
 
     private void SetRoutesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetRoutesButtonActionPerformed
         // TODO add your handling code here:
-            StaticRoutes SR = new StaticRoutes();
-            int columns = tableModel.getColumnCount();
-            int rows = tableModel.getRowCount();
-            String website;
-            for (int i = 0; i < rows; i++) {
-                for (int y = 0; y < 1; y++) {
-                    website = tableModel.getValueAt(i, y).toString();
-                    System.out.println("Website " + i +": "+website);
-                    try {
-                        SR.AddStaticRoute(SR.NSLookup(website), SR.GetTAPInfo(11), SR.GetTAPInfo(6));
-                    } catch (IOException ex) {
-                        Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+        StaticRoutes SR = new StaticRoutes();
+        int columns = tableModel.getColumnCount();
+        int rows = tableModel.getRowCount();
+        String website;
+        for (int i = 0; i < rows; i++) {
+            for (int y = 0; y < 1; y++) {
+                website = tableModel.getValueAt(i, y).toString();
+                System.out.println("Website " + i +": "+website);
+                try {
+                    SR.AddStaticRoute(SR.NSLookup(website), SR.GetTAPInfo(11), SR.GetTAPInfo(6));
+                } catch (IOException ex) {
+                    Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-            //return result;
-       }
+        //return result;
+        }
     }//GEN-LAST:event_SetRoutesButtonActionPerformed
 
     /**
