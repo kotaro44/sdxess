@@ -492,7 +492,6 @@ public class vpnConnect extends javax.swing.JFrame {
     
     private void IpTrack(){
         if( this.isConnected ){
-            System.out.println("Monitoring ip's");
             StaticRoutes SR = new StaticRoutes();
             try {
                 for( int i = 0 ; i < this.ips2reroute.size() ; i++ ){
@@ -500,6 +499,9 @@ public class vpnConnect extends javax.swing.JFrame {
                     String ip = SR.NSLookup(site);
                     if( this.ips2reroute.get(i).compareTo(ip) != 0 ){
                         System.out.println(site + " Ip changed, updating routes...");
+                        //delete previous route
+                        SR.deleteStaticRoute(this.ips2reroute.get(i));
+                        //add new route
                         SR.AddStaticRoute(ip, SR.GetTAPInfo(11), SR.GetTAPInfo(6));
                         ips2reroute.set(i, ip);
                     }

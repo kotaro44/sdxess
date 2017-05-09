@@ -40,6 +40,32 @@ public class StaticRoutes {
             System.out.println(line);
         }
     }
+    
+    public void deleteStaticRoute(String destination_ip ) throws IOException{
+        String[] splitted_Ip = destination_ip.split("\\.");
+        if( splitted_Ip.length != 4 ){
+            System.out.println( destination_ip + " not a valid IP");
+            return;
+        }
+        destination_ip = splitted_Ip[0] + '.' + splitted_Ip[1] + ".0.0";
+
+        String route = "route DELETE "+destination_ip;
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
+        builder.redirectErrorStream(true);
+        Process p = builder.start();
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line = "";
+        int flag=0;
+        while (flag == 0) {
+            line = r.readLine();
+            if (line == null) {
+                flag = 1;
+                break; 
+            }
+            System.out.println(line);
+        }
+    }
+    
     public String GetTAPInfo(int tapindex) throws IOException {
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "openvpn --show-net");
         builder.redirectErrorStream(true);

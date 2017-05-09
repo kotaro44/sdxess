@@ -233,7 +233,7 @@ public class HostEdit extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         if( jTable1.getSelectedRow() != -1 ){
             tableModel.removeRow(jTable1.getSelectedRow());
-            System.out.println(tableModel.getRowCount());
+            
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
