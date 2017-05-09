@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 public class StaticRoutes {
     
-    public String NSLookup(String domainname) throws IOException {
+    public static String NSLookup(String domainname) throws IOException {
         try {
             InetAddress inetHost = InetAddress.getByName(domainname);
             return inetHost.getHostAddress();
@@ -15,13 +15,8 @@ public class StaticRoutes {
             return "Unrecognized host";
         }
     }
-    public void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip) throws IOException{
-        String[] splitted_Ip = destination_ip.split("\\.");
-        if( splitted_Ip.length != 4 ){
-            System.out.println( destination_ip + " not a valid IP");
-            return;
-        }
-        destination_ip = splitted_Ip[0] + '.' + splitted_Ip[1] + ".0.0";
+    
+    public static void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip) throws IOException{
         subnetmask = "255.255.0.0";
         String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+gatewayip;
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
@@ -41,7 +36,29 @@ public class StaticRoutes {
         }
     }
     
-    public void deleteStaticRoute(String destination_ip ) throws IOException{
+    public static void AddStaticRoute(String destination_ip) throws IOException{
+        String subnetmask = "255.255.0.0"; 
+        String gatewayip = StaticRoutes.GetTAPInfo(6);
+        
+        String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+gatewayip;
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
+        builder.redirectErrorStream(true);
+        Process p = builder.start();
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line = "";
+        int flag=0;
+        while (flag == 0) {
+            line = r.readLine();
+            if (line == null) {
+                flag = 1;
+                break; 
+            }
+            System.out.println(route);
+            System.out.println(line);
+        }
+    }
+    
+    public static void deleteStaticRoute(String destination_ip ) throws IOException{
         String[] splitted_Ip = destination_ip.split("\\.");
         if( splitted_Ip.length != 4 ){
             System.out.println( destination_ip + " not a valid IP");
@@ -66,7 +83,7 @@ public class StaticRoutes {
         }
     }
     
-    public String GetTAPInfo(int tapindex) throws IOException {
+    public static String GetTAPInfo(int tapindex) throws IOException {
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "openvpn --show-net");
         builder.redirectErrorStream(true);
         Process p = builder.start();

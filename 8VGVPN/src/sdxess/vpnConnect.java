@@ -33,9 +33,7 @@ public class vpnConnect extends javax.swing.JFrame {
     private boolean isConnected = false;
     private StringBuilder sb;
     private BufferedReader br;
-    private ArrayList<String> sites2reroute;
-    private ArrayList<String> staticips;
-    private ArrayList<String> ips2reroute = new ArrayList<String>();
+    private ArrayList<Website> websites;
    
     
     //timer variables
@@ -58,7 +56,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 vpnConnect.windowClosing();
             }
         });
-        ctime.hide();
+        ctimeLbl.hide();
        
     }
     
@@ -68,18 +66,28 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  parameter out <none>                                                ***
     ***  parameter in  <none>                                                ***
     ***  return <none>                                                       ***
+     * @param sites2reroute
     ***************************************************************************/
-    public void connected( ArrayList<String> sites2reroute , ArrayList<String> staticips ){
+    public void connected( ArrayList<String> sites2reroute ){
         this.isConnected = true;
+        this.websites = new ArrayList<Website>();
         jPanel1.setEnabled(false);
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem() + " as " + userField.getText());
         disBtn.setEnabled(true);
         sitesBtn.setVisible(true);
-        ctime.setVisible(true);
-        this.staticips = staticips;
-        this.rerouteSites(sites2reroute);
+        ctimeLbl.setText("Rerouting websites...");
+        ctimeLbl.setVisible(true);
+        
+        for( int i = 0 ; i < sites2reroute.size() ; i++ ){
+            Website website = new Website(sites2reroute.get(i));
+            if( website.isReachable() ){
+                this.websites.add(website);
+            }
+        }
+        
+        this.rerouteSites();
         this.startTimer();
-        try {
+        /*try {
             //save host files
             br = new BufferedReader(new FileReader("C:/Windows/System32/drivers/etc/hosts"));
             sb = new StringBuilder();
@@ -94,7 +102,7 @@ public class vpnConnect extends javax.swing.JFrame {
             Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
         } catch(IOException ex){
             Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
         
     }
     
@@ -106,9 +114,10 @@ public class vpnConnect extends javax.swing.JFrame {
         connectBtn.setEnabled(false);
         sitesBtn.setVisible(false);
         disBtn.setEnabled(false);
-        ctime.setVisible(false);
-        ctime.setText("");
-        
+        ctimeLbl.setVisible(false);
+        ctimeLbl.setText("");
+        if( vpnConnect.hostEdit != null )
+            vpnConnect.hostEdit.setVisible(false);
     }
     
     public void notconnected(String message){
@@ -117,11 +126,31 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(true);
         passField.setEnabled(true);
         connectBtn.setEnabled(true);
-        ctime.setVisible(false);
-        ctime.setText("");
-        
+        ctimeLbl.setVisible(false);
+        ctimeLbl.setText("");
     }
 
+    public void disconnected(){
+        this.task.end();
+        this.isConnected = false;
+        disBtn.setEnabled(false);
+        sitesBtn.setVisible(false);
+        jPanel1.setVisible(true);
+        userField.setEnabled(true);
+        passField.setEnabled(true);
+        serverCombo.setEnabled(true);
+        connectBtn.setEnabled(true);
+        consoleLabel.setText("disconnected.");
+        ctimeLbl.setVisible(false);
+        ctimeLbl.setText("");
+        
+        if( vpnConnect.hostEdit != null )
+            vpnConnect.hostEdit.setVisible(false);
+        
+        this.seconds = 0;
+        vpnConnect.windowClosing();
+    }
+    
     /*Interbnal functions*/
     private void createTunnel() {
         try {
@@ -193,9 +222,9 @@ public class vpnConnect extends javax.swing.JFrame {
         consoleLabel = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         serverCombo = new javax.swing.JComboBox<>();
-        ctime = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        ctimeLbl = new javax.swing.JLabel();
+        logoLbl = new javax.swing.JLabel();
+        verLbl = new javax.swing.JLabel();
         sitesBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -230,8 +259,8 @@ public class vpnConnect extends javax.swing.JFrame {
 
         serverCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "sdxess-is32", "sdxess", "locallinux" }));
 
-        ctime.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        ctime.setText("Connection Time");
+        ctimeLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        ctimeLbl.setText("Connection Time");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -266,7 +295,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addGap(40, 40, 40))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ctime, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ctimeLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -277,7 +306,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(serverCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(userField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -286,7 +315,7 @@ public class vpnConnect extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ctime)
+                .addComponent(ctimeLbl)
                 .addGap(7, 7, 7)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(connectBtn)
@@ -294,31 +323,31 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addGap(18, 18, 18))
         );
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sdxess/SDXess-Logo-Final-small.png"))); // NOI18N
+        logoLbl.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        logoLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        logoLbl.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sdxess/SDXess-Logo-Final-small.png"))); // NOI18N
 
         jLayeredPane1.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane1.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(logoLbl, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
         jLayeredPane1.setLayout(jLayeredPane1Layout);
         jLayeredPane1Layout.setHorizontalGroup(
             jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(logoLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jLayeredPane1Layout.setVerticalGroup(
             jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jLayeredPane1Layout.createSequentialGroup()
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(logoLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel5.setText("Desktop Client V1.1.4");
+        verLbl.setText("Desktop Client V1.1.5");
 
-        sitesBtn.setText("Rerouted sites");
+        sitesBtn.setText("Rerouted websites");
         sitesBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sitesBtnActionPerformed(evt);
@@ -332,7 +361,7 @@ public class vpnConnect extends javax.swing.JFrame {
             .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel5)
+                .addComponent(verLbl)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(sitesBtn))
         );
@@ -343,38 +372,23 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(sitesBtn)
-                    .addComponent(jLabel5)))
+                    .addComponent(verLbl)))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void disBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disBtnActionPerformed
-        this.task.end();
-        this.isConnected = false;
-        disBtn.setEnabled(false);
-        sitesBtn.setVisible(false);
-        jPanel1.setVisible(true);
-        userField.setEnabled(true);
-        passField.setEnabled(true);
-        serverCombo.setEnabled(true);
-        connectBtn.setEnabled(true);
-        consoleLabel.setText("disconnected.");
-        ctime.setVisible(false);
-        ctime.setText("");
-        
-        //restore host file
-        String file = sb.toString(); 
-
-        vpnConnect.windowClosing();
-        //HostEdit.saveHosts(file);
+        this.disconnected();
     }//GEN-LAST:event_disBtnActionPerformed
 
+    public static HostEdit hostEdit = null;
     private void sitesBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sitesBtnActionPerformed
-        
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new HostEdit(sites2reroute, ips2reroute ,staticips).setVisible(true);
+                vpnConnect.hostEdit = new HostEdit( websites );
+                vpnConnect.hostEdit.setVisible(true);
             }
         });
     }//GEN-LAST:event_sitesBtnActionPerformed
@@ -403,10 +417,11 @@ public class vpnConnect extends javax.swing.JFrame {
             seconds++; 
             df.setTimeZone(tz);
             String time = df.format(new Date(seconds*1000));
-            ctime.setText("Connection time: "+time);
+            ctimeLbl.setText("Connection time: "+time);
             //System.out.println(seconds);
         }
     };
+    
     public void startTimer(){
         seconds = 0;
         if (timerstatus == false){
@@ -456,60 +471,59 @@ public class vpnConnect extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton connectBtn;
     private javax.swing.JLabel consoleLabel;
-    private javax.swing.JLabel ctime;
+    private javax.swing.JLabel ctimeLbl;
     private javax.swing.JButton disBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel logoLbl;
     private javax.swing.JPasswordField passField;
     private javax.swing.JComboBox<String> serverCombo;
     private javax.swing.JButton sitesBtn;
     private javax.swing.JTextField userField;
+    private javax.swing.JLabel verLbl;
     // End of variables declaration//GEN-END:variables
 
-    private void rerouteSites(ArrayList<String> sites2reroute) {
-        this.sites2reroute = sites2reroute;
-        StaticRoutes SR = new StaticRoutes();
-        String website;
-        for (int i = 0; i < sites2reroute.size(); i++) {
-            website = sites2reroute.get(i);
-            System.out.println("Website " + (i+1) +": "+website);
-            try {
-                String ip = SR.NSLookup(website);
-                SR.AddStaticRoute(ip, SR.GetTAPInfo(11), SR.GetTAPInfo(6));
-                ips2reroute.add(ip);
-            } catch (IOException ex) {
-                Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+    private void rerouteSites() {
+     
+        for (int i = 0; i < this.websites.size(); i++) {
+            Website website = this.websites.get(i);
+            
+            if( !website.isStatic ){
+                System.out.println("Website " + (i+1) +": "+website.name);
+                try {
+                    StaticRoutes.AddStaticRoute( website.IP );
+                } catch (IOException ex) {
+                    Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
         
         this.startIpTrack();
     }
     
+    public static void IPCheck(ArrayList<Website> websites){
+        try {
+            for( int i = 0 ; i < websites.size() ; i++ ){
+                Website website = websites.get(i);
+                String IP = Website.getClassB( StaticRoutes.NSLookup(website.name) );
+                if( !website.isStatic && website.IP.compareTo(IP) != 0 ){
+                    System.out.println(website.name + " Ip changed, updating routes...");
+                    StaticRoutes.deleteStaticRoute(website.IP);
+                    website.IP = IP;
+                    StaticRoutes.AddStaticRoute(website.IP);
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     private void IpTrack(){
         if( this.isConnected ){
-            StaticRoutes SR = new StaticRoutes();
-            try {
-                for( int i = 0 ; i < this.ips2reroute.size() ; i++ ){
-                    String site = this.sites2reroute.get(i);
-                    String ip = SR.NSLookup(site);
-                    if( this.ips2reroute.get(i).compareTo(ip) != 0 ){
-                        System.out.println(site + " Ip changed, updating routes...");
-                        //delete previous route
-                        SR.deleteStaticRoute(this.ips2reroute.get(i));
-                        //add new route
-                        SR.AddStaticRoute(ip, SR.GetTAPInfo(11), SR.GetTAPInfo(6));
-                        ips2reroute.set(i, ip);
-                    }
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        
+            vpnConnect.IPCheck(this.websites);
             ExecutorTask.setTimeout(() -> this.IpTrack(), 5000);
         }
     }

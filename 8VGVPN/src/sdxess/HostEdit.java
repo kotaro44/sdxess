@@ -25,60 +25,29 @@ public class HostEdit extends javax.swing.JFrame {
     private javax.swing.table.DefaultTableModel tableModel;
     private StringBuilder sb = new StringBuilder();
     private BufferedReader br = null;
-    private ArrayList<String> sites2reroute;
-    private ArrayList<String> staticIps;
+    private ArrayList<Website> websites;
     
+   
     
-    public static String hostsPath = "C:/Windows/System32/drivers/etc/hosts";
-    
-    public HostEdit(ArrayList<String> sites2reroute, ArrayList<String> Ips ,ArrayList<String> staticIps)  {
+    public HostEdit(ArrayList<Website> websites)  {
         initComponents();
-        this.sites2reroute = sites2reroute;
-        this.staticIps = staticIps;
         
+        this.websites = websites;
         this.tableModel = new javax.swing.table.DefaultTableModel(
             new Object [][] {
             },
             new String [] {
-                "Website" , "Ip Address"
+                "Website" , "Rerouted IP"
             }
         );
         
-        for( int i = 0 ; i < sites2reroute.size() ; i++ ){
-            this.tableModel.addRow(new Object[]{ sites2reroute.get(i) , Ips.get(i) });
-        }
-        for( int i = 0 ; i < staticIps.size() ; i++ ){
-            this.tableModel.addRow(new Object[]{ staticIps.get(i), staticIps.get(i) });
+        for( int i = 0 ; i < this.websites.size() ; i++ ){
+            Website website = this.websites.get(i);
+            this.tableModel.addRow(new Object[]{ website.name , website.IP });
         }
         
-        jTable1.setModel(this.tableModel);
-        try {
-            br = new BufferedReader(new FileReader(HostEdit.hostsPath));
-            
-            String line = br.readLine();
+        sitesTable.setModel(this.tableModel);
 
-            while (line != null) {
-                if ( line.contains("#") || line.trim().isEmpty() ){
-                    sb.append(line);
-                    sb.append(System.lineSeparator());
-                }else{
-                    String[] instruction = line.replaceAll("(\\s+)|(\t+)", " ").split(" ");
-                    //this.tableModel.addRow(new Object []{ instruction[1] , instruction[0]});
-                }
-                line = br.readLine();
-            }
-            String everything = sb.toString();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                br.close();
-            } catch (IOException ex) {
-                Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
 
     /**
@@ -90,33 +59,22 @@ public class HostEdit extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        addBtn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        SetRoutesButton = new javax.swing.JButton();
+        sitesTable = new javax.swing.JTable();
+        delBtn = new javax.swing.JButton();
+        editBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jButton1.setText("Add Row");
-        jButton1.setEnabled(false);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        addBtn.setText("Add Website");
+        addBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                addBtnActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Save Table");
-        jButton2.setEnabled(false);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        sitesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -127,29 +85,20 @@ public class HostEdit extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(sitesTable);
 
-        jButton3.setText("Delete Row");
-        jButton3.setEnabled(false);
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        delBtn.setText("Delete Website");
+        delBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                delBtnActionPerformed(evt);
             }
         });
 
-        jButton4.setText("Edit Row");
-        jButton4.setEnabled(false);
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        editBtn.setText("Edit Website");
+        editBtn.setName("Websites"); // NOI18N
+        editBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-
-        SetRoutesButton.setText("Set Routes");
-        SetRoutesButton.setEnabled(false);
-        SetRoutesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SetRoutesButtonActionPerformed(evt);
+                editBtnActionPerformed(evt);
             }
         });
 
@@ -158,16 +107,12 @@ public class HostEdit extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jButton1)
+                .addComponent(addBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton4)
-                .addGap(18, 18, 18)
-                .addComponent(SetRoutesButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
-                .addComponent(jButton2))
-            .addComponent(jScrollPane1)
+                .addComponent(editBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(delBtn))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -175,11 +120,9 @@ public class HostEdit extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3)
-                    .addComponent(jButton4)
-                    .addComponent(SetRoutesButton)))
+                    .addComponent(addBtn)
+                    .addComponent(delBtn)
+                    .addComponent(editBtn)))
         );
 
         pack();
@@ -205,86 +148,79 @@ public class HostEdit extends javax.swing.JFrame {
         }
     }
     
-    public static boolean saveHosts(String file){
+    private void delBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delBtnActionPerformed
+        if( sitesTable.getSelectedRow() != -1 ){
+            String name = (String) tableModel.getValueAt(sitesTable.getSelectedRow(), 0);
+            tableModel.removeRow(sitesTable.getSelectedRow());
+            for( int i = 0 ; i < this.websites.size() ; i++ ){
+                if( this.websites.get(i).name.compareTo(name) == 0 ){
+                    try {
+                        StaticRoutes.deleteStaticRoute(this.websites.get(i).IP);
+                        this.websites.remove(i);
+                        i = this.websites.size();
+                    } catch (IOException ex) {
+                        Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+    }//GEN-LAST:event_delBtnActionPerformed
+
+    private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
+        Website website = new Website("8vg.net");
+        this.websites.add(website);
+        this.tableModel.addRow(new Object[]{ website.name , website.IP });
         try {
-            PrintWriter out = new PrintWriter(HostEdit.hostsPath);
-            out.println(file);
-            out.close();
-            System.out.println(file);
-            return true;
-        } catch (FileNotFoundException ex) {
-            JOptionPane.showMessageDialog(null, "You need to run this program as administrator");
-        } 
-        return false;
-    }
-    
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String file = sb.toString(); 
-        for( int i = 0 ; i < this.tableModel.getRowCount() ; i++ ){
-            file += this.tableModel.getValueAt(i, 1) + "\t" + this.tableModel.getValueAt(i, 0) + System.lineSeparator();
+            StaticRoutes.AddStaticRoute(website.IP);
+        } catch (IOException ex) {
+            Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
         }
-       
-        if( HostEdit.saveHosts(file) ){
-            JOptionPane.showMessageDialog(null, "Changes have been saved!");
-        }
-        HostEdit.restartDNS();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_addBtnActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        if( jTable1.getSelectedRow() != -1 ){
-            tableModel.removeRow(jTable1.getSelectedRow());
-            
-        }
-    }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        tableModel.addRow(new Object []{"8vg.net" , "127.0.0.1"});
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        int index = jTable1.getSelectedRow();
+    private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
+        int index = sitesTable.getSelectedRow();
         if( index == -1 )
             return;
         
-        String website = JOptionPane.showInputDialog(
-            this, 
-            "Change Website (" + (String)tableModel.getValueAt(index, 0) + ") to:", 
-            (String)tableModel.getValueAt(index, 0)
-        );
-
+        String name = (String)tableModel.getValueAt(index, 0);
+        Website website = null;
         
-        if ( website != null ){
-    
-            String redirect = JOptionPane.showInputDialog(
-                this, 
-                "Change redirect (" + (String)tableModel.getValueAt(index, 1) + ") to:", 
-                (String)tableModel.getValueAt(index, 1)
-            );
-
-            tableModel.setValueAt(website, index, 0);
-            tableModel.setValueAt(redirect, index, 1);
-        }
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void SetRoutesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetRoutesButtonActionPerformed
-        // TODO add your handling code here:
-        StaticRoutes SR = new StaticRoutes();
-        int columns = tableModel.getColumnCount();
-        int rows = tableModel.getRowCount();
-        String website;
-        for (int i = 0; i < rows; i++) {
-            for (int y = 0; y < 1; y++) {
-                website = tableModel.getValueAt(i, y).toString();
-                System.out.println("Website " + i +": "+website);
-                try {
-                    SR.AddStaticRoute(SR.NSLookup(website), SR.GetTAPInfo(11), SR.GetTAPInfo(6));
-                } catch (IOException ex) {
-                    Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        for( int i = 0 ; i < this.websites.size() ; i++ ){
+            if( this.websites.get(i).name.compareTo(name) == 0 ){
+                website = this.websites.get(i);
             }
-        //return result;
         }
-    }//GEN-LAST:event_SetRoutesButtonActionPerformed
+        
+        if( website == null )
+            return;
+        
+        String new_name = JOptionPane.showInputDialog(
+            this, 
+            "Change Website Name (" + name + ") to:", 
+            name
+        );
+        
+        try {
+            website.name = new_name;
+            StaticRoutes.deleteStaticRoute(website.IP);
+            
+            if( Website.isIP(website.name) ){
+                website.IP = Website.getClassB( name );
+                website.isStatic = true;
+            }else{
+                website.isStatic = false;
+                website.updateIp();
+            }
+            
+            tableModel.setValueAt(website.name, index, 0);
+            tableModel.setValueAt(website.IP, index, 1);
+            StaticRoutes.AddStaticRoute(website.IP);
+            
+        } catch (IOException ex) {
+            Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
+    }//GEN-LAST:event_editBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -317,12 +253,10 @@ public class HostEdit extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton SetRoutesButton;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
+    private javax.swing.JButton addBtn;
+    private javax.swing.JButton delBtn;
+    private javax.swing.JButton editBtn;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable sitesTable;
     // End of variables declaration//GEN-END:variables
 }
