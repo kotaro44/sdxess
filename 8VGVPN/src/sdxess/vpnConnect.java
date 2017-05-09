@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,8 +22,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static sdxess.ExecutorTask.setTimeout;
-
-
 /**
  *
  * @author kotaro
@@ -35,7 +32,14 @@ public class vpnConnect extends javax.swing.JFrame {
     public Thread executorThread;
     private StringBuilder sb;
     private BufferedReader br;
-
+    
+    //timer variables
+    private int seconds = 0;
+    private boolean timerstatus = false;
+    private Timer timer = new Timer(); 
+    private TimeZone tz = TimeZone.getTimeZone("UTC");
+    private SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+    
     /**
      * Creates new form vpnConnect
      */
@@ -53,6 +57,13 @@ public class vpnConnect extends javax.swing.JFrame {
        
     }
     
+    /***************************************************************************
+    ***  brief creates a new SDXess window                                   ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    ***************************************************************************/
     public void connected( ArrayList<String> sites2reroute ){
         jPanel1.setEnabled(false);
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem() + " as " + userField.getText());
@@ -375,12 +386,7 @@ public class vpnConnect extends javax.swing.JFrame {
         setTimeout(() -> this.createTunnel(), 10);
         
     }//GEN-LAST:event_connectBtnActionPerformed
-/*** CONNECTION TIMER ***/
-    int seconds;
-    Timer timer = new Timer(); 
-    TimeZone tz = TimeZone.getTimeZone("UTC");
-    SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-    boolean timerstatus = false;
+
     TimerTask timetask = new TimerTask() {
         @Override
         public void run() {
