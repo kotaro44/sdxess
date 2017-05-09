@@ -26,24 +26,29 @@ public class HostEdit extends javax.swing.JFrame {
     private StringBuilder sb = new StringBuilder();
     private BufferedReader br = null;
     private ArrayList<String> sites2reroute;
+    private ArrayList<String> staticIps;
     
     
     public static String hostsPath = "C:/Windows/System32/drivers/etc/hosts";
     
-    public HostEdit(ArrayList<String> sites2reroute)  {
+    public HostEdit(ArrayList<String> sites2reroute, ArrayList<String> Ips ,ArrayList<String> staticIps)  {
         initComponents();
         this.sites2reroute = sites2reroute;
+        this.staticIps = staticIps;
         
         this.tableModel = new javax.swing.table.DefaultTableModel(
             new Object [][] {
             },
             new String [] {
-                "Website"
+                "Website" , "Ip Address"
             }
         );
         
         for( int i = 0 ; i < sites2reroute.size() ; i++ ){
-            this.tableModel.addRow(new Object[]{ sites2reroute.get(i) });
+            this.tableModel.addRow(new Object[]{ sites2reroute.get(i) , Ips.get(i) });
+        }
+        for( int i = 0 ; i < staticIps.size() ; i++ ){
+            this.tableModel.addRow(new Object[]{ staticIps.get(i), staticIps.get(i) });
         }
         
         jTable1.setModel(this.tableModel);
@@ -96,6 +101,7 @@ public class HostEdit extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jButton1.setText("Add Row");
+        jButton1.setEnabled(false);
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -103,6 +109,7 @@ public class HostEdit extends javax.swing.JFrame {
         });
 
         jButton2.setText("Save Table");
+        jButton2.setEnabled(false);
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -123,6 +130,7 @@ public class HostEdit extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTable1);
 
         jButton3.setText("Delete Row");
+        jButton3.setEnabled(false);
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
@@ -130,6 +138,7 @@ public class HostEdit extends javax.swing.JFrame {
         });
 
         jButton4.setText("Edit Row");
+        jButton4.setEnabled(false);
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
@@ -137,6 +146,7 @@ public class HostEdit extends javax.swing.JFrame {
         });
 
         SetRoutesButton.setText("Set Routes");
+        SetRoutesButton.setEnabled(false);
         SetRoutesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 SetRoutesButtonActionPerformed(evt);
@@ -155,17 +165,15 @@ public class HostEdit extends javax.swing.JFrame {
                 .addComponent(jButton4)
                 .addGap(18, 18, 18)
                 .addComponent(SetRoutesButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
                 .addComponent(jButton2))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 470, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jScrollPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2)

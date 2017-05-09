@@ -30,9 +30,13 @@ public class vpnConnect extends javax.swing.JFrame {
 
     public ExecutorTask task;
     public Thread executorThread;
+    private boolean isConnected = false;
     private StringBuilder sb;
     private BufferedReader br;
     private ArrayList<String> sites2reroute;
+    private ArrayList<String> staticips;
+    private ArrayList<String> ips2reroute = new ArrayList<String>();
+   
     
     //timer variables
     private int seconds = 0;
@@ -65,12 +69,14 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  parameter in  <none>                                                ***
     ***  return <none>                                                       ***
     ***************************************************************************/
-    public void connected( ArrayList<String> sites2reroute ){
+    public void connected( ArrayList<String> sites2reroute , ArrayList<String> staticips ){
+        this.isConnected = true;
         jPanel1.setEnabled(false);
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem() + " as " + userField.getText());
         disBtn.setEnabled(true);
         sitesBtn.setVisible(true);
-        ctime.show();
+        ctime.setVisible(true);
+        this.staticips = staticips;
         this.rerouteSites(sites2reroute);
         this.startTimer();
         try {
@@ -111,7 +117,7 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(true);
         passField.setEnabled(true);
         connectBtn.setEnabled(true);
-        ctime.hide();
+        ctime.setVisible(false);
         ctime.setText("");
         
     }
@@ -194,6 +200,7 @@ public class vpnConnect extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SDXess");
+        setResizable(false);
 
         connectBtn.setText("Connect");
         connectBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -344,6 +351,7 @@ public class vpnConnect extends javax.swing.JFrame {
 
     private void disBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disBtnActionPerformed
         this.task.end();
+        this.isConnected = false;
         disBtn.setEnabled(false);
         sitesBtn.setVisible(false);
         jPanel1.setVisible(true);
@@ -352,21 +360,21 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(true);
         connectBtn.setEnabled(true);
         consoleLabel.setText("disconnected.");
-        ctime.hide();
+        ctime.setVisible(false);
         ctime.setText("");
         
         //restore host file
         String file = sb.toString(); 
 
         vpnConnect.windowClosing();
-        HostEdit.saveHosts(file);
+        //HostEdit.saveHosts(file);
     }//GEN-LAST:event_disBtnActionPerformed
 
     private void sitesBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sitesBtnActionPerformed
         
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new HostEdit(sites2reroute).setVisible(true);
+                new HostEdit(sites2reroute, ips2reroute ,staticips).setVisible(true);
             }
         });
     }//GEN-LAST:event_sitesBtnActionPerformed
@@ -471,11 +479,41 @@ public class vpnConnect extends javax.swing.JFrame {
             website = sites2reroute.get(i);
             System.out.println("Website " + (i+1) +": "+website);
             try {
-                SR.AddStaticRoute(SR.NSLookup(website), SR.GetTAPInfo(11), SR.GetTAPInfo(6));
+                String ip = SR.NSLookup(website);
+                SR.AddStaticRoute(ip, SR.GetTAPInfo(11), SR.GetTAPInfo(6));
+                ips2reroute.add(ip);
             } catch (IOException ex) {
                 Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
+        this.startIpTrack();
+    }
+    
+    private void IpTrack(){
+        if( this.isConnected ){
+            System.out.println("Monitoring ip's");
+            StaticRoutes SR = new StaticRoutes();
+            try {
+                for( int i = 0 ; i < this.ips2reroute.size() ; i++ ){
+                    String site = this.sites2reroute.get(i);
+                    String ip = SR.NSLookup(site);
+                    if( this.ips2reroute.get(i).compareTo(ip) != 0 ){
+                        System.out.println(site + " Ip changed, updating routes...");
+                        SR.AddStaticRoute(ip, SR.GetTAPInfo(11), SR.GetTAPInfo(6));
+                        ips2reroute.set(i, ip);
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+            ExecutorTask.setTimeout(() -> this.IpTrack(), 5000);
+        }
+    }
+    
+    private void startIpTrack(){
+        ExecutorTask.setTimeout(() -> this.IpTrack(), 5000);
     }
 
 }

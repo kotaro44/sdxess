@@ -40,6 +40,7 @@ public class ExecutorTask implements Runnable{
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "openvpn " + this.server + ".ovpn" );
             process = builder.start();
             ArrayList<String> sites2route = new ArrayList<String>();
+            ArrayList<String> staticIps  = new ArrayList<String>();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line="";
@@ -52,7 +53,7 @@ public class ExecutorTask implements Runnable{
                  if( line.contains("Initialization Sequence Completed") && !this.connected   ){
                     this.connected = true;
                     System.out.println("---------------------------------Connection start---------------------------------");
-                    frame.connected( sites2route );
+                    frame.connected( sites2route , staticIps );
                  //RESTARTED CONNECTION
                  }else if( line.contains("Connection reset, restarting") ){
                      frame.reconnecting();
@@ -70,7 +71,15 @@ public class ExecutorTask implements Runnable{
                     }else{
                         System.out.println(line);
                     }
-             
+                    
+                 //Static route ROUTE PARAMETER
+                 } else if( line.contains("route.exe ADD") ){
+                    Pattern pattern = Pattern.compile("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]");
+                    Matcher matcher = pattern.matcher(line);
+                    if (matcher.find()){
+                        staticIps.add(matcher.group(0));
+                    }
+                     System.out.println(line);
                  //DEFAULT
                  } else {
                      System.out.println(line);
