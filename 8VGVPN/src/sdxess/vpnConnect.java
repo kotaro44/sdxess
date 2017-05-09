@@ -100,7 +100,7 @@ public class vpnConnect extends javax.swing.JFrame {
         connectBtn.setEnabled(false);
         sitesBtn.setVisible(false);
         disBtn.setEnabled(false);
-        ctime.hide();
+        ctime.setVisible(false);
         ctime.setText("");
         
     }
@@ -309,7 +309,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jLabel5.setText("Desktop Client V1.1.3");
+        jLabel5.setText("Desktop Client V1.1.4");
 
         sitesBtn.setText("Rerouted sites");
         sitesBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -469,7 +469,7 @@ public class vpnConnect extends javax.swing.JFrame {
         String website;
         for (int i = 0; i < sites2reroute.size(); i++) {
             website = sites2reroute.get(i);
-            System.out.println("Website " + i +": "+website);
+            System.out.println("Website " + (i+1) +": "+website);
             try {
                 SR.AddStaticRoute(SR.NSLookup(website), SR.GetTAPInfo(11), SR.GetTAPInfo(6));
             } catch (IOException ex) {

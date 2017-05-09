@@ -17,6 +17,10 @@ public class StaticRoutes {
     }
     public void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip) throws IOException{
         String[] splitted_Ip = destination_ip.split("\\.");
+        if( splitted_Ip.length != 4 ){
+            System.out.println( destination_ip + " not a valid IP");
+            return;
+        }
         destination_ip = splitted_Ip[0] + '.' + splitted_Ip[1] + ".0.0";
         subnetmask = "255.255.0.0";
         String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+gatewayip;
