@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -24,22 +25,26 @@ public class HostEdit extends javax.swing.JFrame {
     private javax.swing.table.DefaultTableModel tableModel;
     private StringBuilder sb = new StringBuilder();
     private BufferedReader br = null;
+    private ArrayList<String> sites2reroute;
     
     
     public static String hostsPath = "C:/Windows/System32/drivers/etc/hosts";
     
-    public HostEdit()  {
+    public HostEdit(ArrayList<String> sites2reroute)  {
         initComponents();
+        this.sites2reroute = sites2reroute;
         
         this.tableModel = new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"facebook.com","31.13.95.36"},
-                {"google.com.tw","202.169.0.0"}
             },
             new String [] {
-                "Website", "IP address"
+                "Website"
             }
         );
+        
+        for( int i = 0 ; i < sites2reroute.size() ; i++ ){
+            this.tableModel.addRow(new Object[]{ sites2reroute.get(i) });
+        }
         
         jTable1.setModel(this.tableModel);
         try {

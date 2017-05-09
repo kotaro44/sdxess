@@ -32,6 +32,7 @@ public class vpnConnect extends javax.swing.JFrame {
     public Thread executorThread;
     private StringBuilder sb;
     private BufferedReader br;
+    private ArrayList<String> sites2reroute;
     
     //timer variables
     private int seconds = 0;
@@ -362,9 +363,10 @@ public class vpnConnect extends javax.swing.JFrame {
     }//GEN-LAST:event_disBtnActionPerformed
 
     private void sitesBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sitesBtnActionPerformed
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new HostEdit().setVisible(true);
+                new HostEdit(sites2reroute).setVisible(true);
             }
         });
     }//GEN-LAST:event_sitesBtnActionPerformed
@@ -462,6 +464,7 @@ public class vpnConnect extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void rerouteSites(ArrayList<String> sites2reroute) {
+        this.sites2reroute = sites2reroute;
         StaticRoutes SR = new StaticRoutes();
         String website;
         for (int i = 0; i < sites2reroute.size(); i++) {
