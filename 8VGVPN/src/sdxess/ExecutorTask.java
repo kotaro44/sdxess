@@ -65,9 +65,9 @@ public class ExecutorTask implements Runnable{
                     Pattern pattern = Pattern.compile("sdxess-route:[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
                     Matcher matcher = pattern.matcher(line);
                     if (matcher.find()){
-                        line = matcher.group(0).split(":")[1];
-                        sites2route.add(line);
-                        System.out.println("Site added for rerouting: " + line);
+                        String[] parts = matcher.group(0).split(":"); 
+                        sites2route.add(parts[1] + " " + parts[2]);
+                        System.out.println("Site added for rerouting: " + parts[1] + "(" + parts[2] + ")");
                     }else{
                         System.out.println(line);
                     }

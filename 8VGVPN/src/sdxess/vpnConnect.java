@@ -80,10 +80,14 @@ public class vpnConnect extends javax.swing.JFrame {
         ctimeLbl.setVisible(true);
         
         for( int i = 0 ; i < sites2reroute.size() ; i++ ){
-            Website website = new Website(sites2reroute.get(i));
+            String[] parts = sites2reroute.get(i).split(" ");
+            Website website = new Website(parts[0]);
             if( website.isReachable() ){
-                this.websites.add(website);
+                
+            }else{
+                website.IP = parts[1];
             }
+            this.websites.add(website);
         }
         
         this.rerouteSites();
@@ -514,7 +518,7 @@ public class vpnConnect extends javax.swing.JFrame {
             for( int i = 0 ; i < websites.size() ; i++ ){
                 Website website = websites.get(i);
                 String IP = Website.getClassB( StaticRoutes.NSLookup(website.name) );
-                if( !website.isStatic && website.IP.compareTo(IP) != 0 ){
+                if( !website.isStatic && website.IP.compareTo(IP) != 0 && Website.isIP(IP) ){
                     System.out.println(website.name + " Ip changed, updating routes...");
                     StaticRoutes.deleteStaticRoute(website.IP);
                     website.IP = IP;
