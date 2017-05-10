@@ -107,8 +107,12 @@ public class vpnConnect extends javax.swing.JFrame {
         
     }
     
-    public void reconnecting(){
-        consoleLabel.setText("Communication lost... reconnecting...");
+    public void reconnecting(boolean previouslyConnected){
+        if( previouslyConnected ){
+            consoleLabel.setText("Communication lost... reconnecting...");
+        }else{
+            consoleLabel.setText("Unstable connection... reconnecting...");
+        }
         userField.setEnabled(false);
         serverCombo.setEnabled(false);
         passField.setEnabled(false);

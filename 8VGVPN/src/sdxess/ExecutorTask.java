@@ -55,8 +55,9 @@ public class ExecutorTask implements Runnable{
                     frame.connected( sites2route );
                  //RESTARTED CONNECTION
                  }else if( line.contains("Connection reset, restarting") ){
-                     frame.reconnecting();
+                     frame.reconnecting(this.connected);
                      this.connected = false;
+                     this.abort = true;
                      
                  //SDXess ROUTE PARAMETER
                  } else if( line.contains("sdxess-route") && line.contains("Unrecognized option") ){
