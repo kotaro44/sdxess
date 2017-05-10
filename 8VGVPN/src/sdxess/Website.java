@@ -21,7 +21,6 @@ public class Website {
     
     public Website(String name){
         this.name = name;
-   
         if( Website.isIP(name) ){
             this.IP = Website.getClassB( name );
             this.isStatic = true;
@@ -51,7 +50,9 @@ public class Website {
     }
     
     public boolean isReachable(){
-        return IP.length() != 0;
+        if( this.IP == null )
+            return false;
+        return this.IP.length() != 0;
     }
     
     public String getClassA(){
@@ -85,11 +86,16 @@ public class Website {
         return splitted_Ip[0] + '.' + splitted_Ip[1] + '.' + splitted_Ip[2] + ".0";
     }
     
-     public static String getClassC(String IP){
+    public static String getClassC(String IP){
         String[] splitted_Ip = IP.split("\\.");
         if( splitted_Ip.length != 4 ){
             return null;
         }
         return splitted_Ip[0] + '.' + splitted_Ip[1] + '.' + splitted_Ip[2] + ".0";
+    }
+    
+    @Override
+    public String toString(){
+        return this.name + " (" + this.IP + ")";
     }
 }
