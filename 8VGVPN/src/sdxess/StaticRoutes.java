@@ -11,7 +11,6 @@ public class StaticRoutes {
         try {
             InetAddress inetHost = InetAddress.getByName(domainname);
             String ip = inetHost.getHostAddress();
-            System.out.println(domainname + " -> " + ip);
             return ip;
         } catch(UnknownHostException ex) {       
             return "Unrecognized host";

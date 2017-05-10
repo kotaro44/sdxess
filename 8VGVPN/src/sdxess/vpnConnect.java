@@ -177,12 +177,14 @@ public class vpnConnect extends javax.swing.JFrame {
             while ((line = reader.readLine()) != null && !tunnelCreated) {
            // while((line = reader.readLine()) != null && tunnelCreated == false){
                 System.out.println(line);
-                if(line.contains("forwarders started")){
-                    System.out.println("Tunnel created");
+                if(line.contains("9090->iNET99.Ji8.net:5000")){
+                    System.out.println("----------------------------SSH Tunnel created---------------------------");
                     tunnelCreated = true;
                     break;
                 }
             }
+            
+            
             ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
             
 
