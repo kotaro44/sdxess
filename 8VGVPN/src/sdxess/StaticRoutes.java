@@ -10,7 +10,9 @@ public class StaticRoutes {
     public static String NSLookup(String domainname) throws IOException {
         try {
             InetAddress inetHost = InetAddress.getByName(domainname);
-            return inetHost.getHostAddress();
+            String ip = inetHost.getHostAddress();
+            System.out.println(domainname + " -> " + ip);
+            return ip;
         } catch(UnknownHostException ex) {       
             return "Unrecognized host";
         }
