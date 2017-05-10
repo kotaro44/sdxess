@@ -66,6 +66,7 @@ public class HostEdit extends javax.swing.JFrame {
         editBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Websites");
 
         addBtn.setText("Add Website");
         addBtn.addActionListener(new java.awt.event.ActionListener() {
