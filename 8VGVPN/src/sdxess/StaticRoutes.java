@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 public class StaticRoutes {
     
+    public static String DNS = null;
+    
     public static String NSLookup(String domainname) throws IOException {
         try {
             InetAddress inetHost = InetAddress.getByName(domainname);
@@ -41,7 +43,7 @@ public class StaticRoutes {
         String subnetmask = "255.255.0.0"; 
         String gatewayip = StaticRoutes.GetTAPInfo(6);
         
-        String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+gatewayip;
+        String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+DNS;
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
         builder.redirectErrorStream(true);
         Process p = builder.start();

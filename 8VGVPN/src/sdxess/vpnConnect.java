@@ -12,9 +12,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,6 +47,8 @@ public class vpnConnect extends javax.swing.JFrame {
     private TimeZone tz = TimeZone.getTimeZone("UTC");
     private SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
     
+
+    
     /**
      * Creates new form vpnConnect
      */
@@ -51,13 +56,19 @@ public class vpnConnect extends javax.swing.JFrame {
         initComponents();
         disBtn.setEnabled(false);
         sitesBtn.setVisible(false);
+        ctimeLbl.setVisible(false);
+        
+        
+      
+            List<String> Ip = sun.net.dns.ResolverConfiguration.open().nameservers();
+            StaticRoutes.DNS = Ip.get(Ip.size()-1);
+        
         
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 vpnConnect.windowClosing();
             }
         });
-        ctimeLbl.hide();
        
     }
     
@@ -78,6 +89,7 @@ public class vpnConnect extends javax.swing.JFrame {
         sitesBtn.setVisible(true);
         ctimeLbl.setText("Rerouting websites...");
         ctimeLbl.setVisible(true);
+   
         
         for( int i = 0 ; i < sites2reroute.size() ; i++ ){
             String[] parts = sites2reroute.get(i).split(" ");
