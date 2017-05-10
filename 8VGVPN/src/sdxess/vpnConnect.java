@@ -60,8 +60,8 @@ public class vpnConnect extends javax.swing.JFrame {
         
         
       
-            List<String> Ip = sun.net.dns.ResolverConfiguration.open().nameservers();
-            StaticRoutes.DNS = Ip.get(Ip.size()-1);
+            /*List<String> Ip = sun.net.dns.ResolverConfiguration.open().nameservers();
+            StaticRoutes.DNS = Ip.get(Ip.size()-1);*/
         
         
         this.addWindowListener(new WindowAdapter() {

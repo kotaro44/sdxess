@@ -43,7 +43,7 @@ public class StaticRoutes {
         String subnetmask = "255.255.0.0"; 
         String gatewayip = StaticRoutes.GetTAPInfo(6);
         
-        String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+DNS;
+        String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+gatewayip;
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
         builder.redirectErrorStream(true);
         Process p = builder.start();

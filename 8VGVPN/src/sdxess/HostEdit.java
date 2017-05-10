@@ -69,6 +69,7 @@ public class HostEdit extends javax.swing.JFrame {
         setTitle("Websites");
 
         addBtn.setText("Add Website");
+        addBtn.setEnabled(false);
         addBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addBtnActionPerformed(evt);
@@ -89,6 +90,7 @@ public class HostEdit extends javax.swing.JFrame {
         jScrollPane1.setViewportView(sitesTable);
 
         delBtn.setText("Delete Website");
+        delBtn.setEnabled(false);
         delBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 delBtnActionPerformed(evt);
@@ -96,6 +98,7 @@ public class HostEdit extends javax.swing.JFrame {
         });
 
         editBtn.setText("Edit Website");
+        editBtn.setEnabled(false);
         editBtn.setName("Websites"); // NOI18N
         editBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -168,7 +171,7 @@ public class HostEdit extends javax.swing.JFrame {
     }//GEN-LAST:event_delBtnActionPerformed
 
     private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
-        Website website = new Website("8vg.net");
+        Website website = new Website("8vg.org");
         this.websites.add(website);
         this.tableModel.addRow(new Object[]{ website.name , website.IP });
         try {
