@@ -38,7 +38,7 @@ public class vpnConnect extends javax.swing.JFrame {
     private StringBuilder sb;
     private BufferedReader br;
     private ArrayList<Website> websites;
-   
+    private int retries = 0;
     
     //timer variables
     private int seconds = 0;
@@ -82,7 +82,7 @@ public class vpnConnect extends javax.swing.JFrame {
      * @param sites2reroute
     ***************************************************************************/
     public void connected( ArrayList<String> sites2reroute ){
-        
+        this.retries = 0;
         this.isConnected = true;
         this.websites = new ArrayList<Website>();
         jPanel1.setEnabled(false);
@@ -130,7 +130,11 @@ public class vpnConnect extends javax.swing.JFrame {
         if( previouslyConnected ){
             consoleLabel.setText("Communication lost... reconnecting...");
         }else{
-            consoleLabel.setText("Unstable connection... reconnecting...");
+            if( this.retries > 3 ){
+                this.disconnected(true);
+            }else{
+                consoleLabel.setText("Unstable connection... reconnecting...");
+            }
         }
         userField.setEnabled(false);
         serverCombo.setEnabled(false);
@@ -154,7 +158,8 @@ public class vpnConnect extends javax.swing.JFrame {
         ctimeLbl.setText("");
     }
 
-    public void disconnected(){
+    public void disconnected(boolean byError){
+        this.retries = 0;
         this.isConnected = false;
         disBtn.setEnabled(false);
         sitesBtn.setVisible(false);
@@ -163,7 +168,10 @@ public class vpnConnect extends javax.swing.JFrame {
         passField.setEnabled(true);
         serverCombo.setEnabled(true);
         connectBtn.setEnabled(true);
-        consoleLabel.setText("disconnected.");
+        if( byError )
+            consoleLabel.setText("disconnected due time out.");
+        else
+            consoleLabel.setText("disconnected.");
         ctimeLbl.setVisible(false);
         ctimeLbl.setText("");
         
@@ -408,7 +416,7 @@ public class vpnConnect extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void disBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disBtnActionPerformed
-        this.disconnected();
+        this.disconnected(false);
     }//GEN-LAST:event_disBtnActionPerformed
 
     public static HostEdit hostEdit = null;
