@@ -13,6 +13,27 @@ public class StaticRoutes {
     public static String DNS = null;
     public static ArrayList<String> addedRoutes = new ArrayList<>();
     
+    
+    public static void flushDNS(){    
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ipconfig /flushdns");
+        builder.redirectErrorStream(true);
+        Process p = null;
+        try {
+            p = builder.start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+    
+            String line =  r.readLine();
+            while (line != null) {
+                System.out.println(line);
+                line = r.readLine();
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+            
+    
     public static String NSLookup(String domainname) throws IOException {
         try {
             InetAddress inetHost = InetAddress.getByName(domainname);

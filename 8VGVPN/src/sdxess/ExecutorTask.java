@@ -80,13 +80,11 @@ public class ExecutorTask implements Runnable{
                         sites2route.add(matcher.group(0));
                     }
                     
-                    pattern = Pattern.compile("ADD(.*)");
+                    pattern = Pattern.compile("ADD\\s(.*)");
                     matcher = pattern.matcher(line);
                     if (matcher.find()){
                         StaticRoutes.addedRoutes.add(matcher.group(1));
                     }
-                    
-                     System.out.println(">>>>" + line);
                  //DEFAULT
                  } else {
                      System.out.println(line);

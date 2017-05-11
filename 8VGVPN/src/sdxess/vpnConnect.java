@@ -92,6 +92,7 @@ public class vpnConnect extends javax.swing.JFrame {
         ctimeLbl.setText("Rerouting websites...");
         ctimeLbl.setVisible(true);
    
+        StaticRoutes.flushDNS();
         
         for( int i = 0 ; i < sites2reroute.size() ; i++ ){
             String[] parts = sites2reroute.get(i).split(" ");
