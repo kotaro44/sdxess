@@ -101,6 +101,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 
             }else{
                 website.IP = parts[1];
+                website.isStatic = true;
             }
             this.websites.add(website);
         }
@@ -548,7 +549,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 String IP = Website.getClassB( StaticRoutes.NSLookup(website.name) );
                 if( !website.isStatic && website.IP.compareTo(IP) != 0 && Website.isIP(IP) ){
                     System.out.println(website.name + " Ip changed, updating routes...");
-                    StaticRoutes.deleteStaticRoute(website.IP);
+                    //StaticRoutes.deleteStaticRoute(website.IP);
                     website.IP = IP;
                     StaticRoutes.AddStaticRoute(website.IP);
                 }
@@ -570,9 +571,7 @@ public class vpnConnect extends javax.swing.JFrame {
     }
 
     public void checkCommit(){
-        
         BufferedReader br;
-    
         try {
             br = new BufferedReader(new FileReader("../.git/FETCH_HEAD"));
             StringBuilder sb = new StringBuilder();
