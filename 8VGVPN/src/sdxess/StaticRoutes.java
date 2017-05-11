@@ -5,9 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class StaticRoutes {
     
     public static String DNS = null;
+    public static ArrayList<String> addedRoutes = new ArrayList<>();
     
     public static String NSLookup(String domainname) throws IOException {
         try {
@@ -21,8 +25,9 @@ public class StaticRoutes {
     
     public static void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip) throws IOException{
         subnetmask = "255.255.0.0";
-        String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+gatewayip;
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
+        String route = destination_ip+" MASK "+subnetmask+" "+gatewayip;
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route ADD "+ route);
+        StaticRoutes.addedRoutes.add(route);
         builder.redirectErrorStream(true);
         Process p = builder.start();
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -43,8 +48,9 @@ public class StaticRoutes {
         String subnetmask = "255.255.0.0"; 
         String gatewayip = StaticRoutes.GetTAPInfo(6);
         
-        String route = "route ADD "+destination_ip+" MASK "+subnetmask+" "+gatewayip;
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
+        String route = destination_ip+" MASK "+subnetmask+" "+gatewayip;
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route ADD "+ route);
+        StaticRoutes.addedRoutes.add(route);
         builder.redirectErrorStream(true);
         Process p = builder.start();
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -71,6 +77,34 @@ public class StaticRoutes {
 
         String route = "route DELETE "+destination_ip;
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
+        builder.redirectErrorStream(true);
+        Process p = builder.start();
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line = "";
+        int flag=0;
+        while (flag == 0) {
+            line = r.readLine();
+            if (line == null) {
+                flag = 1;
+                break; 
+            }
+            System.out.println(line);
+        }
+    }
+    
+    public static void flushAddedRoutes(){
+        for( int i = 0 ; i < StaticRoutes.addedRoutes.size() ; i++ ){
+            try {
+                StaticRoutes.deleteStaticRouteCMD(StaticRoutes.addedRoutes.get(i));
+            } catch (IOException ex) {
+                Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        StaticRoutes.addedRoutes = new ArrayList<>();
+    }
+    
+    public static void deleteStaticRouteCMD(String route ) throws IOException{
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route DELETE "+ route);
         builder.redirectErrorStream(true);
         Process p = builder.start();
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));

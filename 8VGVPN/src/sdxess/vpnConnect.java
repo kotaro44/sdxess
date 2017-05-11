@@ -53,6 +53,7 @@ public class vpnConnect extends javax.swing.JFrame {
      * Creates new form vpnConnect
      */
     public vpnConnect(){
+        this.checkCommit();
         initComponents();
         disBtn.setEnabled(false);
         sitesBtn.setVisible(false);
@@ -66,7 +67,7 @@ public class vpnConnect extends javax.swing.JFrame {
         
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                vpnConnect.windowClosing();
+                vpnConnect.disconnect();
             }
         });
        
@@ -81,6 +82,7 @@ public class vpnConnect extends javax.swing.JFrame {
      * @param sites2reroute
     ***************************************************************************/
     public void connected( ArrayList<String> sites2reroute ){
+        
         this.isConnected = true;
         this.websites = new ArrayList<Website>();
         jPanel1.setEnabled(false);
@@ -152,7 +154,6 @@ public class vpnConnect extends javax.swing.JFrame {
     }
 
     public void disconnected(){
-        this.task.end();
         this.isConnected = false;
         disBtn.setEnabled(false);
         sitesBtn.setVisible(false);
@@ -169,7 +170,9 @@ public class vpnConnect extends javax.swing.JFrame {
             vpnConnect.hostEdit.setVisible(false);
         
         this.seconds = 0;
-        vpnConnect.windowClosing();
+        
+        this.task.end();
+        vpnConnect.disconnect();
     }
     
     /*Interbnal functions*/
@@ -206,6 +209,7 @@ public class vpnConnect extends javax.swing.JFrame {
     }
     
     public void connectVPN(){
+        
         consoleLabel.setText("connecting to " + serverCombo.getSelectedItem() + "...");
        
         this.task = new ExecutorTask( this , serverCombo.getSelectedItem().toString() );
@@ -214,7 +218,8 @@ public class vpnConnect extends javax.swing.JFrame {
         setTimeout(() -> executorThread.start(), 10);
     }
     
-    public static void windowClosing(){
+    public static void disconnect(){
+        StaticRoutes.flushAddedRoutes();
         try {
             Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -368,7 +373,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        verLbl.setText("Desktop Client V1.1.5");
+        verLbl.setText("Desktop Client V1.1.6");
 
         sitesBtn.setText("Rerouted websites");
         sitesBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -555,4 +560,27 @@ public class vpnConnect extends javax.swing.JFrame {
         ExecutorTask.setTimeout(() -> this.IpTrack(), 5000);
     }
 
+    public void checkCommit(){
+        
+        BufferedReader br;
+    
+        try {
+            br = new BufferedReader(new FileReader("../.git/FETCH_HEAD"));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+  
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            String everything = sb.toString();
+            System.out.println("Commit# " + everything.split("\t")[0]);
+        } catch (FileNotFoundException ex) {
+            System.out.println("-commit not found-");
+        } catch (IOException ex) {
+            System.out.println("-commit not found-");
+        }
+    }
+    
 }
