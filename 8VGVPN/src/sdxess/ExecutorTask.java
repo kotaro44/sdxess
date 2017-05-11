@@ -54,7 +54,7 @@ public class ExecutorTask implements Runnable{
                     System.out.println("---------------------------------Connection start---------------------------------");
                     frame.connected( sites2route );
                  //RESTARTED CONNECTION
-                 }else if( line.contains("Connection reset, restarting") ){
+                 }else if( line.contains("Connection reset, restarting") || line.contains("Restart pause,") ){
                      frame.reconnecting(this.connected);
                      this.connected = false;
                      this.abort = true;
