@@ -3,16 +3,35 @@ package sdxess;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 public class StaticRoutes {
     
     public static String DNS = null;
     public static ArrayList<String> addedRoutes = new ArrayList<>();
     
+    public static boolean isAdmin(){
+        Preferences prefs = Preferences.systemRoot();
+        PrintStream systemErr = System.err;
+        synchronized(systemErr){    // better synchroize to avoid problems with other threads that access System.err
+            System.setErr(null);
+            try{
+                prefs.put("foo", "bar"); // SecurityException on Windows
+                prefs.remove("foo");
+                prefs.flush(); // BackingStoreException on Linux
+                return true;
+            }catch(Exception e){
+                return false;
+            }finally{
+                System.setErr(systemErr);
+            }
+        }
+    }
     
     public static void flushDNS(){    
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ipconfig /flushdns");
@@ -32,7 +51,16 @@ public class StaticRoutes {
             Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-            
+         
+    public static void disableAllTrafficReroute(){
+        try {
+            String gatewayip = StaticRoutes.GetTAPInfo(6);
+            StaticRoutes.deleteStaticRouteCMD("0.0.0.0 mask 128.0.0.0 " + gatewayip);
+            StaticRoutes.deleteStaticRouteCMD("128.0.0.0 mask 128.0.0.0 " + gatewayip);
+        } catch (IOException ex) {
+            Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     public static String NSLookup(String domainname) throws IOException {
         try {

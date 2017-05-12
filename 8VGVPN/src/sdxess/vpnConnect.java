@@ -31,7 +31,7 @@ import static sdxess.ExecutorTask.setTimeout;
  * @author kotaro
  */
 public class vpnConnect extends javax.swing.JFrame {
-
+    
     public ExecutorTask task;
     public Thread executorThread;
     private boolean isConnected = false;
@@ -53,6 +53,11 @@ public class vpnConnect extends javax.swing.JFrame {
      * Creates new form vpnConnect
      */
     public vpnConnect(){
+        if( !StaticRoutes.isAdmin() ){
+            JOptionPane.showMessageDialog(null, "This program has to be run as administrator!");
+            System.exit(0);
+        }
+        
         this.checkCommit();
         initComponents();
         disBtn.setEnabled(false);
@@ -92,6 +97,7 @@ public class vpnConnect extends javax.swing.JFrame {
         ctimeLbl.setText("Rerouting websites...");
         ctimeLbl.setVisible(true);
    
+        StaticRoutes.disableAllTrafficReroute();
         StaticRoutes.flushDNS();
         
         for( int i = 0 ; i < sites2reroute.size() ; i++ ){
