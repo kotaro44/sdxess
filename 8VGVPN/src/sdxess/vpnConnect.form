@@ -65,8 +65,8 @@
               <Group type="102" alignment="0" attributes="0">
                   <Component id="logoLbl" min="-2" pref="89" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="jPanel1" max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -80,10 +80,6 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="ctimeLbl" min="-2" pref="244" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          </Group>
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="consoleLabel" alignment="0" max="32767" attributes="0"/>
@@ -115,14 +111,23 @@
                               <Component id="puttyCheck" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="redirectCheck" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          </Group>
                       </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="ctimeLbl" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="connectBtn" min="-2" pref="90" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="disBtn" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="73" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="63" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -148,13 +153,15 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="puttyCheck" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ctimeLbl" min="-2" pref="14" max="-2" attributes="0"/>
+                      <Component id="redirectCheck" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="connectBtn" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="disBtn" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="ctimeLbl" min="-2" pref="14" max="-2" attributes="0"/>
+                      <EmptySpace pref="21" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -214,7 +221,7 @@
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="2">
                     <StringItem index="0" value="sdxess-is32"/>
-                    <StringItem index="1" value="sdxess-is32-All traffic"/>
+                    <StringItem index="1" value="sdxess-is32-noroute"/>
                   </StringArray>
                 </Property>
               </Properties>
@@ -231,6 +238,11 @@
             <Component class="javax.swing.JCheckBox" name="puttyCheck">
               <Properties>
                 <Property name="text" type="java.lang.String" value="use Putty SSH Tunnel"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="redirectCheck">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="redirect All Traffic"/>
               </Properties>
             </Component>
           </SubComponents>
