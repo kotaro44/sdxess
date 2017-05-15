@@ -134,6 +134,10 @@ public class vpnConnect extends javax.swing.JFrame {
         
     }
     
+    public void updateMessage(String message){
+        consoleLabel.setText(message);
+    }
+    
     public void reconnecting(boolean previouslyConnected){
         if( previouslyConnected ){
             consoleLabel.setText("Communication lost... reconnecting...");
@@ -440,7 +444,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        verLbl.setText("Desktop Client V1.1.6");
+        verLbl.setText("Desktop Client V1.1.7");
 
         sitesBtn.setText("Rerouted websites");
         sitesBtn.addActionListener(new java.awt.event.ActionListener() {

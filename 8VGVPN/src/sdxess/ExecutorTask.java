@@ -86,8 +86,12 @@ public class ExecutorTask implements Runnable{
                         StaticRoutes.addedRoutes.add(matcher.group(1));
                     }
                  //DEFAULT
+                 } if ( line.contains("[server] Peer Connection Initiated") ){ 
+                    frame.updateMessage("Rerouting IP's...");
+                    this.abort = true;
+                    System.out.println(line);
                  } else {
-                     System.out.println(line);
+                    System.out.println(line);
                  }
              }
              
