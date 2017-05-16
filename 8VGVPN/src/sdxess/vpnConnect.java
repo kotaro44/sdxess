@@ -166,7 +166,7 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(true);
         passField.setEnabled(true);
         connectBtn.setEnabled(true);
-        puttyCheck.setEnabled(true);
+        //puttyCheck.setEnabled(true);
         redirectCheck.setEnabled(true);
         redirectCheck.setEnabled(true);
         ctimeLbl.setVisible(false);
@@ -183,7 +183,7 @@ public class vpnConnect extends javax.swing.JFrame {
         passField.setEnabled(true);
         serverCombo.setEnabled(true);
         connectBtn.setEnabled(true);
-        puttyCheck.setEnabled(true);
+        //puttyCheck.setEnabled(true);
         redirectCheck.setEnabled(true);
         if( byError )
             consoleLabel.setText("disconnected due time out.");
@@ -200,7 +200,7 @@ public class vpnConnect extends javax.swing.JFrame {
         this.task.end();
         vpnConnect.disconnect();
         
-        if( puttyCheck.isSelected() ){
+        /*if( puttyCheck.isSelected() ){
             try {
                 Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM putty.exe");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -208,7 +208,7 @@ public class vpnConnect extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
+        }*/
     }
     
     /*Interbnal functions*/
@@ -304,7 +304,6 @@ public class vpnConnect extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         serverCombo = new javax.swing.JComboBox<>();
         ctimeLbl = new javax.swing.JLabel();
-        puttyCheck = new javax.swing.JCheckBox();
         redirectCheck = new javax.swing.JCheckBox();
         logoLbl = new javax.swing.JLabel();
         verLbl = new javax.swing.JLabel();
@@ -345,8 +344,6 @@ public class vpnConnect extends javax.swing.JFrame {
         ctimeLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         ctimeLbl.setText("Connection Time");
 
-        puttyCheck.setText("use Putty SSH Tunnel");
-
         redirectCheck.setText("redirect All Traffic");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -376,9 +373,6 @@ public class vpnConnect extends javax.swing.JFrame {
                                 .addGap(0, 0, Short.MAX_VALUE)))
                         .addGap(40, 40, 40))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(puttyCheck)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(redirectCheck)
                         .addGap(0, 0, Short.MAX_VALUE))))
             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -390,7 +384,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addComponent(connectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(disBtn)
-                .addGap(63, 63, 63))
+                .addGap(68, 68, 68))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -408,9 +402,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(puttyCheck)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(redirectCheck)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -418,7 +410,7 @@ public class vpnConnect extends javax.swing.JFrame {
                     .addComponent(disBtn))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ctimeLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         logoLbl.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
@@ -440,8 +432,7 @@ public class vpnConnect extends javax.swing.JFrame {
             .addGroup(jLayeredPane1Layout.createSequentialGroup()
                 .addComponent(logoLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         verLbl.setText("Desktop Client V1.1.7");
@@ -507,14 +498,12 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(false);
         passField.setEnabled(false);
         connectBtn.setEnabled(false);
-        puttyCheck.setEnabled(false);
+        //puttyCheck.setEnabled(false);
         redirectCheck.setEnabled(false);
 
-        if( puttyCheck.isSelected() ){
-            setTimeout(() -> this.createPuttyTunnel(), 10);
-        }else{
-            setTimeout(() -> this.createTunnel(), 10);
-        }
+        
+        setTimeout(() -> this.createTunnel(), 10);
+
     }//GEN-LAST:event_connectBtnActionPerformed
 
     TimerTask timetask = new TimerTask() {
@@ -586,7 +575,6 @@ public class vpnConnect extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel logoLbl;
     private javax.swing.JPasswordField passField;
-    private javax.swing.JCheckBox puttyCheck;
     private javax.swing.JCheckBox redirectCheck;
     private javax.swing.JComboBox<String> serverCombo;
     private javax.swing.JButton sitesBtn;
