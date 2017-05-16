@@ -7,7 +7,7 @@ del 8VGVPN\SDXess.bat
 del 8VGVPN\SDXess-debug.bat
 del "%HOMEDRIVE%%HOMEPATH%\Desktop\SDXess.lnk"
 del "%HOMEDRIVE%%HOMEPATH%\Desktop\SDXess-debug.lnk"  
-"TAP-Windows\tapinstall.exe" remove tap0901
+runas /user:Administrator "TAP-Windows\tapinstall.exe" remove tap0901
 
 echo Done.
 
