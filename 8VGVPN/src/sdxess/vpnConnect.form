@@ -250,7 +250,7 @@
     </Container>
     <Component class="javax.swing.JLabel" name="verLbl">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Desktop Client V1.1.7"/>
+        <Property name="text" type="java.lang.String" value="Desktop Client V1.1.8"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="sitesBtn">

@@ -435,7 +435,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        verLbl.setText("Desktop Client V1.1.7");
+        verLbl.setText("Desktop Client V1.1.8");
 
         sitesBtn.setText("Rerouted websites");
         sitesBtn.addActionListener(new java.awt.event.ActionListener() {

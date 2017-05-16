@@ -46,8 +46,6 @@ public class ExecutorTask implements Runnable{
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line="";
             
-            line = reader.readLine();
-            System.out.println( line );
                        
             //if( this != null )
              //   return;
