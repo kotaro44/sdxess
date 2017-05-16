@@ -26,13 +26,18 @@ echo oLink.Save >> CreateShortcut.vbs
 cscript CreateShortcut.vbs
 del CreateShortcut.vbs
 
+echo Set oWS = WScript.CreateObject("WScript.Shell") > CreateShortcut.vbs
+echo sLinkFile = "%HOMEDRIVE%%HOMEPATH%\Desktop\SDXess - debug.lnk" >> CreateShortcut.vbs
+echo Set oLink = oWS.CreateShortcut(sLinkFile) >> CreateShortcut.vbs
+echo oLink.TargetPath = "%current%\SDXess-debug.bat" >> CreateShortcut.vbs
+echo oLink.Save >> CreateShortcut.vbs
+cscript CreateShortcut.vbs
+del CreateShortcut.vbs
+
 
 echo Setting up TAP-Windows
 cd ..
 
-"TAP-Windows\tapinstall.exe" install "TAP-Windows\driver\OemVista.inf" tap0901
-
-
-echo Installation process completed.
+"TAP-Windows\bin\tapinstall.exe" install "TAP-Windows\driver\OemVista.inf" tap0901
 
 pause
