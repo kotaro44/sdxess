@@ -37,7 +37,7 @@ public class ExecutorTask implements Runnable{
     @Override
     public void run() {
         try {
-            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "openvpn " + this.server + ".ovpn" );
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "\"lib/openvpn/openvpn.exe\" " + this.server + ".ovpn" );
             //ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "dir" );
             
             process = builder.start();
@@ -46,13 +46,13 @@ public class ExecutorTask implements Runnable{
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line="";
             
-            /*line = reader.readLine();
-            System.out.println( line );*/
+            line = reader.readLine();
+            System.out.println( line );
                        
             //if( this != null )
              //   return;
              
-             setTimeout(() -> this.connectionTimeout(), 25000);
+             //setTimeout(() -> this.connectionTimeout(), 25000);
              
              while ((line = reader.readLine()) != null) {
                

@@ -1,5 +1,5 @@
 @echo off
-cd 8VGVPN
+cd %~dp0/8VGVPN
 set current=%cd%
 
 echo preparing to install SDXess...
@@ -26,6 +26,13 @@ echo oLink.Save >> CreateShortcut.vbs
 cscript CreateShortcut.vbs
 del CreateShortcut.vbs
 
-echo Done. Run SDXess as Administrator.
+
+echo Setting up TAP-Windows
+cd ..
+
+"TAP-Windows\bin\tapinstall.exe" install "TAP-Windows\driver\OemVista.inf" tap0901
+
+
+echo Installation process completed.
 
 pause
