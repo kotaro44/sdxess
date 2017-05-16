@@ -27,7 +27,7 @@ cscript CreateShortcut.vbs
 del CreateShortcut.vbs
 
 echo Set oWS = WScript.CreateObject("WScript.Shell") > CreateShortcut.vbs
-echo sLinkFile = "%HOMEDRIVE%%HOMEPATH%\Desktop\SDXess - debug.lnk" >> CreateShortcut.vbs
+echo sLinkFile = "%HOMEDRIVE%%HOMEPATH%\Desktop\SDXess-debug.lnk" >> CreateShortcut.vbs
 echo Set oLink = oWS.CreateShortcut(sLinkFile) >> CreateShortcut.vbs
 echo oLink.TargetPath = "%current%\SDXess-debug.bat" >> CreateShortcut.vbs
 echo oLink.Save >> CreateShortcut.vbs
