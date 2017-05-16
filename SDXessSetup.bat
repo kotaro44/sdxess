@@ -38,6 +38,6 @@ del CreateShortcut.vbs
 echo Setting up TAP-Windows
 cd ..
 
-"TAP-Windows\bin\tapinstall.exe" install "TAP-Windows\driver\OemVista.inf" tap0901
+"TAP-Windows\tapinstall.exe" install "TAP-Windows\driver\OemVista.inf" tap0901
 
 pause
