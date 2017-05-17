@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 	
 	
 	cout<<"Setting up TAP-Windows.."<<endl;
-	system("TAP-Windows\\tapinstall.exe install TAP-Windows\\driver\\OemVista.inf tap0901");
+	system("start TAP-Windows\\tapinstall.exe install TAP-Windows\\driver\\OemVista.inf tap0901");
 
 	system("pause");
     return EXIT_SUCCESS;
