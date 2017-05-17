@@ -69,6 +69,9 @@ int main(int argc, char *argv[])
 	command = string("echo oLink.TargetPath = \"") + location + string("\\8VGVPN\\SDXess.bat\" >> CreateShortcut.vbs");
 	system(command.c_str());
 	
+	command = string("echo oLink.IconLocation = \"") + location + string("\\sdxess.ico\" >> CreateShortcut.vbs");
+	system(command.c_str());
+	
 	system("echo oLink.Save >> CreateShortcut.vbs");
 	system("cscript CreateShortcut.vbs");
 	system("del CreateShortcut.vbs");
@@ -77,6 +80,9 @@ int main(int argc, char *argv[])
 	system("echo Set oLink = oWS.CreateShortcut(sLinkFile) >> CreateShortcut.vbs");
 	
 	command = string("echo oLink.TargetPath = \"") + location + string("\\8VGVPN\\SDXess-debug.bat\" >> CreateShortcut.vbs");
+	system(command.c_str());
+	
+	command = string("echo oLink.IconLocation = \"") + location + string("\\sdxess.ico\" >> CreateShortcut.vbs");
 	system(command.c_str());
 	
 	system("echo oLink.Save >> CreateShortcut.vbs");
