@@ -13,8 +13,32 @@ string ExePath() {
     return string( buffer ).substr( 0, pos);
 }
 
+BOOL IsElevated( ) {
+    BOOL fRet = FALSE;
+    HANDLE hToken = NULL;
+    if( OpenProcessToken( GetCurrentProcess( ),TOKEN_QUERY,&hToken ) ) {
+        TOKEN_ELEVATION Elevation;
+        DWORD cbSize = sizeof( TOKEN_ELEVATION );
+        if( GetTokenInformation( hToken, TokenElevation, &Elevation, sizeof( Elevation ), &cbSize ) ) {
+            fRet = Elevation.TokenIsElevated;
+        }
+    }
+    if( hToken ) {
+        CloseHandle( hToken );
+    }
+    return fRet;
+}
+
 int main(int argc, char *argv[])
 {
+	
+	if( !IsElevated() ){
+		cout<<"This Installer needs to be run as Administrador!"<<endl;
+		system("pause");
+		return 0;
+	}
+	
+	
 	string location = ExePath();
 	cout<<"Location: "<<location<<endl;
 	cout<<"preparing to install SDXess..."<<endl;
