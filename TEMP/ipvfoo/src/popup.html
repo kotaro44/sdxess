@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<!--
+Copyright (C) 2011  Paul Marks  http://www.pmarks.net/
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<head>
+<style type="text/css">
+body {
+  margin: 0;
+  font-family: serif;
+  font-size: medium;
+}
+table, td, tr {
+  border-width: 1px;
+  border-collapse: collapse;
+  border-color: #888;
+  border-style: solid;
+  padding: 0pt 3pt 0pt 3pt;
+  white-space: nowrap;
+}
+tr {
+  height: 21px;
+}
+.mainRow {
+  font-weight: bold;
+}
+.cacheCell {
+  border-left-width: 0;
+}
+.ipCell {
+  font-family: monospace;
+  border-right-width: 0;
+  color: #000080;
+  padding-right: 0;
+}
+.ip4 {
+  color: #800000;
+}
+.ip6 {
+  color: #008000;
+}
+.highlight {
+  background-color: #ffff90;
+}
+.border {
+  display: inline-block;
+  float: left;
+  padding: 6px;
+}
+#spill_count_container {
+  text-align: center;
+  font-weight: bold;
+  color: #888;
+}
+</style>
+<script type="text/javascript" src="popup.js"></script>
+</head>
+
+<body>
+<div class="border">
+  <table id="addr_table"></table>
+  <div id="spill_count_container">
+  &#x22ee; <span id="spill_count">0</span> requests omitted
+  </div>
+</div>
+</body>
+
+</html>
