@@ -170,7 +170,7 @@ public class StaticRoutes {
     }
     
     public static String GetTAPInfo(int tapindex) throws IOException {
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "\"lib/openvpn/openvpn.exe\" --show-net");
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "\"openvpn/openvpn.exe\" --show-net");
         builder.redirectErrorStream(true);
         Process p = builder.start();
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));

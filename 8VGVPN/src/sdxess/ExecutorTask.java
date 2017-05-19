@@ -37,7 +37,7 @@ public class ExecutorTask implements Runnable{
     @Override
     public void run() {
         try {
-            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "\"lib/openvpn/openvpn.exe\" " + this.server + ".ovpn" );
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "\"openvpn/openvpn.exe\" confs/" + this.server );
             //ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "dir" );
             
             process = builder.start();
@@ -79,7 +79,7 @@ public class ExecutorTask implements Runnable{
                     }
                     
                  //Static route ROUTE PARAMETER
-                 } else if( line.contains("route.exe ADD") && line.contains("255.255.0.0") ){
+                 } else if( line.contains("route.exe ADD") ){
                     Pattern pattern = Pattern.compile("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]");
                     Matcher matcher = pattern.matcher(line);
                     if (matcher.find()){
@@ -91,10 +91,14 @@ public class ExecutorTask implements Runnable{
                     if (matcher.find()){
                         StaticRoutes.addedRoutes.add(matcher.group(1));
                     }
+                    
+                    frame.updateMessage("Rerouted " + StaticRoutes.addedRoutes.size() + " IP's...");
                  //DEFAULT
                  } if ( line.contains("[server] Peer Connection Initiated") ){ 
                     frame.updateMessage("Rerouting IP's...");
+                    frame.stablishedCommunication();
                     this.abort = true;
+                    
                     System.out.println(line);
                  } else {
                     System.out.println(line);
