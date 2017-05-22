@@ -24,7 +24,14 @@ public class HostEdit extends javax.swing.JFrame {
     private ArrayList<Website> websites;
     
    
-    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public HostEdit(ArrayList<Website> websites)  {
         initComponents();
         
@@ -128,7 +135,14 @@ public class HostEdit extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void restartDNS(){
         try {
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "" );
@@ -148,6 +162,14 @@ public class HostEdit extends javax.swing.JFrame {
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     private void delBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delBtnActionPerformed
         if( sitesTable.getSelectedRow() != -1 ){
             String name = (String) tableModel.getValueAt(sitesTable.getSelectedRow(), 0);
@@ -166,6 +188,14 @@ public class HostEdit extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_delBtnActionPerformed
 
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
         Website website = new Website("8vg.org");
         this.websites.add(website);
@@ -177,6 +207,14 @@ public class HostEdit extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_addBtnActionPerformed
 
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
         int index = sitesTable.getSelectedRow();
         if( index == -1 )

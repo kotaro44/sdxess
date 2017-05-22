@@ -21,11 +21,27 @@ public class ExecutorTask implements Runnable{
     private boolean abort = false;
     private String server = "";
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public ExecutorTask(vpnConnect frame, String server) {
         this.frame = frame;
         this.server = server;
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public void end(){
         this.abort = true;
         if( process != null ){
@@ -34,6 +50,14 @@ public class ExecutorTask implements Runnable{
         }
     }
        
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     @Override
     public void run() {
         try {
@@ -41,7 +65,8 @@ public class ExecutorTask implements Runnable{
             //ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "dir" );
             
             process = builder.start();
-            ArrayList<String> sites2route = new ArrayList<String>();
+            ArrayList<String> ip2route = new ArrayList<String>();
+            ArrayList<Website> sites2route = new ArrayList<Website>();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line="";
@@ -58,7 +83,7 @@ public class ExecutorTask implements Runnable{
                  if( line.contains("Initialization Sequence Completed") && !this.connected   ){
                     this.connected = true;
                     System.out.println("---------------------------------Connection start---------------------------------");
-                    frame.connected( sites2route );
+                    frame.connected( ip2route , sites2route );
                  //RESTARTED CONNECTION
                  }else if( line.contains("Connection reset, restarting") || line.contains("Restart pause,") ){
                      frame.reconnecting(this.connected);
@@ -72,8 +97,22 @@ public class ExecutorTask implements Runnable{
                     Matcher matcher = pattern.matcher(line);
                     if (matcher.find()){
                         String[] parts = matcher.group(0).split(":"); 
-                        sites2route.add(parts[1] + " " + parts[2]);
+                        ip2route.add(parts[1] + " " + parts[2]);
                         System.out.println("Site added for rerouting: " + parts[1] + "(" + parts[2] + ")");
+                    }else{
+                        System.out.println(line);
+                    }
+                    
+                 //Static route ROUTE PARAMETER
+                 } else if( line.contains("sdxess-website") && line.contains("Unrecognized option") ){
+                     
+                    Pattern pattern = Pattern.compile("sdxess-website:[^(]*");
+                    Matcher matcher = pattern.matcher(line);
+                    if (matcher.find()){
+                        String[] parts = matcher.group(0).split(":"); 
+                        System.out.println(parts[1]);
+                        sites2route.add(new Website( parts[1] , parts[2] ));
+                        System.out.println("Website added for rerouting: " + parts[1]);
                     }else{
                         System.out.println(line);
                     }
@@ -83,7 +122,7 @@ public class ExecutorTask implements Runnable{
                     Pattern pattern = Pattern.compile("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]");
                     Matcher matcher = pattern.matcher(line);
                     if (matcher.find()){
-                        sites2route.add(matcher.group(0));
+                        ip2route.add(matcher.group(0));
                     }
                     
                     pattern = Pattern.compile("ADD\\s(.*)");
@@ -114,6 +153,14 @@ public class ExecutorTask implements Runnable{
         } 
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public void connectionTimeout(){
         if( !this.connected && !this.abort ){
             frame.notconnected("Connection timed out");
@@ -121,6 +168,14 @@ public class ExecutorTask implements Runnable{
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void setTimeout(Runnable runnable, int delay){
         new Thread(() -> {
             try {

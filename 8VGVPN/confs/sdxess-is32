@@ -1,12 +1,10 @@
 client
-;allow-pull-fqdn
-dev tun1
-proto tcp-client
+dev tap1
+proto udp
 connect-retry 0
-;proto udp
-;remote 122.116.225.198 5000
-remote localhost 9090
-resolv-retry infinite
+resolv-retry 0
+ping-restart 0
+remote 122.116.225.198 5000
 mute-replay-warnings
 nobind
 user nobody

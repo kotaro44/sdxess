@@ -40,6 +40,7 @@ public class vpnConnect extends javax.swing.JFrame {
     private boolean connectionEstablished = false;
     private StringBuilder sb;
     private BufferedReader br;
+    private ArrayList<Website> IPlist;
     private ArrayList<Website> websites;
     private int retries = 0;
     
@@ -100,9 +101,10 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public void connected( ArrayList<String> sites2reroute ){
+    public void connected( ArrayList<String> sites2reroute , ArrayList<Website> websites){
         this.retries = 0;
-        this.websites = new ArrayList<Website>();
+        this.IPlist = new ArrayList<Website>();
+        this.websites = websites;
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem());
         sitesBtn.setVisible(true);
         ctimeLbl.setText("Rerouting websites...");
@@ -129,7 +131,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 website.IP = parts[1];
                 website.isStatic = true;
             }
-            this.websites.add(website);
+            this.IPlist.add(website);
         }
         
         this.rerouteSites();
@@ -251,7 +253,7 @@ public class vpnConnect extends javax.swing.JFrame {
     public void disconnectFromVPN(boolean byError){
         this.task.end();
         vpnConnect.disconnect();
-        this.tunnelProcess.destroyForcibly();
+        //this.tunnelProcess.destroyForcibly();
         
         this.retries = 0;
         this.isConnected = false;
@@ -435,7 +437,8 @@ public class vpnConnect extends javax.swing.JFrame {
         //puttyCheck.setEnabled(false);
         redirectCheck.setEnabled(false);
 
-        setTimeout(() -> this.createTunnel(), 10);
+        //setTimeout(() -> this.createTunnel(), 10);
+        ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
     }
     
     /**
@@ -467,7 +470,7 @@ public class vpnConnect extends javax.swing.JFrame {
         setResizable(false);
 
         verLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        verLbl.setText("Client V1.2.1");
+        verLbl.setText("Client V1.2.2");
 
         sitesBtn.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         sitesBtn.setText("Rerouted websites");
@@ -735,8 +738,8 @@ public class vpnConnect extends javax.swing.JFrame {
     ***************************************************************************/
     private void rerouteSites() {
      
-        for (int i = 0; i < this.websites.size(); i++) {
-            Website website = this.websites.get(i);
+        for (int i = 0; i < this.IPlist.size(); i++) {
+            Website website = this.IPlist.get(i);
             
             if( !website.isStatic ){
                 System.out.println("Website " + (i+1) +": "+website.name);
@@ -786,7 +789,7 @@ public class vpnConnect extends javax.swing.JFrame {
     ***************************************************************************/
     private void IpTrack(){
         if( this.isConnected ){
-            vpnConnect.IPCheck(this.websites);
+            vpnConnect.IPCheck(this.IPlist);
             ExecutorTask.setTimeout(() -> this.IpTrack(), 5000);
         }
     }

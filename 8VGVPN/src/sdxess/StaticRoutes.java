@@ -15,6 +15,14 @@ public class StaticRoutes {
     public static String DNS = null;
     public static ArrayList<String> addedRoutes = new ArrayList<>();
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static boolean isAdmin(){
         Preferences prefs = Preferences.systemRoot();
         PrintStream systemErr = System.err;
@@ -33,6 +41,14 @@ public class StaticRoutes {
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void flushDNS(){    
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ipconfig /flushdns");
         builder.redirectErrorStream(true);
@@ -52,9 +68,22 @@ public class StaticRoutes {
         }
     }
          
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void disableAllTrafficReroute(){
         try {
+            
             String gatewayip = StaticRoutes.GetTAPInfo(6);
+            String[] parts = gatewayip.split("\\.");
+            gatewayip = parts[0] + "." + parts[1] + "." + parts[2] + ".1";
+            
+            System.out.println(gatewayip);
             StaticRoutes.deleteStaticRouteCMD("0.0.0.0 mask 128.0.0.0 " + gatewayip);
             StaticRoutes.deleteStaticRouteCMD("128.0.0.0 mask 128.0.0.0 " + gatewayip);
         } catch (IOException ex) {
@@ -62,6 +91,14 @@ public class StaticRoutes {
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static String NSLookup(String domainname) throws IOException {
         try {
             InetAddress inetHost = InetAddress.getByName(domainname);
@@ -72,6 +109,14 @@ public class StaticRoutes {
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip) throws IOException{
         subnetmask = "255.255.0.0";
         String route = destination_ip+" MASK "+subnetmask+" "+gatewayip;
@@ -93,6 +138,14 @@ public class StaticRoutes {
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void AddStaticRoute(String destination_ip) throws IOException{
         String subnetmask = "255.255.0.0"; 
         String gatewayip = StaticRoutes.GetTAPInfo(6);
@@ -116,6 +169,14 @@ public class StaticRoutes {
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void deleteStaticRoute(String destination_ip ) throws IOException{
         String[] splitted_Ip = destination_ip.split("\\.");
         if( splitted_Ip.length != 4 ){
@@ -141,6 +202,14 @@ public class StaticRoutes {
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void flushAddedRoutes(){
         for( int i = 0 ; i < StaticRoutes.addedRoutes.size() ; i++ ){
             try {
@@ -152,6 +221,14 @@ public class StaticRoutes {
         StaticRoutes.addedRoutes = new ArrayList<>();
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void deleteStaticRouteCMD(String route ) throws IOException{
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route DELETE "+ route);
         builder.redirectErrorStream(true);
@@ -169,6 +246,14 @@ public class StaticRoutes {
         }
     }
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static String GetTAPInfo(int tapindex) throws IOException {
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "\"openvpn/openvpn.exe\" --show-net");
         builder.redirectErrorStream(true);
@@ -340,6 +425,14 @@ public class StaticRoutes {
         return gettapconfig;
     }
 
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void main(String[] args) throws IOException {
         StaticRoutes test = new StaticRoutes();
         /*System.out.println(test.GetTAPInfo(1));
