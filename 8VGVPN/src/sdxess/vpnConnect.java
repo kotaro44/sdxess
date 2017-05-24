@@ -13,17 +13,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import static sdxess.ExecutorTask.setTimeout;
 
@@ -41,7 +39,7 @@ public class vpnConnect extends javax.swing.JFrame {
     private StringBuilder sb;
     private BufferedReader br;
     private ArrayList<Website> IPlist;
-    private ArrayList<Website> websites;
+    private ArrayList<Website> websites = new ArrayList<Website>();
     private int retries = 0;
     
     //timer variables
@@ -86,7 +84,7 @@ public class vpnConnect extends javax.swing.JFrame {
         
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                vpnConnect.disconnect();
+                disconnected(false);
                 System.exit(0);
             }
         });
@@ -102,6 +100,8 @@ public class vpnConnect extends javax.swing.JFrame {
     *** @param                                                               ***
     ***************************************************************************/
     public void connected( ArrayList<String> sites2reroute , ArrayList<Website> websites){
+        StaticRoutes.Start();
+        
         this.retries = 0;
         this.IPlist = new ArrayList<Website>();
         this.websites = websites;
@@ -121,21 +121,13 @@ public class vpnConnect extends javax.swing.JFrame {
         if( !redirectCheck.isSelected() )
             StaticRoutes.disableAllTrafficReroute();
         StaticRoutes.flushDNS();
+       
+        this.startTimer();
         
-        for( int i = 0 ; i < sites2reroute.size() ; i++ ){
-            String[] parts = sites2reroute.get(i).split(" ");
-            Website website = new Website(parts[0]);
-            if( website.isReachable() ){
-                
-            }else{
-                website.IP = parts[1];
-                website.isStatic = true;
-            }
-            this.IPlist.add(website);
+        for( Website website : this.websites ){
+            website.route();
         }
         
-        this.rerouteSites();
-        this.startTimer();
         /*try {
             //save host files
             br = new BufferedReader(new FileReader("C:/Windows/System32/drivers/etc/hosts"));
@@ -244,16 +236,19 @@ public class vpnConnect extends javax.swing.JFrame {
         
         if( vpnConnect.hostEdit != null )
             vpnConnect.hostEdit.setVisible(false);
-        
 
         ExecutorTask.setTimeout(() -> this.disconnectFromVPN(byError), 10);
         
     }
     
     public void disconnectFromVPN(boolean byError){
-        this.task.end();
-        vpnConnect.disconnect();
-        //this.tunnelProcess.destroyForcibly();
+        if( this.task != null )
+            this.task.end();
+        StaticRoutes.flushAddedRoutes();
+        
+        websites.forEach((website) -> {
+            website.deleteRouting();
+        }); 
         
         this.retries = 0;
         this.isConnected = false;
@@ -275,8 +270,6 @@ public class vpnConnect extends javax.swing.JFrame {
             consoleLabel.setText("disconnected.");
         ctimeLbl.setVisible(false);
         ctimeLbl.setText("");
-        
-        
         this.seconds = 0;
         
         
@@ -289,6 +282,15 @@ public class vpnConnect extends javax.swing.JFrame {
                 Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
             }
         }*/
+        
+        try {
+            Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            System.out.println("openvpn Process exited.");
+            
+        } catch (IOException ex) {
+            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /***************************************************************************
@@ -401,26 +403,6 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public static void disconnect(){
-        StaticRoutes.flushAddedRoutes();
-        try {
-            Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            System.out.println("openvpn Process exited.");
-            
-        } catch (IOException ex) {
-            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
     public void connect(){
         String pass = String.copyValueOf(passField.getPassword());
 
@@ -470,7 +452,7 @@ public class vpnConnect extends javax.swing.JFrame {
         setResizable(false);
 
         verLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        verLbl.setText("Client V1.2.2");
+        verLbl.setText("Client V1.2.3");
 
         sitesBtn.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         sitesBtn.setText("Rerouted websites");
@@ -701,8 +683,7 @@ public class vpnConnect extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(vpnConnect.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
-        
+    
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -727,83 +708,6 @@ public class vpnConnect extends javax.swing.JFrame {
     private javax.swing.JTextField userField;
     private javax.swing.JLabel verLbl;
     // End of variables declaration//GEN-END:variables
-
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    private void rerouteSites() {
-     
-        for (int i = 0; i < this.IPlist.size(); i++) {
-            Website website = this.IPlist.get(i);
-            
-            if( !website.isStatic ){
-                System.out.println("Website " + (i+1) +": "+website.name);
-                try {
-                    StaticRoutes.AddStaticRoute( website.IP );
-                } catch (IOException ex) {
-                    Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        
-        this.startIpTrack();
-    }
-    
-    /***************************************************************************
-    ***  brief checks if the ip address of all received websites had change  ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in ArrayList<Website>                                     ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    public static void IPCheck(ArrayList<Website> websites){
-        try {
-            for( int i = 0 ; i < websites.size() ; i++ ){
-                Website website = websites.get(i);
-                String IP = Website.getClassB( StaticRoutes.NSLookup(website.name) );
-                if( !website.isStatic && website.IP.compareTo(IP) != 0 && Website.isIP(IP) ){
-                    System.out.println(website.name + " Ip changed, updating routes...");
-                    //StaticRoutes.deleteStaticRoute(website.IP);
-                    website.IP = IP;
-                    StaticRoutes.AddStaticRoute(website.IP);
-                }
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    /***************************************************************************
-    ***  brief checks every 5 seconds if the ip of a site changed            ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    private void IpTrack(){
-        if( this.isConnected ){
-            vpnConnect.IPCheck(this.IPlist);
-            ExecutorTask.setTimeout(() -> this.IpTrack(), 5000);
-        }
-    }
-    
-    /***************************************************************************
-    ***  brief FIrst run for IPtrack function                                ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    ***************************************************************************/
-    private void startIpTrack(){
-        ExecutorTask.setTimeout(() -> this.IpTrack(), 5000);
-    }
 
     /***************************************************************************
     ***  brief this function check the commit id from git and print it in    ***

@@ -14,6 +14,7 @@ public class StaticRoutes {
     
     public static String DNS = null;
     public static ArrayList<String> addedRoutes = new ArrayList<>();
+    public static String sdxessGateway = "";
     
     /***************************************************************************
     ***  brief                                                               ***
@@ -39,6 +40,19 @@ public class StaticRoutes {
                 System.setErr(systemErr);
             }
         }
+    }
+    
+    public static void Start(){
+        //WE ADD THE X.X.X.1 TO THE GATEWAY SINCE THE CONNECTION IS BY UDP
+        String gatewayip;
+        try {
+            gatewayip = StaticRoutes.GetTAPInfo(6);
+            String[] parts = gatewayip.split("\\.");
+            StaticRoutes.sdxessGateway = parts[0] + "." + parts[1] + "." + parts[2] + ".1";
+        } catch (IOException ex) {
+            Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
     }
     
     /***************************************************************************
@@ -77,18 +91,8 @@ public class StaticRoutes {
     *** @param                                                               ***
     ***************************************************************************/
     public static void disableAllTrafficReroute(){
-        try {
-            
-            String gatewayip = StaticRoutes.GetTAPInfo(6);
-            String[] parts = gatewayip.split("\\.");
-            gatewayip = parts[0] + "." + parts[1] + "." + parts[2] + ".1";
-            
-            System.out.println(gatewayip);
-            StaticRoutes.deleteStaticRouteCMD("0.0.0.0 mask 128.0.0.0 " + gatewayip);
-            StaticRoutes.deleteStaticRouteCMD("128.0.0.0 mask 128.0.0.0 " + gatewayip);
-        } catch (IOException ex) {
-            Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        StaticRoutes.deleteStaticRoute("0.0.0.0","128.0.0.0",StaticRoutes.sdxessGateway);
+        StaticRoutes.deleteStaticRoute("128.0.0.0","128.0.0.0",StaticRoutes.sdxessGateway);
     }
     
     /***************************************************************************
@@ -117,24 +121,25 @@ public class StaticRoutes {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public static void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip) throws IOException{
-        subnetmask = "255.255.0.0";
-        String route = destination_ip+" MASK "+subnetmask+" "+gatewayip;
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route ADD "+ route);
-        StaticRoutes.addedRoutes.add(route);
-        builder.redirectErrorStream(true);
-        Process p = builder.start();
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = "";
-        int flag=0;
-        while (flag == 0) {
-            line = r.readLine();
-            if (line == null) {
-                flag = 1;
-                break; 
+    public static void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip){
+        try{
+            String route = destination_ip+" MASK "+subnetmask+" "+gatewayip;
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route ADD "+ route);
+            builder.redirectErrorStream(true);
+            Process p = builder.start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line = "";
+            int flag=0;
+            while (flag == 0) {
+                line = r.readLine();
+                if (line == null) {
+                    flag = 1;
+                    break; 
+                }
+                System.out.println(line);
             }
-            System.out.println(route);
-            System.out.println(line);
+        } catch( IOException ex ){
+            Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -146,30 +151,12 @@ public class StaticRoutes {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public static void AddStaticRoute(String destination_ip) throws IOException{
+    public static void AddStaticRoute(String destination_ip){
         String subnetmask = "255.255.0.0"; 
-        String gatewayip = StaticRoutes.GetTAPInfo(6);
-        
-        String route = destination_ip+" MASK "+subnetmask+" "+gatewayip;
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route ADD "+ route);
-        StaticRoutes.addedRoutes.add(route);
-        builder.redirectErrorStream(true);
-        Process p = builder.start();
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = "";
-        int flag=0;
-        while (flag == 0) {
-            line = r.readLine();
-            if (line == null) {
-                flag = 1;
-                break; 
-            }
-            System.out.println(route);
-            System.out.println(line);
-        }
+        StaticRoutes.AddStaticRoute(destination_ip,subnetmask,StaticRoutes.sdxessGateway);
     }
     
-    /***************************************************************************
+     /***************************************************************************
     ***  brief                                                               ***
     ***  serial number ????                                                  ***
     ***  parameter out <none>                                                ***
@@ -177,29 +164,8 @@ public class StaticRoutes {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public static void deleteStaticRoute(String destination_ip ) throws IOException{
-        String[] splitted_Ip = destination_ip.split("\\.");
-        if( splitted_Ip.length != 4 ){
-            System.out.println( destination_ip + " not a valid IP");
-            return;
-        }
-        destination_ip = splitted_Ip[0] + '.' + splitted_Ip[1] + ".0.0";
-
-        String route = "route DELETE "+destination_ip;
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", route);
-        builder.redirectErrorStream(true);
-        Process p = builder.start();
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = "";
-        int flag=0;
-        while (flag == 0) {
-            line = r.readLine();
-            if (line == null) {
-                flag = 1;
-                break; 
-            }
-            System.out.println(line);
-        }
+    public static void AddStaticRoute(String destination_ip, String subnetmask){
+        StaticRoutes.AddStaticRoute(destination_ip,subnetmask,StaticRoutes.sdxessGateway);
     }
     
     /***************************************************************************
@@ -212,11 +178,7 @@ public class StaticRoutes {
     ***************************************************************************/
     public static void flushAddedRoutes(){
         for( int i = 0 ; i < StaticRoutes.addedRoutes.size() ; i++ ){
-            try {
-                StaticRoutes.deleteStaticRouteCMD(StaticRoutes.addedRoutes.get(i));
-            } catch (IOException ex) {
-                Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            StaticRoutes.deleteStaticRouteCMD(StaticRoutes.addedRoutes.get(i));
         }
         StaticRoutes.addedRoutes = new ArrayList<>();
     }
@@ -229,21 +191,61 @@ public class StaticRoutes {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public static void deleteStaticRouteCMD(String route ) throws IOException{
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route DELETE "+ route);
-        builder.redirectErrorStream(true);
-        Process p = builder.start();
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = "";
-        int flag=0;
-        while (flag == 0) {
-            line = r.readLine();
-            if (line == null) {
-                flag = 1;
-                break; 
+    private static void deleteStaticRouteCMD( String route ) {
+        try {
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route DELETE "+ route);
+            builder.redirectErrorStream(true);
+            Process p = builder.start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line = "";
+            int flag=0;
+            while (flag == 0) {
+                line = r.readLine();
+                if (line == null) {
+                    flag = 1;
+                    break; 
+                }
+                System.out.println(line);
             }
-            System.out.println(line);
+        } catch( IOException ex ){
+            Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public static void deleteStaticRoute( String route , String mask , String gateway) {
+        deleteStaticRouteCMD( route + " MASK " + mask + " " + gateway );
+    }
+    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public static void deleteStaticRoute( String route , String mask ) {
+        deleteStaticRouteCMD( route + " MASK " + mask  );
+    }
+    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public static void deleteStaticRoute( String route  ) {
+        deleteStaticRouteCMD( route );
     }
     
     /***************************************************************************

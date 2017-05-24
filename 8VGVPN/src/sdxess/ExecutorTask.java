@@ -90,28 +90,13 @@ public class ExecutorTask implements Runnable{
                      this.connected = false;
                      this.abort = true;
                      
-                 //SDXess ROUTE PARAMETER
-                 } else if( line.contains("sdxess-route") && line.contains("Unrecognized option") ){
-                     
-                    Pattern pattern = Pattern.compile("sdxess-route:[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
-                    Matcher matcher = pattern.matcher(line);
-                    if (matcher.find()){
-                        String[] parts = matcher.group(0).split(":"); 
-                        ip2route.add(parts[1] + " " + parts[2]);
-                        System.out.println("Site added for rerouting: " + parts[1] + "(" + parts[2] + ")");
-                    }else{
-                        System.out.println(line);
-                    }
-                    
                  //Static route ROUTE PARAMETER
                  } else if( line.contains("sdxess-website") && line.contains("Unrecognized option") ){
-                     
                     Pattern pattern = Pattern.compile("sdxess-website:[^(]*");
                     Matcher matcher = pattern.matcher(line);
                     if (matcher.find()){
-                        String[] parts = matcher.group(0).split(":"); 
-                        System.out.println(parts[1]);
-                        sites2route.add(new Website( parts[1] , parts[2] ));
+                        String[] parts = matcher.group(0).split(":");
+                        sites2route.add(new Website( parts[1] ));
                         System.out.println("Website added for rerouting: " + parts[1]);
                     }else{
                         System.out.println(line);
@@ -132,16 +117,21 @@ public class ExecutorTask implements Runnable{
                     }
                     
                     frame.updateMessage("Rerouted " + StaticRoutes.addedRoutes.size() + " IP's...");
-                 //DEFAULT
-                 } if ( line.contains("[server] Peer Connection Initiated") ){ 
+                 
+                 } else if ( line.contains("[server] Peer Connection Initiated") ){ 
                     frame.updateMessage("Rerouting IP's...");
                     frame.stablishedCommunication();
                     this.abort = true;
                     
                     System.out.println(line);
+                 } else if ( line.contains("Exiting due to fatal error") ){ 
+                    frame.disconnected(true);
+                    System.out.println(line);
                  } else {
                     System.out.println(line);
                  }
+                 
+                 
              }
              
              if( !this.connected && !this.abort ){

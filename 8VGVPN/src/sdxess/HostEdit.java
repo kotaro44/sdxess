@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 /**
@@ -36,20 +37,7 @@ public class HostEdit extends javax.swing.JFrame {
         initComponents();
         
         this.websites = websites;
-        this.tableModel = new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-            },
-            new String [] {
-                "Website" , "Rerouted IP"
-            }
-        );
-        
-        for( int i = 0 ; i < this.websites.size() ; i++ ){
-            Website website = this.websites.get(i);
-            this.tableModel.addRow(new Object[]{ website.name , website.IP });
-        }
-        
-        sitesTable.setModel(this.tableModel);
+        this.updateTable();
 
     }
 
@@ -66,13 +54,12 @@ public class HostEdit extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         sitesTable = new javax.swing.JTable();
         delBtn = new javax.swing.JButton();
-        editBtn = new javax.swing.JButton();
+        detailBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Websites");
 
         addBtn.setText("Add Website");
-        addBtn.setEnabled(false);
         addBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addBtnActionPerformed(evt);
@@ -90,22 +77,21 @@ public class HostEdit extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        sitesTable.setEditingColumn(0);
+        sitesTable.setEditingRow(0);
         jScrollPane1.setViewportView(sitesTable);
 
         delBtn.setText("Delete Website");
-        delBtn.setEnabled(false);
         delBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 delBtnActionPerformed(evt);
             }
         });
 
-        editBtn.setText("Edit Website");
-        editBtn.setEnabled(false);
-        editBtn.setName("Websites"); // NOI18N
-        editBtn.addActionListener(new java.awt.event.ActionListener() {
+        detailBtn.setText("details");
+        detailBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                editBtnActionPerformed(evt);
+                detailBtnActionPerformed(evt);
             }
         });
 
@@ -116,9 +102,9 @@ public class HostEdit extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(addBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(editBtn)
+                .addComponent(delBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(delBtn))
+                .addComponent(detailBtn))
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -129,7 +115,7 @@ public class HostEdit extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addBtn)
                     .addComponent(delBtn)
-                    .addComponent(editBtn)))
+                    .addComponent(detailBtn)))
         );
 
         pack();
@@ -162,138 +148,86 @@ public class HostEdit extends javax.swing.JFrame {
         }
     }
     
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
+    public void updateTable(){
+        this.tableModel = new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+            },
+            new String [] {
+                "Website" , "Rerouted IP"
+            }
+        );
+        
+        for( int i = 0 ; i < this.websites.size() ; i++ ){
+            Website website = this.websites.get(i);
+            this.tableModel.addRow(new Object[]{ website.name , website.IP });
+        }
+
+        sitesTable.setModel(this.tableModel);
+    }
+    
     private void delBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delBtnActionPerformed
         if( sitesTable.getSelectedRow() != -1 ){
-            String name = (String) tableModel.getValueAt(sitesTable.getSelectedRow(), 0);
-            tableModel.removeRow(sitesTable.getSelectedRow());
-            for( int i = 0 ; i < this.websites.size() ; i++ ){
-                if( this.websites.get(i).name.compareTo(name) == 0 ){
-                    try {
-                        StaticRoutes.deleteStaticRoute(this.websites.get(i).IP);
-                        this.websites.remove(i);
-                        i = this.websites.size();
-                    } catch (IOException ex) {
-                        Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
+            int indexes[] = sitesTable.getSelectedRows();
+            ArrayList<Website> websites2remove = new ArrayList<Website>();
+            for( int index : indexes ){
+                websites2remove.add(this.websites.get(index));
             }
+            for( Website website : websites2remove ){
+                website.deleteRouting();
+            }
+            this.websites.removeAll(websites2remove);
+            this.updateTable();
         }
     }//GEN-LAST:event_delBtnActionPerformed
 
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
     private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
-        Website website = new Website("8vg.org");
-        this.websites.add(website);
-        this.tableModel.addRow(new Object[]{ website.name , website.IP });
-        try {
-            StaticRoutes.AddStaticRoute(website.IP);
-        } catch (IOException ex) {
-            Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+        String domain = JOptionPane.showInputDialog(this, "Enter Domain name" , "8vg.org");
+        if ( Website.isValidDomainName(domain) ) {
+            this.addWebsite(domain);
+        } else {
+            JOptionPane.showMessageDialog(this, domain + " is not a valid Domain name", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_addBtnActionPerformed
 
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
-        int index = sitesTable.getSelectedRow();
-        if( index == -1 )
-            return;
-        
-        String name = (String)tableModel.getValueAt(index, 0);
-        Website website = null;
-        
-        for( int i = 0 ; i < this.websites.size() ; i++ ){
-            if( this.websites.get(i).name.compareTo(name) == 0 ){
-                website = this.websites.get(i);
-            }
-        }
-        
-        if( website == null )
-            return;
-        
-        String new_name = JOptionPane.showInputDialog(
-            this, 
-            "Change Website Name (" + name + ") to:", 
-            name
-        );
-        
-        try {
-            website.name = new_name;
-            StaticRoutes.deleteStaticRoute(website.IP);
-            
-            if( Website.isIP(website.name) ){
-                website.IP = Website.getClassB( name );
-                website.isStatic = true;
-            }else{
-                website.isStatic = false;
-                website.updateIp();
-            }
-            
-            tableModel.setValueAt(website.name, index, 0);
-            tableModel.setValueAt(website.IP, index, 1);
-            StaticRoutes.AddStaticRoute(website.IP);
-            
-        } catch (IOException ex) {
-            Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       
-    }//GEN-LAST:event_editBtnActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
+    private void detailBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_detailBtnActionPerformed
+         if( sitesTable.getSelectedRow() != -1 ){
+            Website website = this.websites.get(sitesTable.getSelectedRow());
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new details(website).setVisible(true);
                 }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(HostEdit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(HostEdit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(HostEdit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(HostEdit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            });
         }
-        //</editor-fold>
+    }//GEN-LAST:event_detailBtnActionPerformed
 
-   
+    public void addWebsite(String domain){
+        addBtn.setEnabled(false);
+        delBtn.setEnabled(false);
+        detailBtn.setEnabled(false);
+        sitesTable.setEnabled(false);
+        
+        ExecutorTask.setTimeout(() -> this.addWebsiteAsync(domain), 10);
+    }
+    
+    private void addWebsiteAsync(String domain){
+        Website website = new Website(domain);
+        if( website.isValid ){
+            this.websites.add(website);
+            website.route();
+            this.updateTable();
+        }else{
+            JOptionPane.showMessageDialog(this, domain + " not found!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        addBtn.setEnabled(true);
+        delBtn.setEnabled(true);
+        detailBtn.setEnabled(true);
+        sitesTable.setEnabled(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addBtn;
     private javax.swing.JButton delBtn;
-    private javax.swing.JButton editBtn;
+    private javax.swing.JButton detailBtn;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable sitesTable;
     // End of variables declaration//GEN-END:variables
