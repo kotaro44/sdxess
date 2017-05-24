@@ -99,15 +99,14 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public void connected( ArrayList<String> sites2reroute , ArrayList<Website> websites){
+    public void connected( ArrayList<String> sites2reroute , ArrayList<String> websites){
         StaticRoutes.Start();
         
         this.retries = 0;
         this.IPlist = new ArrayList<Website>();
-        this.websites = websites;
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem());
         sitesBtn.setVisible(true);
-        ctimeLbl.setText("Rerouting websites...");
+        ctimeLbl.setText("Rerouting default websites...");
         ctimeLbl.setVisible(true);
         logginPanel.setVisible(false);
         
@@ -117,10 +116,17 @@ public class vpnConnect extends javax.swing.JFrame {
         connectBtn.setText("Disconnect");
         connectBtn.setEnabled(true);
         
+        this.repaint();
+        
+        this.websites = new ArrayList<Website>();
+        for( String domain : websites ){
+            this.websites.add( new Website(domain) );
+        }
    
         if( !redirectCheck.isSelected() )
             StaticRoutes.disableAllTrafficReroute();
         StaticRoutes.flushDNS();
+        
        
         this.startTimer();
         
@@ -452,7 +458,7 @@ public class vpnConnect extends javax.swing.JFrame {
         setResizable(false);
 
         verLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        verLbl.setText("Client V1.2.3");
+        verLbl.setText("Client V1.2.5");
 
         sitesBtn.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         sitesBtn.setText("Rerouted websites");

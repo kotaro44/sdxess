@@ -1,5 +1,4 @@
 client
-route-nopull
 dev tap1
 proto udp
 connect-retry 0

@@ -66,7 +66,7 @@ public class ExecutorTask implements Runnable{
             
             process = builder.start();
             ArrayList<String> ip2route = new ArrayList<String>();
-            ArrayList<Website> sites2route = new ArrayList<Website>();
+            ArrayList<String> sites2route = new ArrayList<String>();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line="";
@@ -96,7 +96,7 @@ public class ExecutorTask implements Runnable{
                     Matcher matcher = pattern.matcher(line);
                     if (matcher.find()){
                         String[] parts = matcher.group(0).split(":");
-                        sites2route.add(new Website( parts[1] ));
+                        sites2route.add(parts[1]);
                         System.out.println("Website added for rerouting: " + parts[1]);
                     }else{
                         System.out.println(line);
@@ -119,7 +119,7 @@ public class ExecutorTask implements Runnable{
                     frame.updateMessage("Rerouted " + StaticRoutes.addedRoutes.size() + " IP's...");
                  
                  } else if ( line.contains("[server] Peer Connection Initiated") ){ 
-                    frame.updateMessage("Rerouting IP's...");
+                    frame.updateMessage("Peer Connection Initiated...");
                     frame.stablishedCommunication();
                     this.abort = true;
                     

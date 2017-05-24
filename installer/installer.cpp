@@ -90,19 +90,6 @@ void install(){
 	system("echo oLink.Save >> CreateShortcut.vbs");
 	system("cscript CreateShortcut.vbs");
 	system("del CreateShortcut.vbs");
-	system("echo Set oWS = WScript.CreateObject(\"WScript.Shell\") > CreateShortcut.vbs");
-	system("echo sLinkFile = \"\%HOMEDRIVE\%\%HOMEPATH\%\\Desktop\\SDXess-debug.lnk\" >> CreateShortcut.vbs");
-	system("echo Set oLink = oWS.CreateShortcut(sLinkFile) >> CreateShortcut.vbs");
-	
-	command = string("echo oLink.TargetPath = \"") + location + string("\\files\\8VGVPN\\SDXess-debug.bat\" >> CreateShortcut.vbs");
-	system(command.c_str());
-	
-	command = string("echo oLink.IconLocation = \"") + location + string("\\files\\sdxess.ico\" >> CreateShortcut.vbs");
-	system(command.c_str());
-	
-	system("echo oLink.Save >> CreateShortcut.vbs");
-	system("cscript CreateShortcut.vbs");
-	system("del CreateShortcut.vbs");
 	
 	
 	cout<<"Setting up TAP-Windows.."<<endl;
