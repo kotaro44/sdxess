@@ -215,6 +215,8 @@ public class HostEdit extends javax.swing.JFrame {
         Website website = new Website(domain);
         if( website.isValid ){
             this.websites.add(website);
+            this.setTitle( this.windowName + " - ( Rerouting " + domain + " IP's... )");
+            this.repaint();
             website.route();
             this.updateTable();
         }else{

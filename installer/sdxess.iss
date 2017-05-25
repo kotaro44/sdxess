@@ -30,6 +30,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "creator.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "SDXess.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "remove-tap.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "DATA"; DestDir: "{app}"; Flags: ignoreversion
 

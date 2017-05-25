@@ -73,10 +73,12 @@ public class vpnConnect extends javax.swing.JFrame {
     ***************************************************************************/
     public void connect(){
         String pass = String.copyValueOf(passField.getPassword());
-
+        
+       
         if( pass.length() == 0 ){
             JOptionPane.showMessageDialog(null, "Please enter a Password!");
         }else{
+            
             consoleLabel.setText("connecting to " + 
                     serverCombo.getSelectedItem() + "...");
             userField.setEnabled(false);
@@ -127,7 +129,6 @@ public class vpnConnect extends javax.swing.JFrame {
         }
         
         this.checkCommit();
-        this.killOpenvpn();
         
         initComponents();
         this.getConfs();

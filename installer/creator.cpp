@@ -81,7 +81,7 @@ void install(){
 	system("echo sLinkFile = \"\%HOMEDRIVE\%\%HOMEPATH\%\\Desktop\\SDXess.lnk\" >> CreateShortcut.vbs");
 	system("echo Set oLink = oWS.CreateShortcut(sLinkFile) >> CreateShortcut.vbs");
 	
-	command = string("echo oLink.TargetPath = \"") + location + string("\\files\\8VGVPN\\SDXess.bat\" >> CreateShortcut.vbs");
+	command = string("echo oLink.TargetPath = \"") + location + string("\\SDXess.exe\" >> CreateShortcut.vbs");
 	system(command.c_str());
 	
 	command = string("echo oLink.IconLocation = \"") + location + string("\\files\\sdxess.ico\" >> CreateShortcut.vbs");
