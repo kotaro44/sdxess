@@ -97,12 +97,16 @@ public class Website {
     public Website(String name) {
         try {
             this.name = name;
-            this.ASN = Website.URLtoASN( this.name );
+            System.out.println("Rerouting " + this.name + "...");
+            this.IP = StaticRoutes.NSLookup(name);
+            
+            
             if( this.ASN == null ){
                 isValid = false;
             }else{
-                this.IP = StaticRoutes.NSLookup(name);
-
+                System.out.println("Getting info for: " + this.IP);
+                this.ASN = Website.IPtoASN( this.IP );
+                System.out.println(this.name + " belongs to: " + this.ASN);
                 String HTML = Website.ajaxGET("http://www.radb.net/query/" + 
                     "?advanced_query=1%091%091%091%091%091%091%091%091%091%091&keywords="
                         + ASN + "&query=Query&-K=1&-T=1&-T+option=route&ip_lookup="+
@@ -112,7 +116,11 @@ public class Website {
                 Matcher matcher = pattern.matcher(HTML);
 
                 String[] parts;
+                
+                System.out.println("processing " + this.ASN + " IP's");
+                int total = 0;
                 while(matcher.find()){
+                    total++;
                     parts = matcher.group(1).split("/");
                     boolean insert = true;
                     IPRange new_range = new IPRange(parts[0], Integer.parseInt(parts[1]));
@@ -122,14 +130,13 @@ public class Website {
                             insert = false;
                         }
                     }
-
                     if( insert )
                         this.ranges.add( new_range );
                 }
 
-
                 this.ranges.sort(null);
                 this.reduceRanges();
+                System.out.println("Reduced " + total + " to " + this.ranges.size() + " IP's");
             }
         } catch (IOException ex) {
             this.isValid = false;

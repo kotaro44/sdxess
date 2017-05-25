@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 /**
@@ -23,6 +22,7 @@ public class HostEdit extends javax.swing.JFrame {
     private StringBuilder sb = new StringBuilder();
     private BufferedReader br = null;
     private ArrayList<Website> websites;
+    private String windowName = "";
     
    
     /***************************************************************************
@@ -35,7 +35,7 @@ public class HostEdit extends javax.swing.JFrame {
     ***************************************************************************/
     public HostEdit(ArrayList<Website> websites)  {
         initComponents();
-        
+        this.windowName = this.getTitle();
         this.websites = websites;
         this.updateTable();
 
@@ -206,6 +206,8 @@ public class HostEdit extends javax.swing.JFrame {
         detailBtn.setEnabled(false);
         sitesTable.setEnabled(false);
         
+        this.setTitle( this.windowName + " - ( Crawling " + domain + " IP's... )");
+        
         ExecutorTask.setTimeout(() -> this.addWebsiteAsync(domain), 10);
     }
     
@@ -218,6 +220,7 @@ public class HostEdit extends javax.swing.JFrame {
         }else{
             JOptionPane.showMessageDialog(this, domain + " not found!", "Error", JOptionPane.ERROR_MESSAGE);
         }
+        this.setTitle(this.windowName);
         addBtn.setEnabled(true);
         delBtn.setEnabled(true);
         detailBtn.setEnabled(true);

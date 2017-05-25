@@ -18,7 +18,7 @@ public class ExecutorTask implements Runnable{
     private vpnConnect frame = null;
     private Process process = null;
     private boolean connected = false;
-    private boolean abort = false;
+    private boolean abortTimeOut = false;
     private String server = "";
     
     /***************************************************************************
@@ -43,7 +43,7 @@ public class ExecutorTask implements Runnable{
     *** @param                                                               ***
     ***************************************************************************/
     public void end(){
-        this.abort = true;
+        this.abortTimeOut = true;
         if( process != null ){
             process.destroyForcibly();
             process.destroy();
@@ -75,7 +75,8 @@ public class ExecutorTask implements Runnable{
             //if( this != null )
              //   return;
              
-             //setTimeout(() -> this.connectionTimeout(), 25000);
+             this.abortTimeOut = false;
+             setTimeout(() -> this.connectionTimeout(), 25000);
              
              while ((line = reader.readLine()) != null) {
                
@@ -86,10 +87,9 @@ public class ExecutorTask implements Runnable{
                     frame.connected( ip2route , sites2route );
                  //RESTARTED CONNECTION
                  }else if( line.contains("Connection reset, restarting") || line.contains("Restart pause,") ){
-                     frame.reconnecting(this.connected);
+                     frame.reconnecting();
+                     this.abortTimeOut = true;
                      this.connected = false;
-                     this.abort = true;
-                     
                  //Static route ROUTE PARAMETER
                  } else if( line.contains("sdxess-website") && line.contains("Unrecognized option") ){
                     Pattern pattern = Pattern.compile("sdxess-website:[^(]*");
@@ -101,7 +101,6 @@ public class ExecutorTask implements Runnable{
                     }else{
                         System.out.println(line);
                     }
-                    
                  //Static route ROUTE PARAMETER
                  } else if( line.contains("route.exe ADD") ){
                     Pattern pattern = Pattern.compile("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]");
@@ -120,21 +119,17 @@ public class ExecutorTask implements Runnable{
                  
                  } else if ( line.contains("[server] Peer Connection Initiated") ){ 
                     frame.updateMessage("Peer Connection Initiated...");
-                    frame.stablishedCommunication();
-                    this.abort = true;
-                    
+                    this.abortTimeOut = true;
                     System.out.println(line);
                  } else if ( line.contains("Exiting due to fatal error") ){ 
-                    frame.disconnected(true);
+                    frame.disconnect(true);
                     System.out.println(line);
                  } else {
                     System.out.println(line);
                  }
-                 
-                 
              }
              
-             if( !this.connected && !this.abort ){
+             if( !this.connected && !this.abortTimeOut ){
                 frame.notconnected("Connection Finished.");
                 this.end();
              }
@@ -152,7 +147,7 @@ public class ExecutorTask implements Runnable{
     *** @param                                                               ***
     ***************************************************************************/
     public void connectionTimeout(){
-        if( !this.connected && !this.abort ){
+        if( !this.connected && !this.abortTimeOut ){
             frame.notconnected("Connection timed out");
             this.end();
         }

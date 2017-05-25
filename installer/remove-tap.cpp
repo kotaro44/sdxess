@@ -42,15 +42,14 @@ int main(int argc, char *argv[])
 	cout<<"Location: "<<location<<endl;
 	cout<<"Uninstalling SDXess..."<<endl;
 	
-	system("del 8VGVPN\\SDXess.bat");
-	system("del 8VGVPN\\SDXess-debug.bat");
+	system("del files\\8VGVPN\\SDXess.bat");
+	system("del files\\8VGVPN\\SDXess-debug.bat");
 	system("del \"%HOMEDRIVE%%HOMEPATH%\\Desktop\\SDXess.lnk\"");
 	system("del \"%HOMEDRIVE%%HOMEPATH%\\Desktop\\SDXess-debug.lnk\"");  
-	system("TAP-Windows\\tapinstall.exe remove tap0901");
-	
+	system("files\\TAP-Windows\\tapinstall.exe remove tap0901");
+	system("rmdir files /s /q");	
 	cout<<"Done."<<endl;
-	
-	system("pause");
+
     return EXIT_SUCCESS;
 }
 

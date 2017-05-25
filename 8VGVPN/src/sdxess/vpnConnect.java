@@ -5,8 +5,17 @@
  */
 package sdxess;
 
+import java.awt.AWTException;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +30,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import static sdxess.ExecutorTask.setTimeout;
 
@@ -31,16 +40,15 @@ import static sdxess.ExecutorTask.setTimeout;
  */
 public class vpnConnect extends javax.swing.JFrame {
     
-    public ExecutorTask task;
-    public Thread executorThread;
-    private Process tunnelProcess;
+    public ExecutorTask task = null;
+    public Thread executorThread = null;
+    private Process tunnelProcess = null;
     private boolean isConnected = false;
     private boolean connectionEstablished = false;
-    private StringBuilder sb;
-    private BufferedReader br;
-    private ArrayList<Website> IPlist;
+    private StringBuilder sb = null;
+    private BufferedReader br = null;
+    private ArrayList<Website> IPlist = null;
     private ArrayList<Website> websites = new ArrayList<Website>();
-    private int retries = 0;
     
     //timer variables
     private int seconds = 0;
@@ -49,10 +57,61 @@ public class vpnConnect extends javax.swing.JFrame {
     private TimeZone tz = TimeZone.getTimeZone("UTC");
     private SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
     public static HostEdit hostEdit = null;
+    private SystemTray tray = null;
+    private TrayIcon trayIcon = null;
     
-    private int originalHeight;
+    private int originalHeight = 0;
+    private TimerTask timetask = null;
     
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public void connect(){
+        String pass = String.copyValueOf(passField.getPassword());
 
+        if( pass.length() == 0 ){
+            JOptionPane.showMessageDialog(null, "Please enter a Password!");
+        }else{
+            consoleLabel.setText("connecting to " + 
+                    serverCombo.getSelectedItem() + "...");
+            userField.setEnabled(false);
+            serverCombo.setEnabled(false);
+            passField.setEnabled(false);
+            connectBtn.setEnabled(false);
+            redirectCheck.setEnabled(false);
+
+            this.task = new ExecutorTask( this , 
+                    serverCombo.getSelectedItem().toString() );
+            this.executorThread = new Thread(task);
+            setTimeout(() -> executorThread.start(), 10);
+        }
+    }
+    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public void disconnect(boolean byError){
+        consoleLabel.setText("disconnecting...");
+        connectBtn.setEnabled(false);
+        sitesBtn.setEnabled(false);
+        hideBtn.setEnabled(false);
+        
+        if( vpnConnect.hostEdit != null )
+            vpnConnect.hostEdit.setVisible(false);
+
+        ExecutorTask.setTimeout(() -> this.disconnectFromVPN(byError), 10);   
+    }
+    
     /***************************************************************************
     ***  brief                                                               ***
     ***  serial number ????                                                  ***
@@ -68,23 +127,21 @@ public class vpnConnect extends javax.swing.JFrame {
         }
         
         this.checkCommit();
+        this.killOpenvpn();
         
         initComponents();
         this.getConfs();
         sitesBtn.setVisible(false);
+        hideBtn.setVisible(false);
         ctimeLbl.setVisible(false);
         
         this.setLocation(100, 100);
         this.setSize(this.getWidth(), 280);
         this.originalHeight = this.getHeight();
       
-            /*List<String> Ip = sun.net.dns.ResolverConfiguration.open().nameservers();
-            StaticRoutes.DNS = Ip.get(Ip.size()-1);*/
-        
-        
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                disconnected(false);
+                disconnect(false);
                 System.exit(0);
             }
         });
@@ -102,55 +159,37 @@ public class vpnConnect extends javax.swing.JFrame {
     public void connected( ArrayList<String> sites2reroute , ArrayList<String> websites){
         StaticRoutes.Start();
         
-        this.retries = 0;
         this.IPlist = new ArrayList<Website>();
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem());
-        sitesBtn.setVisible(true);
+        
         ctimeLbl.setText("Rerouting default websites...");
         ctimeLbl.setVisible(true);
         logginPanel.setVisible(false);
-        
         this.setSize(this.getWidth(), 177);
-        
-        this.isConnected = true;
-        connectBtn.setText("Disconnect");
-        connectBtn.setEnabled(true);
-        
         this.repaint();
         
         this.websites = new ArrayList<Website>();
         for( String domain : websites ){
-            this.websites.add( new Website(domain) );
+            ctimeLbl.setText("Crawling " + domain + " IP's...");
+            Website website = new Website(domain);
+            this.websites.add( website  );
+            ctimeLbl.setText("Rerouting " + website.name + "...");
+            website.route();
         }
    
         if( !redirectCheck.isSelected() )
             StaticRoutes.disableAllTrafficReroute();
         StaticRoutes.flushDNS();
-        
+
        
         this.startTimer();
+        this.isConnected = true;
+        connectBtn.setText("Disconnect");
+        connectBtn.setEnabled(true);
+        sitesBtn.setVisible(true);
+        hideBtn.setVisible(true);
         
-        for( Website website : this.websites ){
-            website.route();
-        }
-        
-        /*try {
-            //save host files
-            br = new BufferedReader(new FileReader("C:/Windows/System32/drivers/etc/hosts"));
-            sb = new StringBuilder();
-            String line = br.readLine();
-            
-            while (line != null) {
-                sb.append(System.lineSeparator());
-                sb.append(line);
-                line = br.readLine();
-            }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-        } catch(IOException ex){
-            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
-        
+        this.hideOnTray();
     }
     
     /***************************************************************************
@@ -173,21 +212,21 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public void reconnecting(boolean previouslyConnected){
-        if( previouslyConnected ){
-            consoleLabel.setText("Communication lost... reconnecting...");
-        }else{
-            consoleLabel.setText("Unstable connection... reconnecting...");
-            ExecutorTask.setTimeout(() -> this.retryTimeout(), 11000);
-            
-        }
-        userField.setEnabled(false);
-        serverCombo.setEnabled(false);
-        passField.setEnabled(false);
+    public void reconnecting(){
         connectBtn.setEnabled(false);
         sitesBtn.setVisible(false);
+        hideBtn.setVisible(false);
         ctimeLbl.setVisible(false);
         ctimeLbl.setText("");
+      
+        if( this.isConnected ){
+            consoleLabel.setText("Communication lost... reconnecting...");
+            this.respawn();
+        }else{
+            consoleLabel.setText("Unstable connection... reconnecting...");
+        }
+        
+        this.isConnected = false;
         if( vpnConnect.hostEdit != null )
             vpnConnect.hostEdit.setVisible(false);
     }
@@ -202,7 +241,7 @@ public class vpnConnect extends javax.swing.JFrame {
     ***************************************************************************/
     public void retryTimeout(){
         if( !this.isConnected && !this.connectionEstablished){
-            this.disconnected(true);
+            this.disconnect(true);
         }
     }
     
@@ -220,80 +259,54 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(true);
         passField.setEnabled(true);
         connectBtn.setEnabled(true);
-        //puttyCheck.setEnabled(true);
-        redirectCheck.setEnabled(true);
         redirectCheck.setEnabled(true);
         ctimeLbl.setVisible(false);
         ctimeLbl.setText("");
-    }
-
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    public void disconnected(boolean byError){
-        consoleLabel.setText("disconnecting...");
-        connectBtn.setEnabled(false);
-        sitesBtn.setEnabled(false);
-        
-        if( vpnConnect.hostEdit != null )
-            vpnConnect.hostEdit.setVisible(false);
-
-        ExecutorTask.setTimeout(() -> this.disconnectFromVPN(byError), 10);
-        
     }
     
     public void disconnectFromVPN(boolean byError){
         if( this.task != null )
             this.task.end();
+        
         StaticRoutes.flushAddedRoutes();
         
         websites.forEach((website) -> {
             website.deleteRouting();
         }); 
         
-        this.retries = 0;
         this.isConnected = false;
-        this.connectionEstablished = false;
+        
+        connectBtn.setText("Connect");
+        connectBtn.setEnabled(true);
         sitesBtn.setVisible(false);
+        sitesBtn.setEnabled(true);
+        hideBtn.setVisible(false);
+        hideBtn.setEnabled(true);
+        
         userField.setEnabled(true);
         passField.setEnabled(true);
         serverCombo.setEnabled(true);
-        connectBtn.setText("Connect");
-        connectBtn.setEnabled(true);
-        //puttyCheck.setEnabled(true);
         redirectCheck.setEnabled(true);
         logginPanel.setVisible(true);
-        sitesBtn.setEnabled(true);
+  
         this.setSize( this.getWidth() , this.originalHeight );
         if( byError )
-            consoleLabel.setText("disconnected due time out.");
+            consoleLabel.setText("disconnected due error.");
         else
-            consoleLabel.setText("disconnected.");
+            consoleLabel.setText("Ready.");
         ctimeLbl.setVisible(false);
         ctimeLbl.setText("");
         this.seconds = 0;
+        this.stopTimer();
         
-        
-        /*if( puttyCheck.isSelected() ){
-            try {
-                Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM putty.exe");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                System.out.println("openvpn Process exited.");
-            } catch (IOException ex) {
-                Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }*/
-        
+        this.killOpenvpn();
+    }
+    
+    public void killOpenvpn(){
         try {
             Process process = Runtime.getRuntime().exec("cmd /c taskkill.exe /F /IM openvpn.exe");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             System.out.println("openvpn Process exited.");
-            
         } catch (IOException ex) {
             Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -322,6 +335,13 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setModel(comboModel);
     }
     
+    public void respawn(){
+        setVisible(true);
+        tray.remove(trayIcon);
+    }
+    
+    
+    
     /***************************************************************************
     ***  brief                                                               ***
     ***  serial number ????                                                  ***
@@ -330,32 +350,36 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    private void createTunnel() {
-        try {
-            String command = "cmd /c java -jar lib/jTCPfwd.jar 9090 iNET99.Ji8.net:5000";
-            this.tunnelProcess = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(this.tunnelProcess.getInputStream()));
-
-            boolean tunnelCreated = false;
-            
-            String line="";
-            while ((line = reader.readLine()) != null && !tunnelCreated) {
-           // while((line = reader.readLine()) != null && tunnelCreated == false){
-                System.out.println(line);
-                if(line.contains("9090->iNET99.Ji8.net:5000")){
-                    System.out.println("----------------------------SSH Tunnel created---------------------------");
-                    tunnelCreated = true;
-                    break;
-                }
+    public void startTimer(){
+        timetask = new TimerTask() {
+            @Override
+            public void run() {
+                seconds++; 
+                df.setTimeZone(tz);
+                String time = df.format(new Date(seconds*1000));
+                ctimeLbl.setText("Connection time: "+time);
+                //System.out.println(seconds);
             }
-            
-            
-            ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
-            
-
-        } catch (IOException ex) {
-            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        };
+        seconds = 0;
+        if (timerstatus == false){
+            timerstatus = true;
+            timer.scheduleAtFixedRate(timetask, 1000, 1000);
         }
+    }
+
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public void stopTimer(){
+        this.timetask.cancel();
+        this.timetask = null;
+        timerstatus = false;
     }
     
     /***************************************************************************
@@ -366,69 +390,43 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    private void createPuttyTunnel(){
-        String pass = String.copyValueOf(passField.getPassword());
-
-        String command = "cmd /c putty -ssh " + userField.getText() + 
-                         "@iNET99.Ji8.net -L 9090:iNET99.Ji8.net:5000 -pw " + pass;
-       
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            ExecutorTask.setTimeout(() -> this.connectVPN(), 5000);
-
-        } catch (IOException ex) {
-            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+    public void hideOnTray(){
+        if (SystemTray.isSupported()) {
+            // get the SystemTray instance
+            this.tray = SystemTray.getSystemTray();
+            // load an image           
+            try {
+                BufferedImage trayIconImage = ImageIO.read(getClass().getResource("/sdxess/icon.png"));
+           
+                // create a action listener to listen for default action executed on the tray icon
+                ActionListener listener = new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        respawn();
+                    }
+                };
+                PopupMenu popup = new PopupMenu();
+                MenuItem defaultItem = new MenuItem();
+                defaultItem.addActionListener(listener);
+                popup.add(defaultItem);
+                int trayIconWidth = new TrayIcon(trayIconImage).getSize().width;
+                int trayIconHeight = new TrayIcon(trayIconImage).getSize().height;
+                this.trayIcon = new TrayIcon(trayIconImage.getScaledInstance(trayIconWidth, trayIconHeight, Image.SCALE_SMOOTH));
+                this.trayIcon.addActionListener(listener);
+                try {
+                    tray.add(this.trayIcon);
+                } catch (AWTException e) {
+                    System.err.println(e);
+                }
+                this.setVisible(false);
+                
+            } catch (IOException ex) {
+                Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            // disable tray option in your application or
+            // perform other actions
         }
     }
-    
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    public void connectVPN(){
-        
-        consoleLabel.setText("connecting to " + serverCombo.getSelectedItem() + "...");
-       
-        this.task = new ExecutorTask( this , serverCombo.getSelectedItem().toString() );
-        this.executorThread = new Thread(task);
-
-        setTimeout(() -> executorThread.start(), 10);
-    }
-    
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    public void connect(){
-        String pass = String.copyValueOf(passField.getPassword());
-
-        if( pass.length() == 0 ){
-            JOptionPane.showMessageDialog(null, "Please enter a Password!");
-            return;
-        }
-
-        consoleLabel.setText("creating tunnel to is32...");
-        userField.setEnabled(false);
-        serverCombo.setEnabled(false);
-        passField.setEnabled(false);
-        connectBtn.setEnabled(false);
-        //puttyCheck.setEnabled(false);
-        redirectCheck.setEnabled(false);
-
-        //setTimeout(() -> this.createTunnel(), 10);
-        ExecutorTask.setTimeout(() -> this.connectVPN(), 10);
-    }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -452,13 +450,14 @@ public class vpnConnect extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         redirectCheck = new javax.swing.JCheckBox();
         passField = new javax.swing.JPasswordField();
+        hideBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SDXess");
         setResizable(false);
 
         verLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        verLbl.setText("Client V1.2.5");
+        verLbl.setText("Client V1.2.8");
 
         sitesBtn.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         sitesBtn.setText("Rerouted websites");
@@ -551,28 +550,41 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addComponent(redirectCheck))
         );
 
+        hideBtn.setText("_");
+        hideBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hideBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addComponent(verLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(sitesBtn))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(hideBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addComponent(logoLbl)
+                .addGap(57, 57, 57))
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(consoleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(ctimeLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(connectBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(logginPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(logginPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(consoleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(verLbl)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
-                .addComponent(sitesBtn))
-            .addComponent(logoLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(logoLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(hideBtn)
+                    .addComponent(logoLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(consoleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
@@ -612,7 +624,7 @@ public class vpnConnect extends javax.swing.JFrame {
         if( !this.isConnected ){
             this.connect();
         }else{
-            this.disconnected(false);
+            this.disconnect(false);
         }
     }//GEN-LAST:event_connectBtnActionPerformed
 
@@ -630,42 +642,10 @@ public class vpnConnect extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_passFieldKeyReleased
 
-    TimerTask timetask = new TimerTask() {
-        @Override
-        public void run() {
-            seconds++; 
-            df.setTimeZone(tz);
-            String time = df.format(new Date(seconds*1000));
-            ctimeLbl.setText("Connection time: "+time);
-            //System.out.println(seconds);
-        }
-    };
-    
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    public void startTimer(){
-        seconds = 0;
-        if (timerstatus == false){
-            timerstatus = true;
-            timer.scheduleAtFixedRate(timetask, 1000, 1000);
-        }
-        //System.out.println("START TIME");
-    }
+    private void hideBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hideBtnActionPerformed
+       this.hideOnTray();
+    }//GEN-LAST:event_hideBtnActionPerformed
 
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -702,6 +682,7 @@ public class vpnConnect extends javax.swing.JFrame {
     private javax.swing.JButton connectBtn;
     private javax.swing.JLabel consoleLabel;
     private javax.swing.JLabel ctimeLbl;
+    private javax.swing.JButton hideBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel6;
@@ -743,9 +724,4 @@ public class vpnConnect extends javax.swing.JFrame {
             System.out.println("-commit not found-");
         }
     }
-
-    void stablishedCommunication() {
-        this.connectionEstablished = true;
-    }
-    
 }

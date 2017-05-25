@@ -26,8 +26,7 @@ int main()
     cout<<"copying TAP-Windows folder..."<<endl;
     system("mkdir DATA\\TAP-Windows");
     system("xcopy ..\\TAP-Windows DATA\\TAP-Windows /s /e /h");
-	
-	system("copy Uninstall.exe DATA\\Uninstall.exe");
+
 	system("copy sdxess.ico DATA\\sdxess.ico");
 	
 	cout<<"creating 8VGVPN folder..."<<endl;

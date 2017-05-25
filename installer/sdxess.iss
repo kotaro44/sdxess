@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SDXess"
-#define MyAppVersion "1.2.4"
+#define MyAppVersion "1.2.8"
 #define MyAppPublisher "8VG.org"
 #define MyAppURL "http://www.8vg.org/"
 
@@ -29,15 +29,19 @@ SolidCompression=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "installer.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "creator.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "remove-tap.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "DATA"; DestDir: "{app}"; Flags: ignoreversion
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
 
 [Setup]
 PrivilegesRequired=admin
 
 [Run]
-Filename: "{app}\installer.exe"; Description: "{cm:LaunchProgram,MyApp}"
+Filename: "{app}\creator.exe"; Description: "{cm:LaunchProgram,MyApp}"
+
+[UninstallRun]
+Filename: "{app}\remove-tap.exe"; 
 
 [Code]
 function InitializeSetup(): Boolean;
