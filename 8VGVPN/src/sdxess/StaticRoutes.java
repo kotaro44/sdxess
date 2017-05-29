@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import org.json.JSONObject;
 public class StaticRoutes {
     
     public static String DNS = null;
@@ -80,6 +81,21 @@ public class StaticRoutes {
         } catch (IOException ex) {
             Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public static boolean checkLogin(String user, String pass){
+        String json = Website.ajaxGET("http://inet99.ji8.net/SDXess-WS/login/" + user + "/" + pass );
+        JSONObject obj = new JSONObject(  json  );
+        String status_message = (String)obj.get("status_message");
+        return status_message.compareTo("User Authentication Correct")==0;
     }
          
     /***************************************************************************

@@ -72,20 +72,35 @@ public class vpnConnect extends javax.swing.JFrame {
     ***************************************************************************/
     public void connect(){
         String pass = String.copyValueOf(passField.getPassword());
-        
        
         if( pass.length() == 0 ){
             JOptionPane.showMessageDialog(null, "Please enter a Password!");
         }else{
             
-            consoleLabel.setText("connecting to " + 
+            consoleLabel.setText("Logging in " + 
                     serverCombo.getSelectedItem() + "...");
+            
             userField.setEnabled(false);
             serverCombo.setEnabled(false);
             passField.setEnabled(false);
             connectBtn.setEnabled(false);
             redirectCheck.setEnabled(false);
-
+            
+            this.repaint();
+            
+            if( !StaticRoutes.checkLogin( this.userField.getText() , pass) ){
+                userField.setEnabled(true);
+                serverCombo.setEnabled(true);
+                passField.setEnabled(true);
+                connectBtn.setEnabled(true);
+                redirectCheck.setEnabled(true);
+                consoleLabel.setText("User/Password is incorrect.");
+                return;
+            }
+            
+            consoleLabel.setText("connecting to " + 
+                    serverCombo.getSelectedItem() + "...");
+           
             this.task = new ExecutorTask( this , 
                     serverCombo.getSelectedItem().toString() );
             this.executorThread = new Thread(task);
