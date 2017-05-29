@@ -49,16 +49,18 @@ public class Website {
         return null; 
     }
     
-    public static String URLtoASN(String url){
-        try {
-            String IP = StaticRoutes.NSLookup( url );
-            if( IP.compareTo("Unrecognized host") == 0 )
-                return null;
-            return Website.IPtoASN( IP );
-        } catch (IOException ex) {
-            Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
+    private void log(String message){
+        if( this.callbacker != null ){
+            callbacker.message(message);
         }
-        return null;
+        System.out.println(message);
+    }
+    
+    public static String URLtoASN(String url){
+        String IP = StaticRoutes.NSLookup( url );
+        if( IP.compareTo("Unrecognized host") == 0 )
+            return null;
+        return Website.IPtoASN( IP );
     }
     
     public static String IPtoASN(String IP){
@@ -93,55 +95,108 @@ public class Website {
     public String ASN = "";
     public boolean isValid = true;
     private boolean routed = false;
+    private HostEdit callbacker = null;
+    
     
     public Website(String name) {
-        try {
-            this.name = name;
-            System.out.println("Rerouting " + this.name + "...");
-            this.IP = StaticRoutes.NSLookup(name);
-            
-            
-            if( this.ASN == null ){
-                isValid = false;
-            }else{
-                System.out.println("Getting info for: " + this.IP);
-                this.ASN = Website.IPtoASN( this.IP );
-                System.out.println(this.name + " belongs to: " + this.ASN);
-                String HTML = Website.ajaxGET("http://www.radb.net/query/" + 
-                    "?advanced_query=1%091%091%091%091%091%091%091%091%091%091&keywords="
-                        + ASN + "&query=Query&-K=1&-T=1&-T+option=route&ip_lookup="+
-                        "1&ip_option=-L&-i=1&-i+option=origin&-r=1");
-
-                Pattern pattern = Pattern.compile("route:\\s*(([^\\<])*)");
-                Matcher matcher = pattern.matcher(HTML);
-
-                String[] parts;
-                
-                System.out.println("processing " + this.ASN + " IP's");
-                int total = 0;
-                while(matcher.find()){
-                    total++;
-                    parts = matcher.group(1).split("/");
-                    boolean insert = true;
-                    IPRange new_range = new IPRange(parts[0], Integer.parseInt(parts[1]));
-
-                    for( IPRange range : this.ranges ){
-                        if( range.contains(new_range) ){
-                            insert = false;
-                        }
-                    }
-                    if( insert )
-                        this.ranges.add( new_range );
-                }
-
-                this.ranges.sort(null);
-                this.reduceRanges();
-                System.out.println("Reduced " + total + " to " + this.ranges.size() + " IP's");
-            }
-        } catch (IOException ex) {
+        WebsiteConstruct( name );
+    }
+    
+    public Website(String name,HostEdit callbacker) {
+        this.callbacker = callbacker;
+        WebsiteConstruct( name );
+    }
+        
+    public void WebsiteConstruct2(String name){
+        this.name = name;
+        String HTML = Website.ajaxGET("http://randomamount.com/sdxess/getips.php?a=" + name);
+        Pattern pattern = Pattern.compile("\\<p\\>([^\\<]+)");
+        Matcher matcher = pattern.matcher(HTML);
+        
+        //domain name
+        if( matcher.find() ){
+            this.log( "Found " + matcher.group(1).split(":")[1] );
+        }else{
             this.isValid = false;
-            Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
+            return;
         }
+        
+        //IP 
+        if( matcher.find() ){
+            this.IP = matcher.group(1).split(":")[1];
+        }
+        
+        //ASN
+        if( matcher.find() ){
+            this.ASN = matcher.group(1).split(":")[1];
+        }
+        
+        //all the IP ranges
+        while(matcher.find()){
+            String[] parts = matcher.group(1).split("/");
+            this.ranges.add( new IPRange(parts[0], Integer.parseInt(parts[1])) );
+        }
+    }
+    
+    public void WebsiteConstruct(String name) {
+        this.name = name;
+        this.IP = StaticRoutes.NSLookup(name);
+        if( this.IP.compareTo("Unrecognized host") == 0 ){
+            isValid = false;
+            return;
+        }
+        
+        this.log( this.name + ": " + this.IP );
+        if( this.ASN == null ){
+            isValid = false;
+        }else{
+
+            this.ASN = Website.IPtoASN( this.IP );
+            this.log( this.name + " belongs to: " + this.ASN + "...");
+            String HTML = Website.ajaxGET( Website.getRadnURL(this.ASN) );
+
+            this.log("processing " + this.ASN + " IP's...");
+            ArrayList<IPRange> ranges = processRanges(HTML);
+
+            for( IPRange possible_range : ranges ){
+                boolean insert = true;
+                for( IPRange range : this.ranges ){
+                    if( range.contains(possible_range) ){
+                        insert = false;
+                    }
+                }
+                if( insert ){
+                    this.ranges.add(possible_range);
+                }
+            }
+
+            this.log("reducing " + ranges.size() + " IP's...");
+            this.ranges.sort(null);
+            this.reduceRanges();
+            this.log("Reduced " + ranges.size() + " to " + this.ranges.size() + " IP's...");
+        }
+       
+    }
+    
+    public static String getRadnURL(String ASN){
+        return "http://www.radb.net/query/?advanced_query=1%091%091%091%091%0" +
+                "91%091%091%091%091%091&keywords=" + ASN + "&query=Query&-K=1" +
+                "&-T=1&-T+option=route&ip_lookup=1&ip_option=-L&-i=1&-i+optio" +
+                "n=origin&-r=1";
+    }
+    
+    public static ArrayList<IPRange> processRanges(String HTML){
+        Pattern pattern = Pattern.compile("route:\\s*(([^\\<])*)");
+        Matcher matcher = pattern.matcher(HTML);
+        ArrayList<IPRange> ranges = new ArrayList<IPRange>();
+        String[] parts;
+
+        while(matcher.find()){
+            parts = matcher.group(1).split("/");
+            ranges.add( new IPRange(parts[0], Integer.parseInt(parts[1])) );
+        }
+        
+        return ranges;
     }
     
     public String[][] toRangesArray(){

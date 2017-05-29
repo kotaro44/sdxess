@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SDXess"
-#define MyAppVersion "1.2.8"
+#define MyAppVersion "1.2.10"
 #define MyAppPublisher "8VG.org"
 #define MyAppURL "http://www.8vg.org/"
 
@@ -61,7 +61,7 @@ begin
     //do nothing
    end else
    begin
-    if ( Versions[I][2]='.' ) and ( ( StrToInt(Versions[I][1]) > 1 ) or ( ( StrToInt(Versions[I][1]) = 1 ) and ( StrToInt(Versions[I][3]) >= 6 ) ) ) then
+    if ( Versions[I][2]='.' ) and ( ( StrToInt(Versions[I][1]) > 1 ) or ( ( StrToInt(Versions[I][1]) = 1 ) and ( StrToInt(Versions[I][3]) >= 8 ) ) ) then
     begin
      JavaInstalled := true;
     end else

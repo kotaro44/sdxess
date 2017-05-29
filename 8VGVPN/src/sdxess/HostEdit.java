@@ -206,13 +206,12 @@ public class HostEdit extends javax.swing.JFrame {
         detailBtn.setEnabled(false);
         sitesTable.setEnabled(false);
         
-        this.setTitle( this.windowName + " - ( Crawling " + domain + " IP's... )");
-        
+        this.setTitle( this.windowName + " - ( getting info from " + domain + "... )");
         ExecutorTask.setTimeout(() -> this.addWebsiteAsync(domain), 10);
     }
     
     private void addWebsiteAsync(String domain){
-        Website website = new Website(domain);
+        Website website = new Website(domain,this);
         if( website.isValid ){
             this.websites.add(website);
             this.setTitle( this.windowName + " - ( Rerouting " + domain + " IP's... )");
@@ -227,6 +226,10 @@ public class HostEdit extends javax.swing.JFrame {
         delBtn.setEnabled(true);
         detailBtn.setEnabled(true);
         sitesTable.setEnabled(true);
+    }
+    
+    public void message(String message){
+        this.setTitle( this.windowName + " - ( " + message + " )");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

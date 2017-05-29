@@ -103,14 +103,14 @@ public class StaticRoutes {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public static String NSLookup(String domainname) throws IOException {
+    public static String NSLookup(String domainname)  {
         try {
             InetAddress inetHost = InetAddress.getByName(domainname);
             String ip = inetHost.getHostAddress();
             return ip;
         } catch(UnknownHostException ex) {       
             return "Unrecognized host";
-        }
+        } 
     }
     
     /***************************************************************************
