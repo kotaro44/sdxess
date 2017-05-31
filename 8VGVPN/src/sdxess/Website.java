@@ -6,6 +6,9 @@
 package sdxess;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -23,6 +26,36 @@ import org.json.*;
  * @author kotaro
  */
 public class Website {
+    public static Website restore(File file){
+        FileReader fileReader;
+        try {
+            fileReader = new FileReader(file);
+            BufferedReader br = new BufferedReader(fileReader);
+            Website result = new Website();
+            
+            //first line should be ASN
+            String line = br.readLine();
+            result.name = file.getName();
+            result.ASN = line;
+            //main IP is the second line
+            result.IP = line = br.readLine();
+            result.wasRerouted = Boolean.parseBoolean(br.readLine());
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\\\");
+                IPRange range = new IPRange( parts[0] , Integer.parseInt( parts[1] ) );
+                if( range.isValid )
+                    result.ranges.add( range );
+            }
+            result.isValid = true;
+            fileReader.close();
+            return result;
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
     
     public static String ajaxGET(String url_string){
         BufferedReader rd = null;
@@ -94,22 +127,26 @@ public class Website {
     public String name = "";
     public String ASN = "";
     public boolean isValid = true;
+    public boolean wasRerouted = true;
     private boolean routed = false;
     private HostEdit callbacker = null;
     
+    public Website(){
+        
+    }
     
     public Website(String name) {
-        WebsiteConstruct( name );
+        WebsiteConstruct2( name );
     }
     
     public Website(String name,HostEdit callbacker) {
         this.callbacker = callbacker;
-        WebsiteConstruct( name );
+        WebsiteConstruct2( name );
     }
         
     public void WebsiteConstruct2(String name){
         this.name = name;
-        String HTML = Website.ajaxGET("http://randomamount.com/sdxess/getips.php?a=" + name);
+        String HTML = Website.ajaxGET("http://inet99.ji8.net/IPCrawler/getips.php?a=" + name);
         Pattern pattern = Pattern.compile("\\<p\\>([^\\<]+)");
         Matcher matcher = pattern.matcher(HTML);
         
@@ -235,6 +272,10 @@ public class Website {
             });
             StaticRoutes.flushDNS();
         }
+    }
+    
+    public boolean isRouted(){
+        return this.routed;
     }
     
     public void deleteRouting(){

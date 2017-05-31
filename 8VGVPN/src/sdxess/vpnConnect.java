@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,6 +32,7 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import static sdxess.ExecutorTask.setTimeout;
 
@@ -95,6 +97,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 connectBtn.setEnabled(true);
                 redirectCheck.setEnabled(true);
                 consoleLabel.setText("User/Password is incorrect.");
+                passField.setText("");
                 return;
             }
             
@@ -137,6 +140,12 @@ public class vpnConnect extends javax.swing.JFrame {
     *** @param                                                               ***
     ***************************************************************************/
     public vpnConnect(){
+        
+        URL iconURL = getClass().getResource("/sdxess/icon.png");
+        // iconURL is null when not found
+        ImageIcon icon = new ImageIcon(iconURL);
+        this.setIconImage(icon.getImage());
+        
         if( !StaticRoutes.isAdmin() ){
             JOptionPane.showMessageDialog(null, "This program has to be run as administrator!");
             System.exit(0);
@@ -189,11 +198,20 @@ public class vpnConnect extends javax.swing.JFrame {
             ctimeLbl.setText("Crawling " + domain + " IP's...");
             Website website = new Website(domain);
             this.websites.add( website  );
-            ctimeLbl.setText("Rerouting " + website.name + "...");
             website.route();
         }
    
         if( !redirectCheck.isSelected() ){
+        ArrayList<Website> restored_sites = HostEdit.restoreWebsites();
+            if( !restored_sites.isEmpty() ){
+                for( Website website : restored_sites ){
+                    ctimeLbl.setText("Restoring " + website.name + "...");
+                    this.websites.add(website);
+                    if( website.wasRerouted )
+                        website.route();
+                }
+            }
+       
             StaticRoutes.disableAllTrafficReroute();
             sitesBtn.setVisible(true);
         }
@@ -288,6 +306,7 @@ public class vpnConnect extends javax.swing.JFrame {
         StaticRoutes.flushAddedRoutes();
         
         websites.forEach((website) -> {
+            consoleLabel.setText("disconnecting from " + website.name + "...");
             website.deleteRouting();
         }); 
         
@@ -305,6 +324,9 @@ public class vpnConnect extends javax.swing.JFrame {
         serverCombo.setEnabled(true);
         redirectCheck.setEnabled(true);
         logginPanel.setVisible(true);
+        
+        this.tray.remove(this.trayIcon);
+        this.trayIcon = null;
   
         this.setSize( this.getWidth() , this.originalHeight );
         if( byError )
@@ -313,6 +335,7 @@ public class vpnConnect extends javax.swing.JFrame {
             consoleLabel.setText("Ready.");
         ctimeLbl.setVisible(false);
         ctimeLbl.setText("");
+        passField.setText("");
         this.seconds = 0;
         this.stopTimer();
         
@@ -338,7 +361,7 @@ public class vpnConnect extends javax.swing.JFrame {
     *** @param                                                               ***
     ***************************************************************************/
     private void getConfs(){
-       File folder = new File("confs");
+        File folder = new File("confs");
         File[] listOfFiles = folder.listFiles();
 
         javax.swing.DefaultComboBoxModel<String> comboModel = new javax.swing.DefaultComboBoxModel<>();
@@ -354,7 +377,6 @@ public class vpnConnect extends javax.swing.JFrame {
     
     public void respawn(){
         setVisible(true);
-        tray.remove(trayIcon);
     }
     
     
@@ -408,6 +430,11 @@ public class vpnConnect extends javax.swing.JFrame {
     *** @param                                                               ***
     ***************************************************************************/
     public void hideOnTray(){
+        if( this.trayIcon != null ){
+            this.setVisible(false);
+            return;
+        }
+        
         if (SystemTray.isSupported()) {
             // get the SystemTray instance
             this.tray = SystemTray.getSystemTray();
@@ -475,7 +502,7 @@ public class vpnConnect extends javax.swing.JFrame {
         setResizable(false);
 
         verLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        verLbl.setText("Client V1.2.10");
+        verLbl.setText("Client V1.2.12");
 
         sitesBtn.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         sitesBtn.setText("Rerouted websites");
@@ -580,16 +607,11 @@ public class vpnConnect extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(verLbl)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(sitesBtn))
-            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(ctimeLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(connectBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(logginPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(consoleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap())
@@ -599,6 +621,14 @@ public class vpnConnect extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(hideBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(41, 41, 41)
+                .addComponent(connectBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(verLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(sitesBtn))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -607,14 +637,14 @@ public class vpnConnect extends javax.swing.JFrame {
                     .addComponent(hideBtn)
                     .addComponent(logoLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(consoleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
+                .addComponent(consoleLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logginPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(0, 0, 0)
                 .addComponent(connectBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ctimeLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(verLbl, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(sitesBtn, javax.swing.GroupLayout.Alignment.TRAILING)))

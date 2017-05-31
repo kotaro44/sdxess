@@ -6,12 +6,15 @@
 package sdxess;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -22,7 +25,7 @@ public class HostEdit extends javax.swing.JFrame {
     private StringBuilder sb = new StringBuilder();
     private BufferedReader br = null;
     private ArrayList<Website> websites;
-    private String windowName = "";
+    private String windowName = "Websites";
     
    
     /***************************************************************************
@@ -68,17 +71,36 @@ public class HostEdit extends javax.swing.JFrame {
 
         sitesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Website", "Routed IP", "Routed"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         sitesTable.setEditingColumn(0);
         sitesTable.setEditingRow(0);
+        sitesTable.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                sitesTablePropertyChange(evt);
+            }
+        });
         jScrollPane1.setViewportView(sitesTable);
 
         delBtn.setText("Delete Website");
@@ -149,17 +171,14 @@ public class HostEdit extends javax.swing.JFrame {
     }
     
     public void updateTable(){
-        this.tableModel = new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-            },
-            new String [] {
-                "Website" , "Rerouted IP"
-            }
-        );
+        this.tableModel = (DefaultTableModel) sitesTable.getModel();
+        while( this.tableModel.getRowCount() != 0 ){
+            this.tableModel.removeRow(0);
+        }
         
         for( int i = 0 ; i < this.websites.size() ; i++ ){
             Website website = this.websites.get(i);
-            this.tableModel.addRow(new Object[]{ website.name , website.IP });
+            this.tableModel.addRow(new Object[]{ website.name , website.IP , website.isRouted() });
         }
 
         sitesTable.setModel(this.tableModel);
@@ -167,25 +186,35 @@ public class HostEdit extends javax.swing.JFrame {
     
     private void delBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delBtnActionPerformed
         if( sitesTable.getSelectedRow() != -1 ){
-            int indexes[] = sitesTable.getSelectedRows();
-            ArrayList<Website> websites2remove = new ArrayList<Website>();
-            for( int index : indexes ){
-                websites2remove.add(this.websites.get(index));
+            int dialogResult = JOptionPane.showConfirmDialog (null, 
+                    "Are you sure you want to delete the selected Websites?",
+                    "Warning",JOptionPane.YES_NO_OPTION);
+            if(dialogResult == JOptionPane.YES_OPTION){
+                int indexes[] = sitesTable.getSelectedRows();
+                ArrayList<Website> websites2remove = new ArrayList<Website>();
+                for( int index : indexes ){
+                    websites2remove.add(this.websites.get(index));
+                }
+                for( Website website : websites2remove ){
+                    this.message("Unrouting " + website.name + "...");
+                    website.deleteRouting();
+                }
+                this.websites.removeAll(websites2remove);
+                this.updateTable();
+                this.message(null);
+                this.saveWebsites();
             }
-            for( Website website : websites2remove ){
-                website.deleteRouting();
-            }
-            this.websites.removeAll(websites2remove);
-            this.updateTable();
         }
     }//GEN-LAST:event_delBtnActionPerformed
 
     private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
         String domain = JOptionPane.showInputDialog(this, "Enter Domain name" , "8vg.org");
-        if ( Website.isValidDomainName(domain) ) {
-            this.addWebsite(domain);
-        } else {
-            JOptionPane.showMessageDialog(this, domain + " is not a valid Domain name", "Error", JOptionPane.ERROR_MESSAGE);
+        if( domain != null ){
+            if ( Website.isValidDomainName(domain) ) {
+                this.addWebsite(domain);
+            } else {
+                JOptionPane.showMessageDialog(this, domain + " is not a valid Domain name", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_addBtnActionPerformed
 
@@ -200,36 +229,139 @@ public class HostEdit extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_detailBtnActionPerformed
 
+    private void sitesTablePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_sitesTablePropertyChange
+        boolean shouldSave = false;
+        if( this.websites != null && this.tableModel != null){
+            for( int i = 0 ; i < this.websites.size() ; i++ ){
+                Website website = this.websites.get(i);
+                if( (boolean)this.tableModel.getValueAt(i,2) != website.isRouted() ){
+                    shouldSave = true;
+                    if( website.isRouted() ){
+                        this.message("Unrouting " + website.name + "...");
+                        website.deleteRouting();
+                    }else{
+                        this.message("Routing " + website.name + "...");
+                        website.route();
+                    }
+                }
+            }
+        }
+        if( shouldSave ){
+            this.saveWebsites();
+        }
+        this.message(null);
+    }//GEN-LAST:event_sitesTablePropertyChange
+
     public void addWebsite(String domain){
         addBtn.setEnabled(false);
         delBtn.setEnabled(false);
         detailBtn.setEnabled(false);
         sitesTable.setEnabled(false);
         
-        this.setTitle( this.windowName + " - ( getting info from " + domain + "... )");
+        this.message("getting info from " + domain + "...");
         ExecutorTask.setTimeout(() -> this.addWebsiteAsync(domain), 10);
+    }
+    
+    public static ArrayList<Website> restoreWebsites(){
+        ArrayList<Website> result = new ArrayList<>();
+        File folder = new File("websites");
+        if( folder.exists() ){
+            File[] listOfFiles = folder.listFiles();
+            for (File file : listOfFiles) {
+                if (file.isFile()) {
+                    System.out.println("restoring " + file.getName() + "...");
+                    Website website = Website.restore(file);
+                    result.add(website);
+                } 
+            }
+        }
+        return result;
     }
     
     private void addWebsiteAsync(String domain){
         Website website = new Website(domain,this);
         if( website.isValid ){
-            this.websites.add(website);
-            this.setTitle( this.windowName + " - ( Rerouting " + domain + " IP's... )");
-            this.repaint();
-            website.route();
-            this.updateTable();
+            boolean addNewWebsite = true;
+            //check if the website was added before
+            for( Website other : this.websites ){
+                if( other.ASN.compareTo(website.ASN) == 0 ){
+                    JOptionPane.showMessageDialog(null, "\"" +  website.name + 
+                            "\" IP's are already included in \"" + other.name + 
+                            "\" (" + other.ASN + ")", "ErrorMsg" , 
+                            JOptionPane.ERROR_MESSAGE);
+                    addNewWebsite = false;
+                }
+            }
+            
+            if( addNewWebsite ){
+                this.websites.add(website);
+                this.updateTable();
+                this.saveWebsites();
+            }
         }else{
             JOptionPane.showMessageDialog(this, domain + " not found!", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        this.setTitle(this.windowName);
+        this.message(null);
         addBtn.setEnabled(true);
         delBtn.setEnabled(true);
         detailBtn.setEnabled(true);
         sitesTable.setEnabled(true);
     }
     
+    
+    public static void deleteDir(String path) {
+        try {
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "rmdir -r " + path + " /s /q");
+            builder.redirectErrorStream(true);
+            Process p;
+            p = builder.start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line = "";
+            int flag=0;
+            while (flag == 0) {
+                line = r.readLine();
+                if (line == null) {
+                    flag = 1;
+                    break; 
+                }
+                System.out.println(line);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void saveWebsites(){
+        System.out.println("saving websites!");
+        File theDir = new File("websites");
+        if( theDir.exists() ){
+            deleteDir("websites");
+        } 
+        theDir = new File("websites");
+        theDir.mkdir();
+        
+        try{
+            for( Website website : this.websites ){
+                PrintWriter writer = new PrintWriter("websites\\" + website.name, "UTF-8");
+                writer.println(website.ASN);
+                writer.println(website.IP);
+                writer.println(website.isRouted());
+                for( IPRange range : website.ranges ){
+                    writer.println(range.toString(true));
+                }
+                writer.close();
+            }
+        } catch (IOException e) {
+           // do something
+        }
+ 
+    }
+    
     public void message(String message){
-        this.setTitle( this.windowName + " - ( " + message + " )");
+        if( message != null )
+            this.setTitle( this.windowName + " - ( " + message + " )");
+        else
+            this.setTitle( this.windowName );
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
