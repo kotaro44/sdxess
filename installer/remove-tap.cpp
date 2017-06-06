@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	system("del files\\8VGVPN\\SDXess-debug.bat");
 	system("del \"%HOMEDRIVE%%HOMEPATH%\\Desktop\\SDXess.lnk\"");
 	system("files\\TAP-Windows\\tapinstall.exe remove tap0901");
-	system("rmdir files /s /q");	
+	
 	cout<<"Done."<<endl;
 
     return EXIT_SUCCESS;

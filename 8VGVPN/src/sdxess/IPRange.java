@@ -241,16 +241,6 @@ public class IPRange implements Comparable {
     @Override
     public int compareTo(Object o) {
         IPRange o2 = (IPRange) o ;
-        if( this.getIP().compareTo(o2.getIP())==0 && this.getMask().compareTo(o2.getMask())==0 )
-         return 0;
-        
-        int net1 = IPRange.getNetMask( this.getMaskArray() );
-        int net2 = IPRange.getNetMask( o2.getMaskArray() );
-        
-        if( net1 == net2 ){
-            return this.ipToInt() - o2.ipToInt();
-        }else{
-            return net1-net2;
-        }
+        return this.getIP().compareTo(o2.getIP());
     }
 }

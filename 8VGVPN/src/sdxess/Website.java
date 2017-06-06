@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class Website {
             //main IP is the second line
             result.IP = line = br.readLine();
             result.wasRerouted = Boolean.parseBoolean(br.readLine());
+            result.Description = br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split("\\\\");
                 IPRange range = new IPRange( parts[0] , Integer.parseInt( parts[1] ) );
@@ -62,6 +64,11 @@ public class Website {
         try {
             URL url = new URL(url_string);
             URLConnection conn = url.openConnection();
+        
+            HttpURLConnection huc = (HttpURLConnection) conn;
+            HttpURLConnection.setFollowRedirects(false);
+            huc.setConnectTimeout(15 * 1000);
+       
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             StringBuffer sb = new StringBuffer();
             String line;
@@ -86,7 +93,7 @@ public class Website {
         if( this.callbacker != null ){
             callbacker.message(message);
         }
-        System.out.println(message);
+        Console.log(message);
     }
     
     public static String URLtoASN(String url){
@@ -110,14 +117,21 @@ public class Website {
     }
     
     private static Pattern pDomainNameOnly;
+    private static Pattern ASNOnly;
     private static final String DOMAIN_NAME_PATTERN = "^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}$";
+    private static final String ASN_PATTERN = "^AS[0-9]+$";
 
     static {
             pDomainNameOnly = Pattern.compile(DOMAIN_NAME_PATTERN);
+            ASNOnly = Pattern.compile(ASN_PATTERN);
     }
 
     public static boolean isValidDomainName(String domainName) {
         return pDomainNameOnly.matcher(domainName).find();
+    }
+    
+    public static boolean isASNNumber(String domainName) {
+        return ASNOnly.matcher(domainName).find();
     }
     
     
@@ -126,6 +140,7 @@ public class Website {
     public String IP = "";
     public String name = "";
     public String ASN = "";
+    public String Description = "";
     public boolean isValid = true;
     public boolean wasRerouted = true;
     private boolean routed = false;
@@ -198,8 +213,13 @@ public class Website {
             for( IPRange possible_range : ranges ){
                 boolean insert = true;
                 for( IPRange range : this.ranges ){
+                    Console.log("Comparing " + range.toString(true) 
+                            + " with " + possible_range.toString(true) + " contains?");
                     if( range.contains(possible_range) ){
                         insert = false;
+                        Console.log("true");
+                    }else{
+                        Console.log("false");
                     }
                 }
                 if( insert ){

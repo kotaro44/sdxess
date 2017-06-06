@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SDXess"
-#define MyAppVersion "1.2.11"
+#define MyAppVersion "1.2.13"
 #define MyAppPublisher "8VG.org"
 #define MyAppURL "http://www.8vg.org/"
 
@@ -28,22 +28,28 @@ SolidCompression=yes
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-[Files]
-Source: "creator.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "SDXess.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "remove-tap.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "DATA"; DestDir: "{app}"; Flags: ignoreversion
-
 
 [Setup]
 PrivilegesRequired=admin
 
+[Files]
+Source: "creator.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "SDXess.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "remove-tap.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\TAP-Windows\*"; DestDir: "{app}\files\TAP-Windows\"; Flags: recursesubdirs
+Source: "sdxess.ico"; DestDir: "{app}\files\";
+Source: "..\8VGVPN\confs\*"; DestDir: "{app}\files\8VGVPN\confs\"; Flags: recursesubdirs
+Source: "..\8VGVPN\websites\*"; DestDir: "{app}\files\8VGVPN\websites\"; Flags: recursesubdirs
+Source: "..\8VGVPN\dist\*"; DestDir: "{app}\files\8VGVPN\dist\"; Flags: recursesubdirs
+Source: "..\8VGVPN\lib\*"; DestDir: "{app}\files\8VGVPN\lib\"; Flags: recursesubdirs
+Source: "..\8VGVPN\openvpn\*"; DestDir: "{app}\files\8VGVPN\openvpn\"; Flags: recursesubdirs
+
 [Run]
-Filename: "{app}\creator.exe"; Description: "{cm:LaunchProgram,MyApp}"
+Filename: "{app}\creator.exe";
 
 [UninstallRun]
 Filename: "{app}\remove-tap.exe"; 
-
+                           
 [Code]
 function InitializeSetup(): Boolean;
 var

@@ -5,6 +5,8 @@
  */
 package sdxess;
 
+import java.net.URL;
+import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -20,6 +22,10 @@ public class details extends javax.swing.JFrame {
      */
     public details(Website website) {
         initComponents();
+        URL iconURL = getClass().getResource("/sdxess/icon.png");
+        ImageIcon icon = new ImageIcon(iconURL);
+        this.setIconImage(icon.getImage());
+        
         this.website = website;
         
         this.setTitle(website.name + " detailed Info");

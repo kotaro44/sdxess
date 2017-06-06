@@ -13,7 +13,6 @@ import java.util.prefs.Preferences;
 import org.json.JSONObject;
 public class StaticRoutes {
     
-    public static String DNS = null;
     public static ArrayList<String> addedRoutes = new ArrayList<>();
     public static String sdxessGateway = "";
     
@@ -48,6 +47,7 @@ public class StaticRoutes {
         String gatewayip;
         try {
             gatewayip = StaticRoutes.GetTAPInfo(6);
+            Console.log("Original Gateway IP: " + gatewayip );
             String[] parts = gatewayip.split("\\.");
             StaticRoutes.sdxessGateway = parts[0] + "." + parts[1] + "." + parts[2] + ".1";
         } catch (IOException ex) {
@@ -74,7 +74,7 @@ public class StaticRoutes {
     
             String line =  r.readLine();
             while (line != null) {
-                System.out.println(line);
+                Console.log(line);
                 line = r.readLine();
             }
 
@@ -139,8 +139,9 @@ public class StaticRoutes {
     ***************************************************************************/
     public static void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip){
         try{
-            String route = destination_ip+" MASK "+subnetmask+" "+gatewayip;
-            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route ADD "+ route);
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route ADD " 
+                    + destination_ip + " MASK " + subnetmask + " " + gatewayip);
+            Console.log("Rerouting " + destination_ip + " " + subnetmask + " through " + gatewayip);
             builder.redirectErrorStream(true);
             Process p = builder.start();
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -152,7 +153,7 @@ public class StaticRoutes {
                     flag = 1;
                     break; 
                 }
-                System.out.println(line);
+                Console.log(line);
             }
         } catch( IOException ex ){
             Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
@@ -209,8 +210,9 @@ public class StaticRoutes {
     ***************************************************************************/
     private static void deleteStaticRouteCMD( String route ) {
         try {
-            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route DELETE "+ route);
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route DELETE " + route);
             builder.redirectErrorStream(true);
+            Console.log( "Unrouting " + route );
             Process p = builder.start();
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line = "";
@@ -221,7 +223,7 @@ public class StaticRoutes {
                     flag = 1;
                     break; 
                 }
-                System.out.println(line);
+                Console.log(line);
             }
         } catch( IOException ex ){
             Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
@@ -291,7 +293,7 @@ public class StaticRoutes {
                 }
                 if(y!=-1 && y<=9){
                     tapinfo[y] = line.toString();
-                    //System.out.println("tapinfo "+y+" "+tapinfo[y]);
+                    //Console.log("tapinfo "+y+" "+tapinfo[y]);
                     y++;
                 }
             }
@@ -453,22 +455,23 @@ public class StaticRoutes {
     ***************************************************************************/
     public static void main(String[] args) throws IOException {
         StaticRoutes test = new StaticRoutes();
-        /*System.out.println(test.GetTAPInfo(1));
-        System.out.println(test.GetTAPInfo(2));
-        System.out.println(test.GetTAPInfo(3));
-        System.out.println(test.GetTAPInfo(4));
-        System.out.println(test.GetTAPInfo(5));
-        System.out.println(test.GetTAPInfo(6));
-        System.out.println(test.GetTAPInfo(7));
-        System.out.println(test.GetTAPInfo(8));
-        System.out.println(test.GetTAPInfo(9));
-        System.out.println(test.GetTAPInfo(10));
-        System.out.println(test.GetTAPInfo(11));
-        System.out.println(test.GetTAPInfo(12));
-        System.out.println(test.GetTAPInfo(13));
-        System.out.println(test.GetTAPInfo(14));
-        System.out.println(test.GetTAPInfo(15));*/
-        //System.out.println(test.NSLookup("google.com"));
+        /*Console.log(test.GetTAPInfo(1));
+        Console.log(test.GetTAPInfo(2));
+        Console.log(test.GetTAPInfo(3));
+        Console.log(test.GetTAPInfo(4));
+        Console.log(test.GetTAPInfo(5));
+        Console.log(test.GetTAPInfo(6));
+        Console.log(test.GetTAPInfo(7));
+        Console.log(test.GetTAPInfo(8));
+        Console.log(test.GetTAPInfo(9));
+        Console.log(test.GetTAPInfo(10));
+        Console.log(test.GetTAPInfo(11));
+        Console.log(test.GetTAPInfo(12));
+        Console.log(test.GetTAPInfo(13));
+        Console.log(test.GetTAPInfo(14));
+        Console.log(test.GetTAPInfo(15));*/
+        //Console.log(test.NSLookup("google.com"));
         //test.AddStaticRoute(test.NSLookup("youtube.com"), test.GetTAPInfo(11), test.GetTAPInfo(6));
     }
+   
 }

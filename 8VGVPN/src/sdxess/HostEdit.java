@@ -10,9 +10,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -38,6 +40,11 @@ public class HostEdit extends javax.swing.JFrame {
     ***************************************************************************/
     public HostEdit(ArrayList<Website> websites)  {
         initComponents();
+        URL iconURL = getClass().getResource("/sdxess/icon.png");
+        ImageIcon icon = new ImageIcon(iconURL);
+        alertIcoLbl.setVisible(false);
+        alertMsgLbl.setVisible(false);
+        this.setIconImage(icon.getImage());
         this.windowName = this.getTitle();
         this.websites = websites;
         this.updateTable();
@@ -58,9 +65,12 @@ public class HostEdit extends javax.swing.JFrame {
         sitesTable = new javax.swing.JTable();
         delBtn = new javax.swing.JButton();
         detailBtn = new javax.swing.JButton();
+        alertMsgLbl = new javax.swing.JLabel();
+        alertIcoLbl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Websites");
+        setPreferredSize(new java.awt.Dimension(600, 250));
 
         addBtn.setText("Add Website");
         addBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -71,19 +81,19 @@ public class HostEdit extends javax.swing.JFrame {
 
         sitesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Website", "Routed IP", "Routed"
+                "Website", "Routed IP", "Routed", "Description"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
+                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, true
+                false, false, true, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -102,6 +112,12 @@ public class HostEdit extends javax.swing.JFrame {
             }
         });
         jScrollPane1.setViewportView(sitesTable);
+        if (sitesTable.getColumnModel().getColumnCount() > 0) {
+            sitesTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+            sitesTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+            sitesTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+            sitesTable.getColumnModel().getColumn(3).setPreferredWidth(400);
+        }
 
         delBtn.setText("Delete Website");
         delBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -117,6 +133,10 @@ public class HostEdit extends javax.swing.JFrame {
             }
         });
 
+        alertMsgLbl.setText("Remember to delete the cache of your browser!");
+
+        alertIcoLbl.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sdxess/alert.png"))); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -125,19 +145,25 @@ public class HostEdit extends javax.swing.JFrame {
                 .addComponent(addBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(delBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(detailBtn))
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
+                .addGap(4, 4, 4)
+                .addComponent(detailBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(alertIcoLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(alertMsgLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addBtn)
                     .addComponent(delBtn)
-                    .addComponent(detailBtn)))
+                    .addComponent(detailBtn)
+                    .addComponent(alertMsgLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(alertIcoLbl)))
         );
 
         pack();
@@ -162,7 +188,7 @@ public class HostEdit extends javax.swing.JFrame {
             String line="";
 
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                Console.log(line);
             }
         
         } catch (IOException ex) {
@@ -178,7 +204,7 @@ public class HostEdit extends javax.swing.JFrame {
         
         for( int i = 0 ; i < this.websites.size() ; i++ ){
             Website website = this.websites.get(i);
-            this.tableModel.addRow(new Object[]{ website.name , website.IP , website.isRouted() });
+            this.tableModel.addRow(new Object[]{ website.name , website.IP , website.isRouted() , website.Description });
         }
 
         sitesTable.setModel(this.tableModel);
@@ -199,6 +225,7 @@ public class HostEdit extends javax.swing.JFrame {
                     this.message("Unrouting " + website.name + "...");
                     website.deleteRouting();
                 }
+                this.showSuggestion();
                 this.websites.removeAll(websites2remove);
                 this.updateTable();
                 this.message(null);
@@ -208,12 +235,18 @@ public class HostEdit extends javax.swing.JFrame {
     }//GEN-LAST:event_delBtnActionPerformed
 
     private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
-        String domain = JOptionPane.showInputDialog(this, "Enter Domain name" , "8vg.org");
+        String domain = JOptionPane.showInputDialog(this, "Enter Domain, IP or ASN number" , "8vg.org");
         if( domain != null ){
-            if ( Website.isValidDomainName(domain) ) {
-                this.addWebsite(domain);
+            if ( Website.isValidDomainName(domain) || Website.isASNNumber(domain) || 
+                    Website.isIP(domain)) {
+                
+                String description = JOptionPane.showInputDialog(this, "Enter a description" , domain );
+                if( description == null ) {
+                    description = "";
+                }
+                this.addWebsite(domain,description);
             } else {
-                JOptionPane.showMessageDialog(this, domain + " is not a valid Domain name", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, domain + " is not a valid Domain name, IP or ASN number", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_addBtnActionPerformed
@@ -247,21 +280,27 @@ public class HostEdit extends javax.swing.JFrame {
             }
         }
         if( shouldSave ){
+            this.showSuggestion();
             this.saveWebsites();
         }
         this.message(null);
     }//GEN-LAST:event_sitesTablePropertyChange
 
-    public void addWebsite(String domain){
+    public void addWebsite(String domain, String description){
         addBtn.setEnabled(false);
         delBtn.setEnabled(false);
         detailBtn.setEnabled(false);
         sitesTable.setEnabled(false);
         
         this.message("getting info from " + domain + "...");
-        ExecutorTask.setTimeout(() -> this.addWebsiteAsync(domain), 10);
+        ExecutorTask.setTimeout(() -> this.addWebsiteAsync(domain,description), 10);
     }
     
+    public void showSuggestion(){
+        alertIcoLbl.setVisible(true);
+        alertMsgLbl.setVisible(true);
+    }
+  
     public static ArrayList<Website> restoreWebsites(){
         ArrayList<Website> result = new ArrayList<>();
         File folder = new File("websites");
@@ -269,7 +308,7 @@ public class HostEdit extends javax.swing.JFrame {
             File[] listOfFiles = folder.listFiles();
             for (File file : listOfFiles) {
                 if (file.isFile()) {
-                    System.out.println("restoring " + file.getName() + "...");
+                    Console.log("restoring " + file.getName() + "...");
                     Website website = Website.restore(file);
                     result.add(website);
                 } 
@@ -278,9 +317,10 @@ public class HostEdit extends javax.swing.JFrame {
         return result;
     }
     
-    private void addWebsiteAsync(String domain){
+    private void addWebsiteAsync(String domain,String description){
         Website website = new Website(domain,this);
         if( website.isValid ){
+            website.Description = description;
             boolean addNewWebsite = true;
             //check if the website was added before
             for( Website other : this.websites ){
@@ -324,7 +364,7 @@ public class HostEdit extends javax.swing.JFrame {
                     flag = 1;
                     break; 
                 }
-                System.out.println(line);
+                Console.log(line);
             }
         } catch (IOException ex) {
             Logger.getLogger(HostEdit.class.getName()).log(Level.SEVERE, null, ex);
@@ -332,7 +372,11 @@ public class HostEdit extends javax.swing.JFrame {
     }
     
     public void saveWebsites(){
-        System.out.println("saving websites!");
+        HostEdit.saveWebsites(this.websites);
+    }
+    
+    public static void saveWebsites(ArrayList<Website> websites){
+        Console.log("saving websites!");
         File theDir = new File("websites");
         if( theDir.exists() ){
             deleteDir("websites");
@@ -341,11 +385,12 @@ public class HostEdit extends javax.swing.JFrame {
         theDir.mkdir();
         
         try{
-            for( Website website : this.websites ){
+            for( Website website : websites ){
                 PrintWriter writer = new PrintWriter("websites\\" + website.name, "UTF-8");
                 writer.println(website.ASN);
                 writer.println(website.IP);
                 writer.println(website.isRouted());
+                writer.println(website.Description.replace('\n', ' '));
                 for( IPRange range : website.ranges ){
                     writer.println(range.toString(true));
                 }
@@ -366,6 +411,8 @@ public class HostEdit extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addBtn;
+    private javax.swing.JLabel alertIcoLbl;
+    private javax.swing.JLabel alertMsgLbl;
     private javax.swing.JButton delBtn;
     private javax.swing.JButton detailBtn;
     private javax.swing.JScrollPane jScrollPane1;

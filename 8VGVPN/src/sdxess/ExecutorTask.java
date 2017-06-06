@@ -83,23 +83,24 @@ public class ExecutorTask implements Runnable{
                  //CONNECTED TO THE SERVER
                  if( line.contains("Initialization Sequence Completed") && !this.connected   ){
                     this.connected = true;
-                    System.out.println("---------------------------------Connection start---------------------------------");
+                    Console.log("---Connection start---");
                     frame.connected( ip2route , sites2route );
                  //RESTARTED CONNECTION
-                 }else if( line.contains("Connection reset, restarting") || line.contains("Restart pause,") ){
+                 }else if( line.contains("Connection reset, restarting") || line.contains("Restart pause,") 
+                         || line.contains("[server] Inactivity timeout") ){
                      frame.reconnecting();
                      this.abortTimeOut = true;
                      this.connected = false;
                  //Static route ROUTE PARAMETER
-                 } else if( line.contains("sdxess-website") && line.contains("Unrecognized option") ){
-                    Pattern pattern = Pattern.compile("sdxess-website:[^(]*");
+                 } else if( line.contains("sdxess-site") && line.contains("Unrecognized option") ){
+                    Pattern pattern = Pattern.compile("sdxess-site:[^\\s(]*");
                     Matcher matcher = pattern.matcher(line);
                     if (matcher.find()){
                         String[] parts = matcher.group(0).split(":");
-                        sites2route.add(parts[1]);
-                        System.out.println("Website added for rerouting: " + parts[1]);
+                        sites2route.add( (parts[1] + ":" + parts[2]).trim() );
+                        Console.log("Website added for rerouting: " + parts[1]);
                     }else{
-                        System.out.println(line);
+                        Console.log(line,true);
                     }
                  //Static route ROUTE PARAMETER
                  } else if( line.contains("route.exe ADD") ){
@@ -120,12 +121,12 @@ public class ExecutorTask implements Runnable{
                  } else if ( line.contains("[server] Peer Connection Initiated") ){ 
                     frame.updateMessage("Peer Connection Initiated...");
                     this.abortTimeOut = true;
-                    System.out.println(line);
+                    Console.log(line,true);
                  } else if ( line.contains("Exiting due to fatal error") ){ 
-                    frame.disconnect(true);
-                    System.out.println(line);
+                    frame.disconnect(true,null);
+                    Console.log(line,true);
                  } else {
-                    System.out.println(line);
+                    Console.log(line,true);
                  }
              }
              
@@ -161,8 +162,8 @@ public class ExecutorTask implements Runnable{
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public static void setTimeout(Runnable runnable, int delay){
-        new Thread(() -> {
+    public static Thread setTimeout(Runnable runnable, int delay){
+        Thread t = new Thread(() -> {
             try {
                 Thread.sleep(delay);
                 runnable.run();
@@ -170,6 +171,8 @@ public class ExecutorTask implements Runnable{
             catch (Exception e){
                 System.err.println(e);
             }
-        }).start();
+        });
+        t.start();
+        return t;
     }
 }

@@ -65,15 +65,19 @@ string ExePath() {
 
 */
 void install(){
-	cout<<"uncompressing files..."<<endl;
-	system("powershell.exe -nologo -noprofile -command \"& { Add-Type -A \'System.IO.Compression.FileSystem\'; [IO.Compression.ZipFile]::ExtractToDirectory(\'DATA', 'files'); }");
+	if( Is64BitWindows() ){
+		cout<<"64-Bit Mode"<<endl;
+	}else{
+		cout<<"32-Bit Mode"<<endl;
+	}
+	
 
 	string location = ExePath();
 	cout<<"Location: "<<location<<endl;
 	cout<<"preparing to install SDXess..."<<endl;
     cout<<"generating SDXess.bat"<<endl;
 	
-	system("echo @echo off > 8VGVPN/SDXess.bat");
+	system("echo @echo off > files/8VGVPN/SDXess.bat");
 	string command = string("echo cd \"") + location + string("\\files\\8VGVPN\" >> files/8VGVPN/SDXess.bat");
 	system(  command.c_str() );
 	command = string("echo start javaw -jar dist/8VGVPN.jar >> files/8VGVPN/SDXess.bat");
@@ -107,7 +111,12 @@ void install(){
 	
 	
 	cout<<"Setting up TAP-Windows.."<<endl;
-	system("start files\\TAP-Windows\\tapinstall.exe install files\\TAP-Windows\\driver\\OemVista.inf tap0901");
+	if( Is64BitWindows() ){
+		system("start files\\TAP-Windows\\tapinstall.exe install files\\TAP-Windows\\driver\\OemVista.inf tap0901");
+	}else{
+		system("start files\\TAP-Windows\\32\\tapinstall.exe install files\\TAP-Windows\\32\\driver\\OemVista.inf tap0901");
+	}
+	
 }
 
 int main(){
