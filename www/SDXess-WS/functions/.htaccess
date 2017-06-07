@@ -1,0 +1,6 @@
+ErrorDocument 404 /SDXess-WS/error/errormsg.php
+ErrorDocument 403 /SDXess-WS/error/errormsg.php
+
+# Turn rewrite engine on
+Options +FollowSymlinks -Indexes
+deny from all
