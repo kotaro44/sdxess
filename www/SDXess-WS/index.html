@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Documento sin título</title>
+<style type="text/css">
+body{
+	font-family:Arial, Helvetica, sans-serif;
+}
+</style></head>
+
+<body>
+<h1>SDXess Web Service</h1>
+<hr />
+
+<h3>Login Function:</h3>
+
+<span style="font-size:12px"><span style="color: #306"><strong>URL:</strong> </span>http://inet99.ji8.net/SDXess-WS/<span style="color: #00F">user/login/</span></span><br />
+
+<span style="font-size:12px"><span style="color: #306"><strong>Request Method:</strong></span> POST</span><br />
+<span style="font-size:12px"><span style="color: #306"><strong>Content Type:</strong></span> application/json</span>
+<h5><span style="color: #306">JSON format:</span></h5>
+<span style="font-size:12px">{<br />
+     &quot;authentication_data&quot;:  {<br />
+         &quot;user&quot;:  &quot;<a rel="nofollow noreferrer" target="_blank" href="mailto:sdxess3@ji8.net" tabindex="-1" dir="ltr" data-display="sdxess3@ji8.net" data-sanitized="mailto:sdxess3@ji8.net">sdxess3@ji8.net</a>&quot;,<br />
+         &quot;password&quot;:     &quot;68808c1cac56078870fbdcf33d9fddd2&quot;<br />
+     }<br />
+}</span>
+</p>
+<h5><span style="color: #306">Data format:</span></h5>
+<ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>authentication_data</strong></span></span></li><ul>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>user:</strong></span> E-mail Format,  Min length: 5, Max length: 100</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00;"><strong>password:</strong></span> MD5 String (Alphanumeric),  Min length: 32, Max length: 32</span></li>
+  </ul>
+</ul>
+<h5><span style="color: #306">Messages:</span></h5>
+<ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 200</strong></span></span>, <span style="font-size:12px">status_message: <strong>User Authentication Correct</strong></span>,<span style="font-size:12px"> data: <strong>User data in json format.</strong></span></li>
+<ul>
+  <li><span style="font-size:12px">{      &quot;status&quot;: 200,      &quot;status_message&quot;: &quot;User Authentication Correct&quot;,      &quot;data&quot;: {          &quot;account number&quot;: &quot;A0000007&quot;,          &quot;name&quot;: &quot;SDXess&quot;,          &quot;last name&quot;: &quot;Admin&quot;,          &quot;status&quot;: &quot;1&quot;,          &quot;expiry time&quot;: &quot;2017-05-31 23:28:41&quot;,          &quot;subscription&quot;: &quot;Expired&quot;      } </span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong> User Authentication Failed</strong>,      data: <strong>User not found or Invalid parameters</strong></span></li>
+<ul>
+  <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;User Authentication Failed&quot;,      &quot;data&quot;: &quot;User not found or Invalid parameters&quot;  }</span></li>
+    
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong> User Authentication Failed</strong>,      data: <strong>Invalid parameters</strong></span></li>
+<ul>
+  <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;User Authentication Failed&quot;,      &quot;data&quot;: &quot;Invalid parameters&quot;  }</span></li>
+    
+  </ul>  
+<li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Request method must be POST</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Request method must be POST&quot;  } </span></li>
+</ul>
+<li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Content type must be: application\/json</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Content type must be: application\/json&quot;  }</span></li>
+</ul>
+<li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Received content contained invalid JSON</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Received content contained invalid JSON&quot;  }</span></li>
+</ul>
+      <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 500</strong></span></span>, <span style="font-size:12px">status_message:<strong>User Registration Failed</strong></span>, <span style="font-size:12px">data: <strong>Unable to complete the operation</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: { &quot;status&quot;: &quot;500&quot;, &quot;status_message&quot;: &quot;User Registration Failed:&quot;, &quot;data&quot;: &quot;Unable to complete the operation&quot; }</span></li>
+  </ul>
+ <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 500</strong></span></span>, <span style="font-size:12px">status_message:<strong>Unable to establish database connection</strong></span>, <span style="font-size:12px">data: <strong>Unable to complete the operation</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: 500,      &quot;status_message&quot;: &quot;Unable to establish database connection&quot;,      &quot;data&quot;: &quot;Unable to complete the operation&quot;  }</span></li>
+  </ul> 
+</ul>
+
+
+<hr />
+
+<h3>Get User Information Function:</h3>
+<span style="font-size:12px"><span style="color: #306"><strong>URL:</strong></span>http://inet99.ji8.net/SDXess-WS/<span style="color: #00F">user/get/information/ </span></span><br />
+<span style="font-size:12px"><span style="color: #306"><strong>Request Method:</strong></span> POST</span><br />
+<span style="font-size:12px"><span style="color: #306"><strong>Content Type:</strong></span> application/json</span>
+<h5><span style="color: #306">JSON format:</span></h5>
+<span style="font-size:12px">{<br />
+   &quot;authentication_data&quot;:  {<br />
+       &quot;user&quot;:  &quot;<a rel="nofollow noreferrer" target="_blank" href="mailto:sdxess3@ji8.net" tabindex="-1" dir="ltr" data-display="sdxess3@ji8.net" data-sanitized="mailto:sdxess3@ji8.net">sdxess3@ji8.net</a>&quot;,<br />
+       &quot;password&quot;:     &quot;68808c1cac56078870fbdcf33d9fddd2&quot;<br />
+   },<br />
+   &quot;get_user_info&quot;:  {<br />
+       &quot;user&quot;:  &quot;<a rel="nofollow noreferrer" target="_blank" href="mailto:sdxess3@ji8.net" tabindex="-1" dir="ltr" data-display="sdxess3@ji8.net" data-sanitized="mailto:sdxess3@ji8.net">sdxess3@ji8.net</a>&quot;<br />
+   }<br />
+}</span>
+<h5><span style="color: #306">Data format:</span></h5>
+<ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>authentication_data</strong></span></span></li><ul>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>user:</strong></span> E-mail Format,  Min length: 5, Max length: 100</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00;"><strong>password:</strong></span> MD5 String (Alphanumeric),  Min length: 32, Max length: 32</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #306"><strong>get_user_info</strong></span></span></li><ul>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>user:</strong></span> E-mail Format,  Min length: 5, Max length: 100</span></li>
+  </ul>  
+</ul>
+<h5><span style="color: #306">Messages:</span></h5>
+<ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 200</strong></span></span>, <span style="font-size:12px">status_message: <strong>Get User Information Successs</strong></span>,<span style="font-size:12px"> data: <strong>User data in json format.</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 200,      &quot;status_message&quot;: &quot;Get User Information Success&quot;,      &quot;data&quot;: {          &quot;account number&quot;: &quot;A0000007&quot;,          &quot;name&quot;: &quot;SDXess&quot;,          &quot;last name&quot;: &quot;Admin&quot;,          &quot;country&quot;: &quot;CN&quot;,          &quot;address&quot;: &quot;Haidian District, Beijing&quot;,          &quot;registration date&quot;: &quot;2017-05-31 23:28:41&quot;,          &quot;status&quot;: &quot;1&quot;,          &quot;start_time&quot;: &quot;2017-05-31 23:28:41&quot;,          &quot;expiry_time&quot;: &quot;2017-05-31 23:28:41&quot;,          &quot;subscription&quot;: &quot;Expired&quot;      }  </span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong> Get User Information Failed</strong>,      data:<strong> User Authentication Failed</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Get User Information Failed&quot;,      &quot;data&quot;: &quot;User Authentication Failed&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 401</strong></span></span>, <span style="font-size:12px">status_message:<strong> Get User Information Failed</strong>,      data: <strong>Access Forbidden</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 401,      &quot;status_message&quot;: &quot;Get User Information Failed&quot;,      &quot;data&quot;: &quot;Access Forbidden&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong> Get User Information Failed</strong>,      data: <strong>User information not found</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Get User Information Failed&quot;,      &quot;data&quot;: &quot;User information not found&quot;  }</span></li>
+  </ul>
+ <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Get User Information Failed</strong>,      data: <strong>Invalid target user parameter</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Get User Information Failed&quot;,      &quot;data&quot;: &quot;Invalid target user parameters&quot;  }</span></li>
+  </ul>
+    <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong>Get User Information Failed</strong>,      data: <strong>Invalid parameters</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Get User Information Failed&quot;,      &quot;data&quot;: &quot;Invalid parameters&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Request method must be POST</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Request method must be POST&quot;  } </span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Content type must be: application\/json</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Content type must be: application\/json&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Received content contained invalid JSON</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Received content contained invalid JSON&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 500</strong></span></span>, <span style="font-size:12px">status_message: <strong>Get User Information Failed</strong></span>, <span style="font-size:12px">data: <strong>Unable to complete the operation</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: { &quot;status&quot;: 500, &quot;status_message&quot;: &quot;Get User Information Failed&quot;, &quot;data&quot;: &quot;Unable to complete the operation&quot; }</span></li>
+  </ul>
+<li><span style="font-size:12px"><span style="color: #006"><strong>Status: 500</strong></span></span>, <span style="font-size:12px">status_message:<strong>Unable to establish database connection</strong></span>, <span style="font-size:12px">data: <strong>Unable to complete the operation</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: 500,      &quot;status_message&quot;: &quot;Unable to establish database connection&quot;,      &quot;data&quot;: &quot;Unable to complete the operation&quot;  }</span></li>
+  </ul>
+</ul>
+<hr />
+
+<h3>User Registration Function:</h3>
+<span style="font-size:12px"><span style="color: #306"><strong>URL:</strong></span>http://inet99.ji8.net/SDXess-WS/<span style="color: #00F">user/registration/ </span></span><br />
+<span style="font-size:12px"><span style="color: #306"><strong>Request Method:</strong></span> POST</span><br />
+<span style="font-size:12px"><span style="color: #306"><strong>Content Type:</strong></span> application/json</span>
+<h5><span style="color: #306">JSON format:</span></h5>
+<span style="font-size:12px">{<br />
+  &quot;registration_data&quot;:  {<br />
+      &quot;user&quot;:  &quot;<a rel="nofollow noreferrer" target="_blank" href="mailto:sdxess3@ji8.net" tabindex="-1" dir="ltr" data-display="sdxess3@ji8.net" data-sanitized="mailto:sdxess3@ji8.net">sdxess3@ji8.net</a>&quot;,<br />
+      &quot;password&quot;:     &quot;68808c1cac56078870fbdcf33d9fddd2&quot;,<br />
+      &quot;fname&quot;:  &quot;SDXess&quot;,<br />
+      &quot;lname&quot;:     &quot;Admin&quot;,<br />
+      &quot;country&quot;:  &quot;CN&quot;,<br />
+      &quot;address&quot;:     &quot;Haidian District, Beijing&quot;<br />
+  }<br />
+}</span>
+<h5><span style="color: #306">Data format:</span></h5>
+<ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>registration_data</strong></span></span></li><ul>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>user:</strong></span> E-mail Format,  Min length: 5, Max length: 100</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>password:</strong></span> MD5 String (Alphanumeric),  Min length: 32, Max length: 32</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>fname:</strong></span> (User's First name) Alphabetic, Min length: 2, Max length: 35</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>lname:</strong></span> (User's Last name) Alphabetic, Min length: 2, Max length: 35</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00;"><strong>country: </strong></span>Alphabetic: ISO 3166-1 standard for actual list of alphabetic codes and countries; Min length: 2, Max length: 3</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>address:</strong></span> (Billing Address)Text validation, Min length: 10, Max length: 500</span></li>
+  </ul>
+</ul>
+<h5><span style="color: #306">Messages:</span></h5>
+<ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 201</strong></span></span>, <span style="font-size:12px">status_message: <strong>User Registered Successfully</strong></span>,<span style="font-size:12px"> data: <strong>User data in json format.</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: &quot;201&quot;,      &quot;status_message&quot;: &quot;User Registered Successfully&quot;,      &quot;data&quot;: {          &quot;account number&quot;: &quot;A0000008&quot;,          &quot;name&quot;: &quot;Test&quot;,          &quot;last name&quot;: &quot;User&quot;,          &quot;country&quot;: &quot;CN&quot;,          &quot;address&quot;: &quot;Haidian District, Beijing&quot;,          &quot;registration date&quot;: &quot;2017-06-02 00:11:34&quot;,          &quot;status&quot;: &quot;1&quot;,          &quot;start_time&quot;: &quot;2017-06-02 00:11:34&quot;,          &quot;expiry_time&quot;: &quot;2017-06-02 00:11:34&quot;,          &quot;subscription&quot;: &quot;Expired&quot;      }  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 409</strong></span></span>, <span style="font-size:12px">status_message:<strong>User Registration Failed</strong>,      data: <strong>User: 'username' already exists</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: &quot;409&quot;,      &quot;status_message&quot;: &quot;User Registration Failed&quot;,      &quot;data&quot;: &quot;User: 'sdxess5@ji8.net' already exists&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong> User Registration Failed</strong>,      data: <strong>Invalid parameters</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;User Registration Failed&quot;,      &quot;data&quot;: &quot;Invalid parameters&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong> User Registration Failed</strong>,      data: <strong>Check wrong fields: field1, field2... fieldn</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: &quot;400&quot;,      &quot;status_message&quot;: &quot;User Registration Failed&quot;,      &quot;data&quot;: &quot;Check wrong fields: username, password, first name, last name, country, address&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Request method must be POST</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Request method must be POST&quot;  } </span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Content type must be: application\/json</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Content type must be: application\/json&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Received content contained invalid JSON</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Received content contained invalid JSON&quot;  }</span></li>
+  </ul>
+    <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 500</strong></span></span>, <span style="font-size:12px">status_message:<strong>User Registration Failed</strong></span>, <span style="font-size:12px">data: <strong>Unable to complete the operation</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: { &quot;status&quot;: &quot;500&quot;, &quot;status_message&quot;: &quot;User Registration Failed:&quot;, &quot;data&quot;: &quot;Unable to complete the operation&quot; }</span></li>
+  </ul>
+<li><span style="font-size:12px"><span style="color: #006"><strong>Status: 500</strong></span></span>, <span style="font-size:12px">status_message:<strong>Unable to establish database connection</strong></span>, <span style="font-size:12px">data: <strong>Unable to complete the operation</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: 500,      &quot;status_message&quot;: &quot;Unable to establish database connection&quot;,      &quot;data&quot;: &quot;Unable to complete the operation&quot;  }</span></li>
+  </ul>
+</ul>
+<hr />
+
+<h3>Password Change Function:</h3>
+<span style="font-size:12px"><span style="color: #306"><strong>URL:</strong></span>http://inet99.ji8.net/SDXess-WS/<span style="color: #00F">user/update/password/ </span></span><br />
+<span style="font-size:12px"><span style="color: #306"><strong>Request Method:</strong></span> PUT</span><br />
+<span style="font-size:12px"><span style="color: #306"><strong>Content Type:</strong></span> application/json</span>
+<h5><span style="color: #306">JSON format:</span></h5>
+<span style="font-size:12px">{<br />
+   &quot;authentication_data&quot;:  {<br />
+       &quot;user&quot;:  &quot;<a rel="nofollow noreferrer" target="_blank" href="mailto:sdxess3@ji8.net" tabindex="-1" dir="ltr" data-display="sdxess3@ji8.net" data-sanitized="mailto:sdxess3@ji8.net">sdxess3@ji8.net</a>&quot;,<br />
+       &quot;password&quot;:     &quot;68808c1cac56078870fbdcf33d9fddd2&quot;<br />
+   },<br />
+   &quot;change_password&quot;:  {<br />
+       &quot;user&quot;:  &quot;<a rel="nofollow noreferrer" target="_blank" href="mailto:sdxess3@ji8.net" tabindex="-1" dir="ltr" data-display="sdxess3@ji8.net" data-sanitized="mailto:sdxess3@ji8.net">sdxess3@ji8.net</a>&quot;,<br />
+       &quot;password&quot;:     &quot;68808c1cac56078870fbdcf33d9fddd2&quot;<br />
+   }<br />
+}</span>
+<h5><span style="color: #306">Data format:</span></h5>
+<ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>authentication_data</strong></span></span></li><ul>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>user:</strong></span> E-mail Format,  Min length: 5, Max length: 100</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00;"><strong>password:</strong></span> MD5 String (Alphanumeric),  Min length: 32, Max length: 32</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #306"><strong>change_password</strong></span></span></li><ul>
+  <li><span style="font-size:12px"><span style="color: #F00"><strong>user:</strong></span> E-mail Format,  Min length: 5, Max length: 100</span></li>
+  <li><span style="font-size:12px"><span style="color: #F00;"><strong>password:</strong></span> MD5 String (Alphanumeric),  Min length: 32, Max length: 32</span></li>
+  </ul>  
+</ul>
+<h5><span style="color: #306">Messages:</span></h5>
+<ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 200</strong></span></span>, <span style="font-size:12px">status_message: <strong>Password Changed Successfully</strong></span>,<span style="font-size:12px"> data: <strong>null.</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: 200,      &quot;status_message&quot;: &quot;Password Changed Successfully&quot;,      &quot;data&quot;: null  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Password Change Failed</strong>,      data:<strong> User Authentication Failed</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Password Change Failed&quot;,      &quot;data&quot;: &quot;User Authentication Failed&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong> Password Change Failed</strong>,      data: <strong>Invalid parameters</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Password Change Failed&quot;,      &quot;data&quot;: &quot;Invalid parameters&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong>Password Change Failed</strong>,      data: <strong>Invalid target user parameters</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Password Change Failed&quot;,      &quot;data&quot;: &quot;Invalid target user parameters&quot;  }</span></li>
+  </ul>
+ <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 401</strong></span></span>, <span style="font-size:12px">status_message:<strong>Password Change Failed</strong>,      data: <strong>Access Forbidden</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 401,      &quot;status_message&quot;: &quot;<strong>Password Change Failed</strong>&quot;,      &quot;data&quot;: &quot;<strong>Access Forbidden</strong>&quot;  }</span></li>
+  </ul>
+    <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message:<strong>Password Change Failed</strong>,      data: <strong>Invalid parameters</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Password Change Failed&quot;,      &quot;data&quot;: &quot;Invalid parameters&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Request method must be POST</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Request method must be POST&quot;  } </span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Content type must be: application\/json</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Content type must be: application\/json&quot;  }</span></li>
+  </ul>
+  <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 400</strong></span></span>, <span style="font-size:12px">status_message: <strong>Invalid Request</strong></span>, <span style="font-size:12px">data: <strong>Received content contained invalid JSON</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: {      &quot;status&quot;: 400,      &quot;status_message&quot;: &quot;Invalid Request&quot;,      &quot;data&quot;: &quot;Received content contained invalid JSON&quot;  }</span></li>
+  </ul>
+      <li><span style="font-size:12px"><span style="color: #006"><strong>Status: 500</strong></span></span>, <span style="font-size:12px">status_message:<strong>Password Change Failed</strong></span>, <span style="font-size:12px">data: <strong>Unable to complete the operation</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example: { &quot;status&quot;: &quot;500&quot;, &quot;status_message&quot;: &quot;Password Change Failed:&quot;, &quot;data&quot;: &quot;Unable to complete the operation&quot; }</span></li>
+  </ul>
+<li><span style="font-size:12px"><span style="color: #006"><strong>Status: 500</strong></span></span>, <span style="font-size:12px">status_message:<strong>Unable to establish database connection</strong></span>, <span style="font-size:12px">data: <strong>Unable to complete the operation</strong></span></li>
+  <ul>
+    <li><span style="font-size:12px">Example:{      &quot;status&quot;: 500,      &quot;status_message&quot;: &quot;Unable to establish database connection&quot;,      &quot;data&quot;: &quot;Unable to complete the operation&quot;  }</span></li>
+  </ul>
+</ul>
+</body>
+</html>

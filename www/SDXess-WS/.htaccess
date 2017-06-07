@@ -1,0 +1,16 @@
+ErrorDocument 404 /SDXess-WS/error/errormsg.php
+ErrorDocument 403 /SDXess-WS/error/errormsg.php
+#Header always set Access-Control-Allow-Origin "*"
+#Header always set Access-Control-Allow-Methods "POST, GET, PUT, OPTIONS"
+# Turn rewrite engine on
+Options +FollowSymlinks -Indexes
+RewriteEngine on
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /SDXess-WS/
+RewriteRule ^user/login/(.*)$ login.php [NC,L]
+RewriteRule ^user/registration/(.*)$ userregistration.php [NC,L]
+RewriteRule ^user/get/information(.*)$ getuserinfo.php [NC,L]
+RewriteRule ^user/update/password/(.*)$ passchange.php [NC,L]
+</IfModule>
