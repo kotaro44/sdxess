@@ -73,6 +73,7 @@ public class HostEdit extends javax.swing.JFrame {
         setPreferredSize(new java.awt.Dimension(600, 250));
 
         addBtn.setText("Add Website");
+        addBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         addBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addBtnActionPerformed(evt);
@@ -83,7 +84,7 @@ public class HostEdit extends javax.swing.JFrame {
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
-                {null, null, null, null}
+                {null, null,  new Boolean(false), null}
             },
             new String [] {
                 "Website", "Routed IP", "Routed", "Description"
@@ -120,6 +121,7 @@ public class HostEdit extends javax.swing.JFrame {
         }
 
         delBtn.setText("Delete Website");
+        delBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         delBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 delBtnActionPerformed(evt);
@@ -127,6 +129,7 @@ public class HostEdit extends javax.swing.JFrame {
         });
 
         detailBtn.setText("details");
+        detailBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         detailBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 detailBtnActionPerformed(evt);

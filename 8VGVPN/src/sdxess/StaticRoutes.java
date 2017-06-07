@@ -15,6 +15,8 @@ public class StaticRoutes {
     
     public static ArrayList<String> addedRoutes = new ArrayList<>();
     public static String sdxessGateway = "";
+    public static String sdxessIP = "";
+    public static int interf = -1;
     
     /***************************************************************************
     ***  brief                                                               ***
@@ -46,10 +48,12 @@ public class StaticRoutes {
         //WE ADD THE X.X.X.1 TO THE GATEWAY SINCE THE CONNECTION IS BY UDP
         String gatewayip;
         try {
+            StaticRoutes.sdxessIP = StaticRoutes.GetTAPInfo(3);
             gatewayip = StaticRoutes.GetTAPInfo(6);
             Console.log("Original Gateway IP: " + gatewayip );
             String[] parts = gatewayip.split("\\.");
             StaticRoutes.sdxessGateway = parts[0] + "." + parts[1] + "." + parts[2] + ".1";
+            
         } catch (IOException ex) {
             Logger.getLogger(StaticRoutes.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -140,8 +144,9 @@ public class StaticRoutes {
     public static void AddStaticRoute(String destination_ip, String subnetmask, String gatewayip){
         try{
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "route ADD " 
-                    + destination_ip + " MASK " + subnetmask + " " + gatewayip);
-            Console.log("Rerouting " + destination_ip + " " + subnetmask + " through " + gatewayip);
+                    + destination_ip + " MASK " + subnetmask + " " + gatewayip + " if " + interf);
+            Console.log("Rerouting " + destination_ip + " " + subnetmask + " through " + 
+                    gatewayip + " interface:" + interf);
             builder.redirectErrorStream(true);
             Process p = builder.start();
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -443,35 +448,6 @@ public class StaticRoutes {
             break;
         }
         return gettapconfig;
-    }
-
-    /***************************************************************************
-    ***  brief                                                               ***
-    ***  serial number ????                                                  ***
-    ***  parameter out <none>                                                ***
-    ***  parameter in  <none>                                                ***
-    ***  return <none>                                                       ***
-    *** @param                                                               ***
-    ***************************************************************************/
-    public static void main(String[] args) throws IOException {
-        StaticRoutes test = new StaticRoutes();
-        /*Console.log(test.GetTAPInfo(1));
-        Console.log(test.GetTAPInfo(2));
-        Console.log(test.GetTAPInfo(3));
-        Console.log(test.GetTAPInfo(4));
-        Console.log(test.GetTAPInfo(5));
-        Console.log(test.GetTAPInfo(6));
-        Console.log(test.GetTAPInfo(7));
-        Console.log(test.GetTAPInfo(8));
-        Console.log(test.GetTAPInfo(9));
-        Console.log(test.GetTAPInfo(10));
-        Console.log(test.GetTAPInfo(11));
-        Console.log(test.GetTAPInfo(12));
-        Console.log(test.GetTAPInfo(13));
-        Console.log(test.GetTAPInfo(14));
-        Console.log(test.GetTAPInfo(15));*/
-        //Console.log(test.NSLookup("google.com"));
-        //test.AddStaticRoute(test.NSLookup("youtube.com"), test.GetTAPInfo(11), test.GetTAPInfo(6));
     }
    
 }

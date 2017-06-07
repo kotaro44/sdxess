@@ -78,15 +78,20 @@ void install(){
     cout<<"generating SDXess.bat"<<endl;
 	
 	system("echo @echo off > files/8VGVPN/SDXess.bat");
-	string command = string("echo cd \"") + location + string("\\files\\8VGVPN\" >> files/8VGVPN/SDXess.bat");
-	system(  command.c_str() );
+	string root = location.substr(0,2);
+	string command = "echo " + root + " >> files/8VGVPN/SDXess.bat";
+	system( command.c_str() );
+	command = string("echo cd \"") + location + string("\\files\\8VGVPN\" >> files/8VGVPN/SDXess.bat");
+	system( command.c_str() );
 	command = string("echo start javaw -jar dist/8VGVPN.jar >> files/8VGVPN/SDXess.bat");
-	system(  command.c_str() );
+	system( command.c_str() );
 	
 	cout<<"Done."<<endl<<endl;
 	cout<<"generating SDXess-debug.bat"<<endl;
 	
-	command = string("echo cd \"") + location + string("\\files\\8VGVPN\" > files/8VGVPN/SDXess-debug.bat");
+	command = "echo " + root + " > files/8VGVPN/SDXess-debug.bat";
+	system( command.c_str() );
+	command = string("echo cd \"") + location + string("\\files\\8VGVPN\" >> files/8VGVPN/SDXess-debug.bat");
 	system(  command.c_str() );
 	command = string("echo start java -jar dist/8VGVPN.jar >> files/8VGVPN/SDXess-debug.bat");
 	system( command.c_str() );

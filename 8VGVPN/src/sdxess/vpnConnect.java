@@ -203,7 +203,7 @@ public class vpnConnect extends javax.swing.JFrame {
         StaticRoutes.Start();
         
         this.IPlist = new ArrayList<Website>();
-        consoleLabel.setText("Connected to " + serverCombo.getSelectedItem());
+        consoleLabel.setText("Connected to " + serverCombo.getSelectedItem() + " as " + StaticRoutes.sdxessIP );
         
         ctimeLbl.setText("Rerouting default websites...");
         ctimeLbl.setVisible(true);

@@ -1,6 +1,6 @@
 AS16509
 52.27.183.7
-true
+false
 Netflix.com website, to watch streamin videos it requires: AS2906 and mylocation.org
 8.18.144.0\24
 8.18.145.0\24

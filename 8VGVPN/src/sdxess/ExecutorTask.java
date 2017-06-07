@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
 
 public class ExecutorTask implements Runnable{
     private vpnConnect frame = null;
@@ -117,10 +118,18 @@ public class ExecutorTask implements Runnable{
                     }
                     
                     frame.updateMessage("Rerouted " + StaticRoutes.addedRoutes.size() + " IP's...");
+                    Console.log(line,true);
                  
                  } else if ( line.contains("[server] Peer Connection Initiated") ){ 
                     frame.updateMessage("Peer Connection Initiated...");
                     this.abortTimeOut = true;
+                    Console.log(line,true);
+                 } else if ( line.contains("Successful ARP Flush on interface") ){ 
+                    Pattern pattern = Pattern.compile("\\[(\\d+)\\]");
+                    Matcher matcher = pattern.matcher(line);
+                    if (matcher.find()){
+                        StaticRoutes.interf = Integer.parseInt(matcher.group(1));
+                    }
                     Console.log(line,true);
                  } else if ( line.contains("Exiting due to fatal error") ){ 
                     frame.disconnect(true,null);
@@ -128,6 +137,8 @@ public class ExecutorTask implements Runnable{
                  } else {
                     Console.log(line,true);
                  }
+                 
+                 
              }
              
              if( !this.connected && !this.abortTimeOut ){
