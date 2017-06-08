@@ -30,18 +30,28 @@ public class details extends javax.swing.JFrame {
         
         this.setTitle(website.name + " detailed Info");
         
-        this.ipTableModel = new DefaultTableModel(
+  
+        this.ipTableModel = new javax.swing.table.DefaultTableModel(
             website.toRangesArray(),
             new String [] {
                 "Network destination", "Netmask" , "Subnet"
             }
-        );
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        };
         ipTable.setModel(ipTableModel);
         
         this.nameValLabel.setText(website.name);
         this.ipValLabel.setText(website.IP);
         this.asnValLabel.setText(website.ASN);
         this.iprangesValLabel.setText(website.ranges.size()+"");
+        this.descriptionValLabel.setText(website.Description);
     }
 
     /**
@@ -63,6 +73,8 @@ public class details extends javax.swing.JFrame {
         ipValLabel = new javax.swing.JLabel();
         asnValLabel = new javax.swing.JLabel();
         iprangesValLabel = new javax.swing.JLabel();
+        descLabel = new javax.swing.JLabel();
+        descriptionValLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -76,7 +88,15 @@ public class details extends javax.swing.JFrame {
             new String [] {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(ipTable);
 
         nameLabel.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
@@ -103,6 +123,12 @@ public class details extends javax.swing.JFrame {
         iprangesValLabel.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         iprangesValLabel.setText("250");
 
+        descLabel.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        descLabel.setText("Description:");
+
+        descriptionValLabel.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        descriptionValLabel.setText("Lorem ipsum dolor");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -111,16 +137,22 @@ public class details extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(asnLabel)
-                    .addComponent(iprangesLabel)
-                    .addComponent(ipLabel)
-                    .addComponent(nameLabel))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(nameValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ipValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(iprangesValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(asnValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(asnLabel)
+                            .addComponent(iprangesLabel)
+                            .addComponent(ipLabel)
+                            .addComponent(nameLabel))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(nameValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(ipValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(iprangesValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(asnValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(descLabel)
+                        .addGap(34, 34, 34)
+                        .addComponent(descriptionValLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -143,7 +175,11 @@ public class details extends javax.swing.JFrame {
                     .addComponent(iprangesLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(iprangesValLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(descLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(descriptionValLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE))
         );
 
         pack();
@@ -153,6 +189,8 @@ public class details extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel asnLabel;
     private javax.swing.JLabel asnValLabel;
+    private javax.swing.JLabel descLabel;
+    private javax.swing.JLabel descriptionValLabel;
     private javax.swing.JLabel ipLabel;
     private javax.swing.JTable ipTable;
     private javax.swing.JLabel ipValLabel;

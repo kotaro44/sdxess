@@ -209,7 +209,7 @@ public class vpnConnect extends javax.swing.JFrame {
         ctimeLbl.setVisible(true);
         logginPanel.setVisible(false);
         
-        this.setSize(this.getWidth(), 177);
+        this.setSize(this.getWidth(), 200);
         this.repaint();
         
         this.websites = new ArrayList<>();
@@ -542,10 +542,11 @@ public class vpnConnect extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("SDXess");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        setResizable(false);
 
         verLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
+        verLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         verLbl.setText("Client V1.2.13");
+        verLbl.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         sitesBtn.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         sitesBtn.setText("Rerouted websites");
@@ -558,7 +559,7 @@ public class vpnConnect extends javax.swing.JFrame {
 
         logoLbl.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         logoLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        logoLbl.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sdxess/SDXess-Logo-Final-small.png"))); // NOI18N
+        logoLbl.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sdxess/title.png"))); // NOI18N
 
         consoleLabel.setBackground(new java.awt.Color(0, 0, 0));
         consoleLabel.setFont(new java.awt.Font("Arial", 1, 10)); // NOI18N
@@ -672,15 +673,14 @@ public class vpnConnect extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(verLbl)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addComponent(verLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(sitesBtn))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(logoLbl)
+                        .addComponent(logoLbl, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(absolutePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
@@ -705,10 +705,10 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addComponent(connectBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ctimeLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(verLbl, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sitesBtn, javax.swing.GroupLayout.Alignment.TRAILING)))
+                .addGap(0, 8, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(sitesBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(verLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         pack();

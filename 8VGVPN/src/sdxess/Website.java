@@ -284,6 +284,16 @@ public class Website {
         this.ranges.removeAll(ranges2remove);
     }
     
+    public void deleteRouting(Runnable callback){
+        this.deleteRouting();
+        callback.run();
+    }
+    
+    public void route(Runnable callback){
+        this.route();
+        callback.run();
+    }
+    
     public void route(){
         if( !this.routed ){
             this.routed = true;
