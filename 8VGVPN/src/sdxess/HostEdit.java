@@ -28,6 +28,7 @@ public class HostEdit extends javax.swing.JFrame {
     private BufferedReader br = null;
     private ArrayList<Website> websites;
     private String windowName = "Websites";
+    public static ACType accountType = ACType.NOTYPE;
     
    
     /***************************************************************************
@@ -45,6 +46,15 @@ public class HostEdit extends javax.swing.JFrame {
         alertIcoLbl.setVisible(false);
         alertMsgLbl.setVisible(false);
         loadingIconLbl.setVisible(false);
+      
+        if( HostEdit.accountType == ACType.STARTER ){
+            addBtn.setVisible(false);
+            delBtn.setVisible(false);
+            redirectCheck.setVisible(false);
+        }else{
+            updateLbl.setVisible(false);
+        }
+        
         this.setIconImage(icon.getImage());
         this.windowName = this.getTitle();
         this.websites = websites;
@@ -61,6 +71,7 @@ public class HostEdit extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        updateLbl = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         sitesTable = new javax.swing.JTable();
         alertIcoLbl = new javax.swing.JLabel();
@@ -69,12 +80,23 @@ public class HostEdit extends javax.swing.JFrame {
         delBtn = new javax.swing.JButton();
         detailBtn = new javax.swing.JButton();
         alertMsgLbl = new javax.swing.JLabel();
+        redirectCheck = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Websites");
         addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 formPropertyChange(evt);
+            }
+        });
+
+        updateLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
+        updateLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        updateLbl.setText("<html> <a href=\"\">Upgrade your account!</a></html>");
+        updateLbl.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        updateLbl.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                updateLblMouseClicked(evt);
             }
         });
 
@@ -105,6 +127,7 @@ public class HostEdit extends javax.swing.JFrame {
         });
         sitesTable.setEditingColumn(0);
         sitesTable.setEditingRow(0);
+        sitesTable.setRowSelectionAllowed(false);
         sitesTable.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 sitesTablePropertyChange(evt);
@@ -151,37 +174,54 @@ public class HostEdit extends javax.swing.JFrame {
         alertMsgLbl.setText("Remember to delete the cache of your browser!");
         alertMsgLbl.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
+        redirectCheck.setText("redirect All Traffic");
+        redirectCheck.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        redirectCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                redirectCheckActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(addBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(delBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(detailBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(loadingIconLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(updateLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(alertIcoLbl)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(alertMsgLbl)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
-                .addComponent(loadingIconLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(jScrollPane1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 144, Short.MAX_VALUE)
+                .addComponent(redirectCheck))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(redirectCheck)
+                        .addComponent(updateLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(alertMsgLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(alertIcoLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(addBtn)
                         .addComponent(delBtn)
                         .addComponent(detailBtn))
-                    .addComponent(loadingIconLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(alertIcoLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(alertMsgLbl, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(loadingIconLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         pack();
@@ -255,23 +295,39 @@ public class HostEdit extends javax.swing.JFrame {
         this.updateTable();
         this.message(null);
         this.saveWebsites();
-        this.enableWindow();
+        this.enableWindow(false);
     }
     
     public void disableWindow(){
+        this.disableWindow(false);
+    }
+    
+    public void enableWindow(){
+        this.enableWindow(false);
+    }
+    
+    public void disableWindow( boolean byAlltraffic ){
         addBtn.setEnabled(false);
         delBtn.setEnabled(false);
         detailBtn.setEnabled(false);
         sitesTable.setEnabled(false);
-        loadingIconLbl.setVisible(true);
+        sitesTable.setBackground(new java.awt.Color(204, 204, 204));
+        if( !byAlltraffic ){
+            loadingIconLbl.setVisible(true);
+            redirectCheck.setEnabled(false);
+        }
     }
     
-    public void enableWindow(){
+    public void enableWindow( boolean byAlltraffic ){
         addBtn.setEnabled(true);
         delBtn.setEnabled(true);
         detailBtn.setEnabled(true);
         sitesTable.setEnabled(true);
-        loadingIconLbl.setVisible(false);
+        sitesTable.setBackground(new java.awt.Color(255, 255, 255));
+        if( !byAlltraffic ){
+            loadingIconLbl.setVisible(false);
+            redirectCheck.setEnabled(true);
+        }
     }
     
     
@@ -304,18 +360,30 @@ public class HostEdit extends javax.swing.JFrame {
     }//GEN-LAST:event_detailBtnActionPerformed
 
     private void sitesTablePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_sitesTablePropertyChange
-        if( this.websites != null && this.tableModel != null){
-            for( int i = 0 ; i < this.websites.size() ; i++ ){
-                Website website = this.websites.get(i);
-                if( (boolean)this.tableModel.getValueAt(i,2) != website.isRouted() ){
-                    this.disableWindow();
-                    if( website.isRouted() ){
-                        this.WebsiteUnrouteAsync(website);
-                    }else{
-                        this.WebsiteRouteAsync(website);
+        if( evt.getPropertyName().compareTo("tableCellEditor") == 0 ){
+            boolean shouldSave = false;
+            if( this.websites != null && this.tableModel != null){
+                for( int i = 0 ; i < this.websites.size() ; i++ ){
+                    Website website = this.websites.get(i);
+                    if( (boolean)this.tableModel.getValueAt(i,2) != website.isRouted() ){
+                        shouldSave = true;
+                        this.disableWindow();
+                        if( website.isRouted() ){
+                            this.message("Unrouting " + website.name + "...");
+                            website.deleteRouting();
+                        }else{
+                            this.message("Routing " + website.name + "...");
+                            website.route();
+                        }
+
+                        this.message(null);
+                        this.enableWindow();
+                        this.showSuggestion();
                     }
-                    return;
                 }
+            }
+            if( shouldSave ){
+                this.saveWebsites();
             }
         }
     }//GEN-LAST:event_sitesTablePropertyChange
@@ -324,23 +392,20 @@ public class HostEdit extends javax.swing.JFrame {
         
     }//GEN-LAST:event_formPropertyChange
 
-    
-    public void WebsiteRouteAsync(Website website){
-        this.message("Routing " + website.name + "...");
-        website.route(() -> finishRoute());
-    }
-    
-    public void finishRoute(){
-        this.saveWebsites();
-        this.message(null);
-        this.enableWindow();
+    private void updateLblMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_updateLblMouseClicked
+        Website.openSDXWebsite();
+    }//GEN-LAST:event_updateLblMouseClicked
+
+    private void redirectCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redirectCheckActionPerformed
         this.showSuggestion();
-    }
-    
-    public void WebsiteUnrouteAsync(Website website){
-        this.message("Unrouting " + website.name + "...");
-        website.deleteRouting(() -> finishRoute());
-    }
+        if( this.redirectCheck.isSelected() ){
+            this.disableWindow(true);
+            StaticRoutes.enableAllTrafficReroute();
+        }else{
+            this.enableWindow(true);
+            StaticRoutes.disableAllTrafficReroute();
+        }
+    }//GEN-LAST:event_redirectCheckActionPerformed
     
     public void addWebsite(String domain, String description){
         this.message("getting info from " + domain + "...");
@@ -355,9 +420,15 @@ public class HostEdit extends javax.swing.JFrame {
   
     public static ArrayList<Website> restoreWebsites(){
         ArrayList<Website> result = new ArrayList<>();
-        File folder = new File("websites");
-        if( folder.exists() ){
-            File[] listOfFiles = folder.listFiles();
+        String folder = "acbase";
+        if( HostEdit.accountType == ACType.STARTER )
+            folder = "actwo";
+        if( HostEdit.accountType == ACType.ADVANCED )
+            folder = "websites";
+        
+        File website_folder = new File(folder);
+        if( website_folder.exists() ){
+            File[] listOfFiles = website_folder.listFiles();
             for (File file : listOfFiles) {
                 if (file.isFile()) {
                     Console.log("restoring " + file.getName() + "...");
@@ -426,16 +497,23 @@ public class HostEdit extends javax.swing.JFrame {
     
     public static void saveWebsites(ArrayList<Website> websites){
         Console.log("saving websites!");
-        File theDir = new File("websites");
+        
+        String folder = "acbase";
+        if( HostEdit.accountType == ACType.STARTER )
+            folder = "actwo";
+        if( HostEdit.accountType == ACType.ADVANCED )
+            folder = "websites";
+        
+        File theDir = new File(folder);
         if( theDir.exists() ){
-            deleteDir("websites");
+            deleteDir(folder);
         } 
-        theDir = new File("websites");
+        theDir = new File(folder);
         theDir.mkdir();
         
         try{
             for( Website website : websites ){
-                PrintWriter writer = new PrintWriter("websites\\" + website.name, "UTF-8");
+                PrintWriter writer = new PrintWriter(folder + "\\" + website.name, "UTF-8");
                 writer.println(website.ASN);
                 writer.println(website.IP);
                 writer.println(website.isRouted());
@@ -466,6 +544,8 @@ public class HostEdit extends javax.swing.JFrame {
     private javax.swing.JButton detailBtn;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel loadingIconLbl;
+    private javax.swing.JCheckBox redirectCheck;
     private javax.swing.JTable sitesTable;
+    private javax.swing.JLabel updateLbl;
     // End of variables declaration//GEN-END:variables
 }

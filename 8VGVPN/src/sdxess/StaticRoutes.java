@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -95,11 +98,32 @@ public class StaticRoutes {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public static boolean checkLogin(String user, String pass){
-        String json = Website.ajaxGET("http://inet99.ji8.net/SDXess-WS/login/" + user + "/" + pass );
-        JSONObject obj = new JSONObject(  json  );
-        String status_message = (String)obj.get("status_message");
-        return status_message.compareTo("User Authentication Correct")==0;
+    public static JSONObject checkLogin(String user, String pass){
+        try {
+            MessageDigest m;
+            m = MessageDigest.getInstance("MD5");
+            m.reset();
+            m.update(pass.getBytes());
+            byte[] digest = m.digest();
+            BigInteger bigInt = new BigInteger(1,digest);
+            String hashtext = bigInt.toString(16);
+            // Now we need to zero pad it if you actually want the full 32 chars.
+            while(hashtext.length() < 32 ){
+              hashtext = "0"+hashtext;
+            }
+            pass = hashtext;
+
+            JSONObject obj = new JSONObject( "{\"authentication_data\":{\"user\":\"" + user + "\",\"password\":\"" + pass +"\"}}" );
+            JSONObject response = Website.ajaxPOST( "http://inet101.ji8.net/SDXess-WS/login.php" , obj );
+            if( Integer.parseInt((String)response.get("status")) == 200 )
+                return (JSONObject) response.get("data");
+            return null;
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+        
     }
          
     /***************************************************************************
@@ -113,6 +137,19 @@ public class StaticRoutes {
     public static void disableAllTrafficReroute(){
         StaticRoutes.deleteStaticRoute("0.0.0.0","128.0.0.0",StaticRoutes.sdxessGateway);
         StaticRoutes.deleteStaticRoute("128.0.0.0","128.0.0.0",StaticRoutes.sdxessGateway);
+    }
+    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public static void enableAllTrafficReroute(){
+        StaticRoutes.AddStaticRoute("0.0.0.0","128.0.0.0",StaticRoutes.sdxessGateway);
+        StaticRoutes.AddStaticRoute("128.0.0.0","128.0.0.0",StaticRoutes.sdxessGateway);
     }
     
     /***************************************************************************

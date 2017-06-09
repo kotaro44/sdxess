@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SDXess"
-#define MyAppVersion "1.2.13"
+#define MyAppVersion "1.2.14"
 #define MyAppPublisher "8VG.org"
 #define MyAppURL "http://www.8vg.org/"
 
@@ -24,6 +24,8 @@ DisableProgramGroupPage=yes
 OutputBaseFilename=sdxess
 Compression=lzma
 SolidCompression=yes
+WizardImageFile=sdxess.bmp
+WizardSmallImageFile=sdxesssmall.bmp
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -40,6 +42,8 @@ Source: "..\TAP-Windows\*"; DestDir: "{app}\files\TAP-Windows\"; Flags: recurses
 Source: "sdxess.ico"; DestDir: "{app}\files\";
 Source: "..\8VGVPN\confs\*"; DestDir: "{app}\files\8VGVPN\confs\"; Flags: recursesubdirs
 Source: "..\8VGVPN\websites\*"; DestDir: "{app}\files\8VGVPN\websites\"; Flags: recursesubdirs
+Source: "..\8VGVPN\actwo\*"; DestDir: "{app}\files\8VGVPN\actwo\"; Flags: recursesubdirs
+Source: "..\8VGVPN\acbase\*"; DestDir: "{app}\files\8VGVPN\acbase\"; Flags: recursesubdirs
 Source: "..\8VGVPN\dist\*"; DestDir: "{app}\files\8VGVPN\dist\"; Flags: recursesubdirs
 Source: "..\8VGVPN\lib\*"; DestDir: "{app}\files\8VGVPN\lib\"; Flags: recursesubdirs
 Source: "..\8VGVPN\openvpn\*"; DestDir: "{app}\files\8VGVPN\openvpn\"; Flags: recursesubdirs

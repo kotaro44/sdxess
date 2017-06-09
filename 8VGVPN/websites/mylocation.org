@@ -1,6 +1,6 @@
 AS12876
 62.210.26.15
-true
+false
 Webservice required for some websites like: netflix.com
 62.4.0.0\19
 62.210.0.0\16

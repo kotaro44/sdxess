@@ -5,12 +5,15 @@
  */
 package sdxess;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -20,6 +23,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.json.*;
 
 /**
@@ -27,6 +43,19 @@ import org.json.*;
  * @author kotaro
  */
 public class Website {
+    public static String USER_AGENT = "Mozilla/5.0";
+    
+    
+    public static void openSDXWebsite(){
+        try {
+            Desktop.getDesktop().browse(new URI("http://sdxess.8vg.org/"));
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public static Website restore(File file){
         FileReader fileReader;
         try {
@@ -56,6 +85,29 @@ public class Website {
         } catch (IOException ex) {
             Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
+    }
+    
+    public static JSONObject ajaxPOST(String url_string, JSONObject obj ){
+        try {
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpPost request = new HttpPost(url_string);
+            StringEntity params = new StringEntity( obj.toString() );
+            request.addHeader("content-type", "application/json");
+            request.setEntity(params);
+            HttpResponse response = httpClient.execute(request);
+
+     
+            JSONObject json_response;
+            json_response = new JSONObject( EntityUtils.toString(response.getEntity(), "UTF-8"));
+            
+            return json_response;
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         return null;
     }
     
