@@ -7,6 +7,8 @@ package sdxess;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -127,7 +129,6 @@ public class HostEdit extends javax.swing.JFrame {
         });
         sitesTable.setEditingColumn(0);
         sitesTable.setEditingRow(0);
-        sitesTable.setRowSelectionAllowed(false);
         sitesTable.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 sitesTablePropertyChange(evt);
@@ -420,23 +421,47 @@ public class HostEdit extends javax.swing.JFrame {
   
     public static ArrayList<Website> restoreWebsites(){
         ArrayList<Website> result = new ArrayList<>();
-        String folder = "acbase";
+        String fname = "DAT01";
         if( HostEdit.accountType == ACType.STARTER )
-            folder = "actwo";
+            fname = "DAT02";
         if( HostEdit.accountType == ACType.ADVANCED )
-            folder = "websites";
+            fname = "DAT03";
         
-        File website_folder = new File(folder);
-        if( website_folder.exists() ){
-            File[] listOfFiles = website_folder.listFiles();
-            for (File file : listOfFiles) {
-                if (file.isFile()) {
-                    Console.log("restoring " + file.getName() + "...");
-                    Website website = Website.restore(file);
-                    result.add(website);
-                } 
+        File website_folder = new File("dat\\" + fname);
+        FileReader fileReader;
+        try {
+            fileReader = new FileReader(website_folder);
+            BufferedReader br = new BufferedReader(fileReader);
+            
+            Console.log("restoring saved websites...");
+            
+            String line = null;
+            String DATA = null;
+            while ((line = br.readLine()) != null) {
+                if( Website.isASNNumber(line) ){
+                    if( DATA != null ){
+                        Website website = Website.restore(DATA);
+                        result.add(website);
+                        Console.log("restored " + website.name + "...");
+                    }
+                    DATA = line + "\n"; 
+                    for( int i = 0 ; i < 4 ; i++ ){
+                        line = br.readLine();
+                        DATA += line + "\n";
+                    }
+                }else{
+                    DATA += line + "\n";
+                }
             }
+            Website website = Website.restore(DATA);
+            result.add(website);
+            Console.log("restored " + website.name + "...");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         return result;
     }
     
@@ -498,31 +523,25 @@ public class HostEdit extends javax.swing.JFrame {
     public static void saveWebsites(ArrayList<Website> websites){
         Console.log("saving websites!");
         
-        String folder = "acbase";
+        String fname = "DAT01";
         if( HostEdit.accountType == ACType.STARTER )
-            folder = "actwo";
+            fname = "DAT02";
         if( HostEdit.accountType == ACType.ADVANCED )
-            folder = "websites";
-        
-        File theDir = new File(folder);
-        if( theDir.exists() ){
-            deleteDir(folder);
-        } 
-        theDir = new File(folder);
-        theDir.mkdir();
+            fname = "DAT03";
         
         try{
+            PrintWriter writer = new PrintWriter("dat\\" + fname, "UTF-8");
             for( Website website : websites ){
-                PrintWriter writer = new PrintWriter(folder + "\\" + website.name, "UTF-8");
                 writer.println(website.ASN);
+                writer.println(website.name);
                 writer.println(website.IP);
                 writer.println(website.isRouted());
                 writer.println(website.Description.replace('\n', ' '));
                 for( IPRange range : website.ranges ){
                     writer.println(range.toString(true));
                 }
-                writer.close();
             }
+            writer.close();
         } catch (IOException e) {
            // do something
         }

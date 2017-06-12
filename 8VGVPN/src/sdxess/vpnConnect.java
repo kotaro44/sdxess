@@ -597,6 +597,11 @@ public class vpnConnect extends javax.swing.JFrame {
                 userFieldActionPerformed(evt);
             }
         });
+        userField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                userFieldKeyPressed(evt);
+            }
+        });
 
         jLabel2.setText("Password:");
 
@@ -803,6 +808,12 @@ public class vpnConnect extends javax.swing.JFrame {
     private void updateLblMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_updateLblMouseClicked
         Website.openSDXWebsite();
     }//GEN-LAST:event_updateLblMouseClicked
+
+    private void userFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_userFieldKeyPressed
+        if( evt.getKeyCode() == 10 ){
+            this.connect();
+        }
+    }//GEN-LAST:event_userFieldKeyPressed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

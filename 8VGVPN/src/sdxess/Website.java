@@ -88,6 +88,33 @@ public class Website {
         return null;
     }
     
+    public static Website restore(String DATA){
+        System.out.println(DATA);
+        Website result = new Website();
+        String[] lines = DATA.split("\\r?\\n");
+        
+        //first line should be ASN
+        result.ASN = lines[0];
+        result.name = lines[1];
+        
+        //main IP is the second line
+        result.IP = lines[2];
+        result.wasRerouted = Boolean.parseBoolean(lines[3]);
+        result.Description = lines[4];
+        
+        String[] parts = null;
+        IPRange range = null;
+        for( int i = 5 ; i < lines.length ; i++ ){
+            parts = lines[i].split("\\\\");
+            range = new IPRange( parts[0] , Integer.parseInt( parts[1] ) );
+            if( range.isValid )
+                result.ranges.add( range );
+        }
+        result.isValid = true;
+        return result;
+      
+    }
+    
     public static JSONObject ajaxPOST(String url_string, JSONObject obj ){
         try {
             HttpClient httpClient = HttpClientBuilder.create().build();

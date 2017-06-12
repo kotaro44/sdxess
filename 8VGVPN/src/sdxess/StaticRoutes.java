@@ -114,7 +114,7 @@ public class StaticRoutes {
             pass = hashtext;
 
             JSONObject obj = new JSONObject( "{\"authentication_data\":{\"user\":\"" + user + "\",\"password\":\"" + pass +"\"}}" );
-            JSONObject response = Website.ajaxPOST( "http://inet101.ji8.net/SDXess-WS/login.php" , obj );
+            JSONObject response = Website.ajaxPOST( "http://inet99.ji8.net/SDXess-WS/login.php" , obj );
             if( Integer.parseInt((String)response.get("status")) == 200 )
                 return (JSONObject) response.get("data");
             return null;
