@@ -1,5 +1,5 @@
 client
-dev tap1
+dev tun1
 proto udp
 connect-retry 0
 resolv-retry 0

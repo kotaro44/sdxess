@@ -5,6 +5,8 @@
  */
 package sdxess;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -61,6 +63,13 @@ public class HostEdit extends javax.swing.JFrame {
         this.windowName = this.getTitle();
         this.websites = websites;
         this.updateTable();
+        
+        vpnConnect.controlPanelOpen = true;
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                vpnConnect.controlPanelOpen = false;
+            }
+        });
 
     }
 
@@ -85,7 +94,7 @@ public class HostEdit extends javax.swing.JFrame {
         redirectCheck = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Websites");
+        setTitle("Control Panel");
         addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 formPropertyChange(evt);
@@ -276,7 +285,8 @@ public class HostEdit extends javax.swing.JFrame {
                     "Warning",JOptionPane.YES_NO_OPTION);
             if(dialogResult == JOptionPane.YES_OPTION){
                 this.disableWindow();
-                this.deleteWebsiteAsync();
+                this.repaint();
+                ExecutorTask.setTimeout(()->this.deleteWebsiteAsync(),10);
             }  
         }
     }//GEN-LAST:event_delBtnActionPerformed
@@ -288,8 +298,7 @@ public class HostEdit extends javax.swing.JFrame {
             websites2remove.add(this.websites.get(index));
         }
         for( Website website : websites2remove ){
-            this.message("Unrouting " + website.name + "...");
-            website.deleteRouting();
+            website.deleteRouting(this);
         }
         this.showSuggestion();
         this.websites.removeAll(websites2remove);
@@ -362,33 +371,36 @@ public class HostEdit extends javax.swing.JFrame {
 
     private void sitesTablePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_sitesTablePropertyChange
         if( evt.getPropertyName().compareTo("tableCellEditor") == 0 ){
-            boolean shouldSave = false;
-            if( this.websites != null && this.tableModel != null){
-                for( int i = 0 ; i < this.websites.size() ; i++ ){
-                    Website website = this.websites.get(i);
-                    if( (boolean)this.tableModel.getValueAt(i,2) != website.isRouted() ){
-                        shouldSave = true;
-                        this.disableWindow();
-                        if( website.isRouted() ){
-                            this.message("Unrouting " + website.name + "...");
-                            website.deleteRouting();
-                        }else{
-                            this.message("Routing " + website.name + "...");
-                            website.route();
-                        }
-
-                        this.message(null);
-                        this.enableWindow();
-                        this.showSuggestion();
-                    }
-                }
-            }
-            if( shouldSave ){
-                this.saveWebsites();
-            }
+            this.disableWindow();
+            this.repaint();
+            ExecutorTask.setTimeout(()->this.routeUnrouteWebsiteAsync(), 10);
         }
     }//GEN-LAST:event_sitesTablePropertyChange
 
+    public void routeUnrouteWebsiteAsync(){
+        boolean shouldSave = false;
+        if( this.websites != null && this.tableModel != null){
+            for( int i = 0 ; i < this.websites.size() ; i++ ){
+                Website website = this.websites.get(i);
+                if( (boolean)this.tableModel.getValueAt(i,2) != website.isRouted() ){
+                    shouldSave = true;
+                    if( website.isRouted() ){
+                        website.deleteRouting(this);
+                    }else{
+                        website.route(this);
+                    }
+
+                    this.message(null);
+                    this.showSuggestion();
+                }
+            }
+        }
+        if( shouldSave ){
+            this.saveWebsites();
+        }
+        this.enableWindow();
+    }
+    
     private void formPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_formPropertyChange
         
     }//GEN-LAST:event_formPropertyChange

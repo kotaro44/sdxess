@@ -5,7 +5,6 @@
  */
 package sdxess;
 
-import java.util.Comparator;
 
 /**
  *
@@ -231,12 +230,9 @@ public class IPRange implements Comparable {
                     return false;
                 }
             }
-        }
-        
+        }        
         return true;
-        
     }
-    
     
     @Override
     public int compareTo(Object o) {

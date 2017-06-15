@@ -7,7 +7,6 @@ package sdxess;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -15,21 +14,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -363,22 +356,26 @@ public class Website {
         this.ranges.removeAll(ranges2remove);
     }
     
-    public void deleteRouting(Runnable callback){
-        this.deleteRouting();
-        callback.run();
-    }
-    
-    public void route(Runnable callback){
-        this.route();
-        callback.run();
+    public void deleteRouting(){
+        this.deleteRouting(null);
     }
     
     public void route(){
+        this.route(null);
+    }
+    
+    public void route(HostEdit routingTable){
         if( !this.routed ){
             this.routed = true;
-            this.ranges.forEach((range) -> {
+            
+            IPRange range = null;
+            for( int i = 0 ; i < this.ranges.size() ; i++ ){
+                range = this.ranges.get(i);
                 StaticRoutes.AddStaticRoute( range.getIP() , range.getMask() );
-            });
+                if( routingTable != null ){
+                    routingTable.message("Routing " + this.name + " " + Math.floor(100*((float)i/this.ranges.size())) + "% ...");
+                }
+            }
             StaticRoutes.flushDNS();
         }
     }
@@ -387,13 +384,18 @@ public class Website {
         return this.routed;
     }
     
-    public void deleteRouting(){
+    public void deleteRouting(HostEdit routingTable){
         if( this.routed ){
             this.routed = false;
-            this.ranges.forEach((range) -> {
+            IPRange range = null;
+            for( int i = 0 ; i < this.ranges.size() ; i++ ){
+                range = this.ranges.get(i);
                 StaticRoutes.deleteStaticRoute(range.getIP() , range.getMask() , 
                         StaticRoutes.sdxessGateway );
-            });
+                if( routingTable != null ){
+                    routingTable.message("Unrouting " + this.name + " " + Math.floor(100*((float)i/this.ranges.size())) + "% ...");
+                }
+            }
             StaticRoutes.flushDNS();
         }
     }

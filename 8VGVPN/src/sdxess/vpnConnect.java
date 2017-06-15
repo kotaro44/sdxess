@@ -62,6 +62,7 @@ public class vpnConnect extends javax.swing.JFrame {
     private TimeZone tz = TimeZone.getTimeZone("UTC");
     private SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
     public static HostEdit hostEdit = null;
+    public static boolean controlPanelOpen = false;
     private SystemTray tray = null;
     private TrayIcon trayIcon = null;
     
@@ -438,6 +439,8 @@ public class vpnConnect extends javax.swing.JFrame {
             } 
         }
         
+        
+        
         serverCombo.setModel(comboModel);
     }
     
@@ -679,14 +682,14 @@ public class vpnConnect extends javax.swing.JFrame {
         absolutePanelStatus.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         sitesBtn.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        sitesBtn.setText("Rerouted websites");
+        sitesBtn.setText("Control Panel");
         sitesBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         sitesBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sitesBtnActionPerformed(evt);
             }
         });
-        absolutePanelStatus.add(sitesBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        absolutePanelStatus.add(sitesBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, -1, -1));
 
         updateLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         updateLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -767,12 +770,14 @@ public class vpnConnect extends javax.swing.JFrame {
     *** @param                                                               ***
     ***************************************************************************/
     private void sitesBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sitesBtnActionPerformed
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                vpnConnect.hostEdit = new HostEdit( websites );
-                vpnConnect.hostEdit.setVisible(true);
-            }
-        });
+        if( !vpnConnect.controlPanelOpen ){
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    vpnConnect.hostEdit = new HostEdit( websites );
+                    vpnConnect.hostEdit.setVisible(true);
+                }
+            });
+        }
     }//GEN-LAST:event_sitesBtnActionPerformed
 
     private void connectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectBtnActionPerformed

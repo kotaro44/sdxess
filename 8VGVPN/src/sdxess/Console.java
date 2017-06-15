@@ -9,11 +9,9 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import static sdxess.vpnConnect.file;
 
 /**
  *
@@ -46,6 +44,4 @@ public class Console {
             }
         }
     }
-    
-    
 }
