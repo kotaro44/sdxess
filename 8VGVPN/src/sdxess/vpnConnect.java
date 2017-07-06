@@ -109,7 +109,7 @@ public class vpnConnect extends javax.swing.JFrame {
             
             this.user = (String)user.get("name");
             
-            int accountTypeNum = Integer.parseInt((String)user.get("status"));
+            int accountTypeNum = Integer.parseInt((String)user.get("data_plan"));
             boolean valid = true;
             switch (accountTypeNum) {
                 case 1:
