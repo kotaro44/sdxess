@@ -110,6 +110,7 @@ public class vpnConnect extends javax.swing.JFrame {
             this.user = (String)user.get("name");
             
             int accountTypeNum = Integer.parseInt((String)user.get("status"));
+            boolean valid = true;
             switch (accountTypeNum) {
                 case 1:
                     HostEdit.accountType = ACType.BASIC;
@@ -121,17 +122,28 @@ public class vpnConnect extends javax.swing.JFrame {
                     HostEdit.accountType = ACType.ADVANCED;
                     break;
                 default:
+                    valid = false;
                     HostEdit.accountType = ACType.NOTYPE;
                     break;
             }
             
-            consoleLabel.setText("connecting to " + 
-                    serverCombo.getSelectedItem() + "...");
-           
-            this.task = new ExecutorTask( this , 
-                    serverCombo.getSelectedItem().toString() );
-            this.executorThread = new Thread(task);
-            setTimeout(() -> executorThread.start(), 10);
+            if( valid ){
+                consoleLabel.setText("connecting to " + 
+                        serverCombo.getSelectedItem() + "...");
+
+                this.task = new ExecutorTask( this , 
+                        serverCombo.getSelectedItem().toString() );
+                this.executorThread = new Thread(task);
+                setTimeout(() -> executorThread.start(), 10);
+            } else {
+                JOptionPane.showMessageDialog(this, "Your account is not active, please visit http://sdxess.com to check the status of your account.");
+                userField.setEnabled(true);
+                serverCombo.setEnabled(true);
+                passField.setEnabled(true);
+                connectBtn.setEnabled(true);
+                consoleLabel.setText("User/Password is incorrect.");
+                passField.setText("");
+            }
         }
     }
     
