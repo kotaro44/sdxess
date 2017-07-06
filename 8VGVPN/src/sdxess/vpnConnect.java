@@ -176,10 +176,6 @@ public class vpnConnect extends javax.swing.JFrame {
         ImageIcon icon = new ImageIcon(iconURL);
         this.setIconImage(icon.getImage());
         
-        if( !StaticRoutes.isAdmin() ){
-            JOptionPane.showMessageDialog(null, "This program has to be run as administrator!");
-            System.exit(0);
-        }
         
         this.killOpenvpn();
         this.checkCommit();
@@ -844,10 +840,14 @@ public class vpnConnect extends javax.swing.JFrame {
         }
         //</editor-fold>
     
+        if( !StaticRoutes.isAdmin() ){
+            JOptionPane.showMessageDialog(null, "This program has to be run as administrator!");
+            System.exit(0);
+        }
+        
         vpnConnect.checkInstances();
         Console.log("SDXess App Started!");
        
-        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
