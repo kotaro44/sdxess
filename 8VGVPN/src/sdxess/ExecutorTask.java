@@ -8,8 +8,14 @@
 package sdxess;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +26,9 @@ public class ExecutorTask implements Runnable{
     private Process process = null;
     private boolean connected = false;
     private boolean abortTimeOut = false;
+    private boolean redirectAllTraffic = false;
     private String server = "";
+    private ArrayList<Website> final_websites = null;
     
     /***************************************************************************
     ***  brief                                                               ***
@@ -30,9 +38,12 @@ public class ExecutorTask implements Runnable{
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public ExecutorTask(vpnConnect frame, String server) {
+    public ExecutorTask(vpnConnect frame, String server , 
+            boolean redirectAllTraffic , ArrayList<Website> final_websites ) {
         this.frame = frame;
         this.server = server;
+        this.redirectAllTraffic = redirectAllTraffic;
+        this.final_websites = final_websites;
     }
     
     /***************************************************************************
@@ -62,7 +73,42 @@ public class ExecutorTask implements Runnable{
     @Override
     public void run() {
         try {
-            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "\"openvpn/openvpn.exe\" confs/" + this.server );
+            
+            ProcessBuilder builder = null;
+            
+            if( !Console.isAdmin ){
+                InputStream is = null;
+                OutputStream os = null;
+                try {
+                    is = new FileInputStream(new File("confs/" + this.server));
+                    os = new FileOutputStream(new File("dat/tmp"));
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = is.read(buffer)) > 0) {
+                        os.write(buffer, 0, length);
+                    }
+                    
+                    if( this.redirectAllTraffic ){
+                        os.write( ("redirect-gateway def1 bypass-dhcp\n").getBytes() );
+                    }else{
+                        for( Website website : this.final_websites ){
+                            if( website.wasRerouted ){
+                                for( IPRange range : website.ranges ){
+                                    os.write( ("route " + range.getIP() + " " + range.getMask() + "\n").getBytes() );
+                                }
+                            }
+                        }
+                    }
+                    
+                } finally {
+                    is.close();
+                    os.close();
+                }
+                builder = new ProcessBuilder("cmd.exe", "/c", "\"openvpn/openvpn.exe\" dat/tmp");
+            } else {
+                builder = new ProcessBuilder("cmd.exe", "/c", "\"openvpn/openvpn.exe\" confs/" + this.server );
+            }
+            
             //ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "dir" );
             
             process = builder.start();
@@ -72,9 +118,6 @@ public class ExecutorTask implements Runnable{
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line="";
             
-                       
-            //if( this != null )
-             //   return;
              
              this.abortTimeOut = false;
              setTimeout(() -> this.connectionTimeout(), 25000);

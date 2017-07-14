@@ -4,7 +4,7 @@ proto udp
 connect-retry 0
 resolv-retry 0
 ping-restart 0
-remote iNET101.Ji8.net 1194
+remote inet101.ji8.net 1194
 mute-replay-warnings
 nobind
 user nobody

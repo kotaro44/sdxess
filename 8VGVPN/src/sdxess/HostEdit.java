@@ -33,6 +33,7 @@ public class HostEdit extends javax.swing.JFrame {
     private ArrayList<Website> websites;
     private String windowName = "Websites";
     public static ACType accountType = ACType.NOTYPE;
+    public boolean alreadyConnected = false;
     
    
     /***************************************************************************
@@ -43,15 +44,36 @@ public class HostEdit extends javax.swing.JFrame {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public HostEdit(ArrayList<Website> websites)  {
+    public HostEdit(ArrayList<Website> websites, boolean noAdmin , boolean alreadyConnected  )  {
         initComponents();
+        
+        this.alreadyConnected = alreadyConnected;
+        
+        if( noAdmin && !alreadyConnected ){
+            this.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    vpnConnect.controlPanelOpen = false;
+                    Console.vpnconnect.notconnected("cancelled by User");
+                }
+            });
+            
+        } else {
+            this.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    vpnConnect.controlPanelOpen = false;
+                }
+            });
+            this.connectBtn.setVisible(false);
+        }
+        
+        
         URL iconURL = getClass().getResource("/sdxess/icon.png");
         ImageIcon icon = new ImageIcon(iconURL);
         alertIcoLbl.setVisible(false);
         alertMsgLbl.setVisible(false);
         loadingIconLbl.setVisible(false);
       
-        if( HostEdit.accountType == ACType.STARTER ){
+        if( HostEdit.accountType != ACType.ADVANCED  ){
             addBtn.setVisible(false);
             delBtn.setVisible(false);
             redirectCheck.setVisible(false);
@@ -59,17 +81,22 @@ public class HostEdit extends javax.swing.JFrame {
             updateLbl.setVisible(false);
         }
         
+        if( alreadyConnected ){
+            this.addBtn.setEnabled(false);
+            this.delBtn.setEnabled(false);
+            this.redirectCheck.setVisible(false);
+            this.showSuggestion();
+            this.alertMsgLbl.setText("To modify the routing table, you need to run SDXess as Administrator");
+        }
+        
         this.setIconImage(icon.getImage());
         this.windowName = this.getTitle();
         this.websites = websites;
         this.updateTable();
         
+        
         vpnConnect.controlPanelOpen = true;
-        this.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                vpnConnect.controlPanelOpen = false;
-            }
-        });
+        
 
     }
 
@@ -92,6 +119,7 @@ public class HostEdit extends javax.swing.JFrame {
         detailBtn = new javax.swing.JButton();
         alertMsgLbl = new javax.swing.JLabel();
         redirectCheck = new javax.swing.JCheckBox();
+        connectBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Control Panel");
@@ -192,6 +220,14 @@ public class HostEdit extends javax.swing.JFrame {
             }
         });
 
+        connectBtn.setText("Connect");
+        connectBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        connectBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                connectBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -203,6 +239,8 @@ public class HostEdit extends javax.swing.JFrame {
                 .addComponent(delBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(detailBtn)
+                .addGap(18, 18, 18)
+                .addComponent(connectBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(loadingIconLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -230,7 +268,8 @@ public class HostEdit extends javax.swing.JFrame {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(addBtn)
                         .addComponent(delBtn)
-                        .addComponent(detailBtn))
+                        .addComponent(detailBtn)
+                        .addComponent(connectBtn))
                     .addComponent(loadingIconLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
@@ -270,9 +309,16 @@ public class HostEdit extends javax.swing.JFrame {
             this.tableModel.removeRow(0);
         }
         
-        for( int i = 0 ; i < this.websites.size() ; i++ ){
-            Website website = this.websites.get(i);
-            this.tableModel.addRow(new Object[]{ website.name , website.IP , website.isRouted() , website.Description });
+        if( Console.isAdmin ){
+            for( int i = 0 ; i < this.websites.size() ; i++ ){
+                Website website = this.websites.get(i);
+                this.tableModel.addRow(new Object[]{ website.name , website.IP , website.isRouted() , website.Description });
+            }
+        }else{
+            for( int i = 0 ; i < this.websites.size() ; i++ ){
+                Website website = this.websites.get(i);
+                this.tableModel.addRow(new Object[]{ website.name , website.IP , website.wasRerouted , website.Description });
+            }
         }
 
         sitesTable.setModel(this.tableModel);
@@ -323,6 +369,7 @@ public class HostEdit extends javax.swing.JFrame {
         sitesTable.setEnabled(false);
         sitesTable.setBackground(new java.awt.Color(204, 204, 204));
         if( !byAlltraffic ){
+            
             loadingIconLbl.setVisible(true);
             redirectCheck.setEnabled(false);
         }
@@ -335,6 +382,7 @@ public class HostEdit extends javax.swing.JFrame {
         sitesTable.setEnabled(true);
         sitesTable.setBackground(new java.awt.Color(255, 255, 255));
         if( !byAlltraffic ){
+            connectBtn.setEnabled(true);
             loadingIconLbl.setVisible(false);
             redirectCheck.setEnabled(true);
         }
@@ -371,15 +419,35 @@ public class HostEdit extends javax.swing.JFrame {
 
     private void sitesTablePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_sitesTablePropertyChange
         if( evt.getPropertyName().compareTo("tableCellEditor") == 0 ){
-            this.disableWindow();
-            this.repaint();
-            ExecutorTask.setTimeout(()->this.routeUnrouteWebsiteAsync(), 10);
+            if( HostEdit.accountType == ACType.BASIC ){
+                JOptionPane.showMessageDialog(null, "Basic account type is not allowed to modify the routing table," + 
+                        " if you need to have control of the routing table, please update your account type");
+                return;
+            }
+            
+            if( this.alreadyConnected ){
+                JOptionPane.showMessageDialog(null, "You need to be Admistrator to change the configuration while connected");
+                return;
+            }
+            
+            if( Console.isAdmin ){
+                this.disableWindow();
+                this.repaint();
+                ExecutorTask.setTimeout(()->this.routeUnrouteWebsiteAsync(), 10);
+            } else {
+                if( this.websites != null && this.tableModel != null  ){
+                    for( int i = 0 ; i < this.websites.size() ; i++ ){
+                        Website website = this.websites.get(i);
+                        website.wasRerouted = (boolean)this.tableModel.getValueAt(i,2);
+                    }
+                }
+            }
         }
     }//GEN-LAST:event_sitesTablePropertyChange
 
     public void routeUnrouteWebsiteAsync(){
         boolean shouldSave = false;
-        if( this.websites != null && this.tableModel != null){
+        if( this.websites != null && this.tableModel != null  ){
             for( int i = 0 ; i < this.websites.size() ; i++ ){
                 Website website = this.websites.get(i);
                 if( (boolean)this.tableModel.getValueAt(i,2) != website.isRouted() ){
@@ -410,15 +478,26 @@ public class HostEdit extends javax.swing.JFrame {
     }//GEN-LAST:event_updateLblMouseClicked
 
     private void redirectCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redirectCheckActionPerformed
-        this.showSuggestion();
         if( this.redirectCheck.isSelected() ){
             this.disableWindow(true);
-            StaticRoutes.enableAllTrafficReroute();
+            if( Console.isAdmin ){
+                this.showSuggestion();
+                StaticRoutes.enableAllTrafficReroute();
+            }
         }else{
             this.enableWindow(true);
-            StaticRoutes.disableAllTrafficReroute();
+            if( Console.isAdmin ){
+                this.showSuggestion();
+                StaticRoutes.disableAllTrafficReroute();
+            }
         }
     }//GEN-LAST:event_redirectCheckActionPerformed
+
+    private void connectBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectBtnActionPerformed
+        this.setVisible(false);
+        vpnConnect.controlPanelOpen = false;
+        Console.vpnconnect.connect2vpn( this.redirectCheck.isSelected() , this.websites );
+    }//GEN-LAST:event_connectBtnActionPerformed
     
     public void addWebsite(String domain, String description){
         this.message("getting info from " + domain + "...");
@@ -571,6 +650,7 @@ public class HostEdit extends javax.swing.JFrame {
     private javax.swing.JButton addBtn;
     private javax.swing.JLabel alertIcoLbl;
     private javax.swing.JLabel alertMsgLbl;
+    private javax.swing.JButton connectBtn;
     private javax.swing.JButton delBtn;
     private javax.swing.JButton detailBtn;
     private javax.swing.JScrollPane jScrollPane1;

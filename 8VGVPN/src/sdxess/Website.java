@@ -6,6 +6,7 @@
 package sdxess;
 
 import java.awt.Desktop;
+import java.awt.TrayIcon;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,9 +24,11 @@ import java.util.regex.Pattern;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import javax.swing.JOptionPane;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -117,7 +120,6 @@ public class Website {
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
 
-     
             JSONObject json_response;
             json_response = new JSONObject( EntityUtils.toString(response.getEntity(), "UTF-8"));
             
@@ -126,7 +128,9 @@ public class Website {
             Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(Website.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } catch( Exception ex){
+            
+        } 
         
         return null;
     }

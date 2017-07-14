@@ -54,6 +54,7 @@ public class vpnConnect extends javax.swing.JFrame {
     private BufferedReader br = null;
     private ArrayList<Website> IPlist = null;
     private ArrayList<Website> websites = new ArrayList<>();
+    private ArrayList<Website> temp_websites = null;
     
     //timer variables
     private int seconds = 0;
@@ -85,8 +86,12 @@ public class vpnConnect extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Please enter a Password!");
         }else{
             
-            consoleLabel.setText("Logging in " + 
-                    serverCombo.getSelectedItem() + "...");
+            if( Console.isAdmin ){
+                consoleLabel.setText("Logging in " + 
+                        serverCombo.getSelectedItem() + "...");
+            }else{
+                consoleLabel.setText("Logging in to SDXess...");
+            }
             
             userField.setEnabled(false);
             serverCombo.setEnabled(false);
@@ -109,7 +114,7 @@ public class vpnConnect extends javax.swing.JFrame {
             
             this.user = (String)user.get("name");
             
-            int accountTypeNum = Integer.parseInt((String)user.get("data_plan"));
+            int accountTypeNum = Integer.parseInt((String)user.get("status"));
             boolean valid = true;
             switch (accountTypeNum) {
                 case 1:
@@ -128,21 +133,43 @@ public class vpnConnect extends javax.swing.JFrame {
             }
             
             if( valid ){
-                consoleLabel.setText("connecting to " + 
-                        serverCombo.getSelectedItem() + "...");
-
-                this.task = new ExecutorTask( this , 
-                        serverCombo.getSelectedItem().toString() );
-                this.executorThread = new Thread(task);
-                setTimeout(() -> executorThread.start(), 10);
+                this.connect2vpn(false,null);
             } else {
                 JOptionPane.showMessageDialog(this, "Your account is not active, please visit http://sdxess.com to check the status of your account.");
                 userField.setEnabled(true);
                 serverCombo.setEnabled(true);
                 passField.setEnabled(true);
                 connectBtn.setEnabled(true);
-                consoleLabel.setText("User/Password is incorrect.");
                 passField.setText("");
+                consoleLabel.setText("Ready.");
+            }
+        }
+    }
+    
+    public void connect2vpn( boolean redirectAllTraffic , ArrayList<Website> final_websites ){
+        if( Console.isAdmin ){
+            consoleLabel.setText("connecting to " + 
+                    serverCombo.getSelectedItem() + "...");
+
+            this.task = new ExecutorTask( this , 
+                    serverCombo.getSelectedItem().toString() , false , null );
+            this.executorThread = new Thread(task);
+            setTimeout(() -> executorThread.start(), 10);
+        }else{
+            if( final_websites != null ){
+                this.temp_websites = final_websites;
+                this.task = new ExecutorTask( this , 
+                    serverCombo.getSelectedItem().toString() , redirectAllTraffic , final_websites );
+                this.executorThread = new Thread(task);
+                setTimeout(() -> executorThread.start(), 10);
+            } else {
+                this.prepareWebsitesNoAdmin();
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        vpnConnect.hostEdit = new HostEdit( websites , true , false );
+                        vpnConnect.hostEdit.setVisible(true);
+                    }
+                });
             }
         }
     }
@@ -200,7 +227,7 @@ public class vpnConnect extends javax.swing.JFrame {
         updateLbl.setVisible(false);
         
         this.setLocation(100, 100);
-        this.setSize(this.getWidth(), 280);
+        //this.setSize(this.getWidth(), 280);
         this.originalHeight = this.getHeight();
       
         this.addWindowListener(new WindowAdapter() {
@@ -209,6 +236,8 @@ public class vpnConnect extends javax.swing.JFrame {
                 disconnect(false, callback );
             }
         });
+        
+  
        
     }
     
@@ -225,62 +254,71 @@ public class vpnConnect extends javax.swing.JFrame {
     ***  return <none>                                                       ***
     *** @param                                                               ***
     ***************************************************************************/
-    public void connected( ArrayList<String> sites2reroute , ArrayList<String> websites){
+    public void connected( ArrayList<String> sites2reroute , ArrayList<String> website_domains){
         StaticRoutes.Start();
         
         this.IPlist = new ArrayList<Website>();
         consoleLabel.setText("Connected to " + serverCombo.getSelectedItem() + " as " + this.user );
         
-        ctimeLbl.setText("Rerouting default websites...");
         ctimeLbl.setVisible(true);
         logginPanel.setVisible(false);
-        
-        this.setSize(this.getWidth(), 200);
         this.repaint();
         
-        this.websites = new ArrayList<>();
-      
-        ArrayList<Website> restored_sites = HostEdit.restoreWebsites();
+        if( Console.isAdmin ){
+            ctimeLbl.setText("Rerouting default websites...");
         
-        if( restored_sites != null ){
-            if( !restored_sites.isEmpty() ){
-                for( Website website : restored_sites ){
-                    ctimeLbl.setText("Restoring " + website.name + "...");
-                    this.websites.add(website);
-                    if( website.wasRerouted )
-                        website.route();
-                }
-            }
+            //this.setSize(this.getWidth(), 200);
+            
 
-            for( String domain : websites ){
-                boolean addDefaultSite = true;
-                String[] parts = domain.split(":");
+            this.websites = new ArrayList<>();
 
-                for( Website other : this.websites ){
-                    if( other.ASN.compareTo(parts[1]) == 0 ){
-                        addDefaultSite = false;
+            ArrayList<Website> restored_sites = HostEdit.restoreWebsites();
+
+            if( restored_sites != null ){
+                if( !restored_sites.isEmpty() ){
+                    for( Website website : restored_sites ){
+                        ctimeLbl.setText("Restoring " + website.name + "...");
+                        this.websites.add(website);
+                        if( website.wasRerouted )
+                            website.route();
                     }
                 }
 
-                if( addDefaultSite ){
-                   ctimeLbl.setText("Reading " + parts[0] + " from server... ");
-                    Website website = new Website(parts[0]);
-                    this.websites.add( website  );
+                for( String domain : website_domains ){
+                    boolean addDefaultSite = true;
+                    String[] parts = domain.split(":");
+
+                    for( Website other : this.websites ){
+                        if( other.ASN.compareTo(parts[1]) == 0 ){
+                            addDefaultSite = false;
+                        }
+                    }
+
+                    if( addDefaultSite ){
+                       ctimeLbl.setText("Reading " + parts[0] + " from server... ");
+                        Website website = new Website(parts[0]);
+                        this.websites.add( website  );
+                    }
+                }
+
+                if( HostEdit.accountType == ACType.BASIC ){
+                    updateLbl.setVisible(true);
+                }else{
+                    sitesBtn.setVisible(true);
+                    sitesBtn.setEnabled(true);
+                    HostEdit.saveWebsites(this.websites);
                 }
             }
 
-
-            StaticRoutes.disableAllTrafficReroute();
+            StaticRoutes.flushDNS();
+        }else{
             if( HostEdit.accountType == ACType.BASIC ){
                 updateLbl.setVisible(true);
             }else{
                 sitesBtn.setVisible(true);
                 sitesBtn.setEnabled(true);
-                HostEdit.saveWebsites(this.websites);
             }
         }
-        
-        StaticRoutes.flushDNS();
 
         this.startTimer();
         this.isConnected = true;
@@ -289,6 +327,20 @@ public class vpnConnect extends javax.swing.JFrame {
         hideBtn.setVisible(true);
         signupLbl.setVisible(false);
         this.hideOnTray();
+    }
+    
+    public void prepareWebsitesNoAdmin(){
+        this.websites = new ArrayList<>();
+        ArrayList<Website> restored_sites = HostEdit.restoreWebsites();
+        if( restored_sites != null ){
+            if( !restored_sites.isEmpty() ){
+                for( Website website : restored_sites ){
+                    ctimeLbl.setText("Restoring " + website.name + "...");
+                    this.websites.add(website);
+                    
+                }
+            }
+        }
     }
     
     /***************************************************************************
@@ -358,6 +410,7 @@ public class vpnConnect extends javax.swing.JFrame {
         userField.setEnabled(true);
         serverCombo.setEnabled(true);
         passField.setEnabled(true);
+        passField.setText("");
         connectBtn.setEnabled(true);
         ctimeLbl.setVisible(false);
         ctimeLbl.setText("");
@@ -378,6 +431,9 @@ public class vpnConnect extends javax.swing.JFrame {
         
         connectBtn.setText("Connect");
         connectBtn.setEnabled(true);
+        ctimeLbl.setVisible(false);
+        ctimeLbl.setText("");
+        passField.setText("");
         
         hideBtn.setVisible(false);
         hideBtn.setEnabled(true);
@@ -404,12 +460,12 @@ public class vpnConnect extends javax.swing.JFrame {
             consoleLabel.setText("disconnected due error.");
         else
             consoleLabel.setText("Ready.");
-        ctimeLbl.setVisible(false);
-        ctimeLbl.setText("");
-        passField.setText("");
+        
         
         this.seconds = 0;
         this.stopTimer();
+        
+        this.repaint();
         
         this.killOpenvpn();
         
@@ -563,7 +619,7 @@ public class vpnConnect extends javax.swing.JFrame {
         ctimeLbl = new javax.swing.JLabel();
         logginPanel = new javax.swing.JPanel();
         serverCombo = new javax.swing.JComboBox<>();
-        jLabel6 = new javax.swing.JLabel();
+        serverLbl = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         userField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -583,7 +639,7 @@ public class vpnConnect extends javax.swing.JFrame {
 
         verLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         verLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        verLbl.setText("Client V1.2.14");
+        verLbl.setText("Client V1.2.15");
         verLbl.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         logoLbl.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
@@ -598,7 +654,7 @@ public class vpnConnect extends javax.swing.JFrame {
         ctimeLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         ctimeLbl.setText("Connection Time");
 
-        jLabel6.setText("Server:");
+        serverLbl.setText("Server:");
 
         jLabel1.setText("User:");
 
@@ -633,7 +689,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addGroup(logginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(logginPanelLayout.createSequentialGroup()
                         .addGroup(logginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
+                            .addComponent(serverLbl)
                             .addComponent(jLabel1))
                         .addGap(24, 24, 24))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, logginPanelLayout.createSequentialGroup()
@@ -649,7 +705,7 @@ public class vpnConnect extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, logginPanelLayout.createSequentialGroup()
                 .addGroup(logginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(serverCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
+                    .addComponent(serverLbl))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(logginPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(userField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -754,12 +810,12 @@ public class vpnConnect extends javax.swing.JFrame {
                 .addGap(1, 1, 1)
                 .addComponent(consoleLabel)
                 .addGap(18, 18, 18)
-                .addComponent(logginPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(logginPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(centerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ctimeLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(verLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(absolutePanelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
@@ -778,10 +834,16 @@ public class vpnConnect extends javax.swing.JFrame {
     *** @param                                                               ***
     ***************************************************************************/
     private void sitesBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sitesBtnActionPerformed
+        System.out.println("????????????" + vpnConnect.controlPanelOpen);
         if( !vpnConnect.controlPanelOpen ){
+            System.out.println(">>>");
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    vpnConnect.hostEdit = new HostEdit( websites );
+                    System.out.println("<<<<<<");
+                    if( Console.isAdmin )
+                        vpnConnect.hostEdit = new HostEdit( websites , false , false);
+                    else
+                        vpnConnect.hostEdit = new HostEdit( temp_websites , true , true );
                     vpnConnect.hostEdit.setVisible(true);
                 }
             });
@@ -852,10 +914,8 @@ public class vpnConnect extends javax.swing.JFrame {
         }
         //</editor-fold>
     
-        if( !StaticRoutes.isAdmin() ){
-            JOptionPane.showMessageDialog(null, "This program has to be run as administrator!");
-            System.exit(0);
-        }
+        
+        Console.isAdmin = StaticRoutes.isAdmin();
         
         vpnConnect.checkInstances();
         Console.log("SDXess App Started!");
@@ -863,7 +923,8 @@ public class vpnConnect extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new vpnConnect().setVisible(true);
+                Console.vpnconnect = new vpnConnect();
+                Console.vpnconnect.setVisible(true);
             }
         });
     }
@@ -936,11 +997,11 @@ public class vpnConnect extends javax.swing.JFrame {
     private javax.swing.JButton hideBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel logginPanel;
     private javax.swing.JLabel logoLbl;
     private javax.swing.JPasswordField passField;
     private javax.swing.JComboBox<String> serverCombo;
+    private javax.swing.JLabel serverLbl;
     private javax.swing.JLabel signupLbl;
     private javax.swing.JButton sitesBtn;
     private javax.swing.JLabel updateLbl;

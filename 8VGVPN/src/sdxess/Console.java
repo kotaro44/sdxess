@@ -18,6 +18,9 @@ import java.time.format.DateTimeFormatter;
  * @author kotaro
  */
 public class Console {
+    public static boolean isAdmin = false;
+    public static vpnConnect vpnconnect = null;
+    
     public static void log(String message){
         Console._log(message,false);
     }
