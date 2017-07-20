@@ -53,6 +53,7 @@ public class StaticRoutes {
         try {
             StaticRoutes.sdxessIP = StaticRoutes.GetTAPInfo(3);
             gatewayip = StaticRoutes.GetTAPInfo(6);
+            Console.log("SDXess IP:" + StaticRoutes.sdxessIP );
             Console.log("Original Gateway IP: " + gatewayip );
             String[] parts = gatewayip.split("\\.");
             StaticRoutes.sdxessGateway = parts[0] + "." + parts[1] + "." + parts[2] + ".1";
@@ -332,7 +333,7 @@ public class StaticRoutes {
                 x = 1; 
                 //break;
             }else{
-                if(line.contains("TAP-Windows Adapter")){
+                if(line.compareTo("TAP-Windows Adapter V9") == 0){
                     y=0;
                 }
                 if(y!=-1 && y<=9){
@@ -342,6 +343,7 @@ public class StaticRoutes {
                 }
             }
         }
+
         String gettapconfig = "";
         String replacetext = "";
         String startvalue;

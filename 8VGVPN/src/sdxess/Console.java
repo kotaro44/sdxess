@@ -21,6 +21,15 @@ public class Console {
     public static boolean isAdmin = false;
     public static vpnConnect vpnconnect = null;
     
+    /***************************************************************************
+    ***  brief main function that all project can use to print messages on  ***
+    ***        the console                                                   ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public static void log(String message){
         Console._log(message,false);
     }
@@ -30,6 +39,8 @@ public class Console {
     }
     
     private static void _log(String message, boolean noTimeStamp){
+        if( message == null )
+            message = "null";
         if( message.length() > 0){
             String final_message = message;
             if( !noTimeStamp ){

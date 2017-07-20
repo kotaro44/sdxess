@@ -303,6 +303,15 @@ public class HostEdit extends javax.swing.JFrame {
         }
     }
     
+    /***************************************************************************
+    ***  brief this function updates visually all the elements on the        ***
+    ***        websites table                                                ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
     public void updateTable(){
         this.tableModel = (DefaultTableModel) sitesTable.getModel();
         while( this.tableModel.getRowCount() != 0 ){

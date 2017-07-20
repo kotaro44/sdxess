@@ -72,7 +72,8 @@ public class vpnConnect extends javax.swing.JFrame {
     private String user = "";
     
     /***************************************************************************
-    ***  brief                                                               ***
+    ***  brief this is the main function that triggers all the connection    ***
+    ***        to openvpn                                                    ***
     ***  serial number ????                                                  ***
     ***  parameter out <none>                                                ***
     ***  parameter in  <none>                                                ***
@@ -114,16 +115,17 @@ public class vpnConnect extends javax.swing.JFrame {
             
             this.user = (String)user.get("name");
             
-            int accountTypeNum = Integer.parseInt((String)user.get("status"));
+            int accountTypeNum = Integer.parseInt((String)user.get("data_plan"));
+
             boolean valid = true;
             switch (accountTypeNum) {
                 case 1:
                     HostEdit.accountType = ACType.BASIC;
                     break;
-                case 3:
+                case 2:
                     HostEdit.accountType = ACType.STARTER;
                     break;
-                case 4:
+                case 3:
                     HostEdit.accountType = ACType.ADVANCED;
                     break;
                 default:
@@ -834,12 +836,9 @@ public class vpnConnect extends javax.swing.JFrame {
     *** @param                                                               ***
     ***************************************************************************/
     private void sitesBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sitesBtnActionPerformed
-        System.out.println("????????????" + vpnConnect.controlPanelOpen);
         if( !vpnConnect.controlPanelOpen ){
-            System.out.println(">>>");
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    System.out.println("<<<<<<");
                     if( Console.isAdmin )
                         vpnConnect.hostEdit = new HostEdit( websites , false , false);
                     else
