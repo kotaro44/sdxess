@@ -23,6 +23,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -213,6 +215,7 @@ public class vpnConnect extends javax.swing.JFrame {
     ***************************************************************************/
     public vpnConnect(){
         
+        
         URL iconURL = getClass().getResource("/sdxess/icon.png");
         ImageIcon icon = new ImageIcon(iconURL);
         this.setIconImage(icon.getImage());
@@ -222,6 +225,7 @@ public class vpnConnect extends javax.swing.JFrame {
         this.checkCommit();
         
         initComponents();
+        verLbl.setText("Client V" + StaticRoutes.version);
         this.getConfs();
         sitesBtn.setVisible(false);
         hideBtn.setVisible(false);
@@ -641,7 +645,7 @@ public class vpnConnect extends javax.swing.JFrame {
 
         verLbl.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         verLbl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        verLbl.setText("Client V1.2.15");
+        verLbl.setText("Client VX.X.X");
         verLbl.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         logoLbl.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
@@ -913,6 +917,22 @@ public class vpnConnect extends javax.swing.JFrame {
         }
         //</editor-fold>
     
+        
+        JSONObject response = StaticRoutes.checkVersion();
+        if( response.getString("version").compareTo(StaticRoutes.version) != 0 ){
+            try {
+                JOptionPane.showMessageDialog(null, "This Version of SDXess is updated! please update your SDXess version!");
+                java.awt.Desktop.getDesktop().browse(new URI(response.getString("download")));
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.exit(0);
+        }
+        
+        
         
         Console.isAdmin = StaticRoutes.isAdmin();
         

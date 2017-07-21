@@ -16,6 +16,7 @@ import java.util.prefs.Preferences;
 import org.json.JSONObject;
 public class StaticRoutes {
     
+    public final static String version = "1.2.15";
     public static ArrayList<String> addedRoutes = new ArrayList<>();
     public static String sdxessGateway = "";
     public static String sdxessIP = "";
@@ -127,6 +128,25 @@ public class StaticRoutes {
         
         return null;
         
+    }
+    
+    
+    /***************************************************************************
+    ***  brief                                                               ***
+    ***  serial number ????                                                  ***
+    ***  parameter out <none>                                                ***
+    ***  parameter in  <none>                                                ***
+    ***  return <none>                                                       ***
+    *** @param                                                               ***
+    ***************************************************************************/
+    public static JSONObject checkVersion(){
+        JSONObject obj = new JSONObject( "{\"process\":{\"type\":\"1\"},\"version_data\":{\"os\":\"WINDOWS\"}}" );
+        JSONObject response = Website.ajaxPOST( "http://inet99.ji8.net/SDXess-WS/version/check/" , obj );
+        if( response != null ){
+            if( Integer.parseInt((String)response.get("status")) == 200 )
+                return (JSONObject) response.get("data");
+        }
+        return null;
     }
          
     /***************************************************************************

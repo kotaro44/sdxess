@@ -116,6 +116,7 @@ void install(){
 	
 	
 	cout<<"Setting up TAP-Windows.."<<endl;
+	system("files\\TAP-Windows\\tapinstall.exe remove tap0901");
 	if( Is64BitWindows() ){
 		system("start files\\TAP-Windows\\tapinstall.exe install files\\TAP-Windows\\driver\\OemVista.inf tap0901");
 	}else{
