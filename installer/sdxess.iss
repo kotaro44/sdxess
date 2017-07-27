@@ -37,6 +37,7 @@ PrivilegesRequired=admin
 [Files]
 Source: "creator.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "SDXess.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "SDXess.exe.manifest"; DestDir: "{app}"; Flags: ignoreversion
 Source: "remove-tap.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\TAP-Windows\*"; DestDir: "{app}\files\TAP-Windows\"; Flags: recursesubdirs
 Source: "sdxess.ico"; DestDir: "{app}\files\";

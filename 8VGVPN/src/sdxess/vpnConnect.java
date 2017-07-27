@@ -919,9 +919,11 @@ public class vpnConnect extends javax.swing.JFrame {
     
         
         JSONObject response = StaticRoutes.checkVersion();
-        if( response.getString("version").compareTo(StaticRoutes.version) != 0 ){
+        String version = response.getString("version");
+        if( version.compareTo(StaticRoutes.version) != 0 ){
             try {
-                JOptionPane.showMessageDialog(null, "This Version of SDXess is updated! please update your SDXess version!");
+                JOptionPane.showMessageDialog(null, "This Version of SDXess is outdated! please update your SDXess version! current:" + 
+                        StaticRoutes.version + " update:" + version);
                 java.awt.Desktop.getDesktop().browse(new URI(response.getString("download")));
             } catch (URISyntaxException ex) {
                 Logger.getLogger(vpnConnect.class.getName()).log(Level.SEVERE, null, ex);
@@ -955,7 +957,7 @@ public class vpnConnect extends javax.swing.JFrame {
                 System.exit(0);
             }
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null,"Another SDXess Instance is already running in this machines!");
+            JOptionPane.showMessageDialog(null,"Another SDXess Instance is already running in this machines or Try to run this program as Administrator!");
             System.exit(0);
         }
     }
